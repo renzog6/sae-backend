@@ -1,0 +1,494 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Base models
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  username  String?  @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+  @@index([email])
+}
+
+enum Role {
+  USER
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+// Company related models
+model Company {
+  id           Int       @id @default(autoincrement())
+  taxId        String?   @unique @map("cuit")
+  name         String    @map("nombre")
+  businessName String?   @map("razon_social")
+  sector       String?   @default("none") @map("rubro")
+  information  String?   @default("") @map("info")
+  address      String?   @default("") @map("direccion")
+  observation  String?   @map("observacion")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  businessCategoryId Int?            @map("rubro_id")
+  businessCategory   BusinessCategory? @relation(fields: [businessCategoryId], references: [id])
+  contacts           Contact[]
+  addresses          Address[]
+  employees          Employee[]
+  equipment          Equipment[]
+  products           ProductCompany[]
+  parts              PartOrderCompany[]
+
+  @@map("companies")
+  @@index([taxId])
+  @@index([businessCategoryId])
+}
+
+model BusinessCategory {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique @map("nombre")
+  code        String? @map("codigo")
+  description String? @map("descripcion")
+  information String? @map("info")
+
+  // Relations
+  companies     Company[]
+  subCategories BusinessSubCategory[]
+
+  @@map("business_categories")
+}
+
+model BusinessSubCategory {
+  id                 Int     @id @default(autoincrement())
+  name               String  @map("nombre")
+  description        String? @map("descripcion")
+  businessCategoryId Int?    @map("category_id")
+
+  // Relations
+  businessCategory BusinessCategory? @relation(fields: [businessCategoryId], references: [id])
+
+  @@map("business_subcategories")
+  @@index([businessCategoryId])
+}
+
+// Contact related models
+model Contact {
+  id          Int     @id @default(autoincrement())
+  name        String  @map("nombre")
+  type        String? @map("tipo")
+  data        String? @map("dato") // Phone, email, etc.
+  information String? @map("info")
+  
+  // Relations
+  companyId Int?     @map("company_id")
+  company   Company? @relation(fields: [companyId], references: [id])
+  
+  personId Int?    @map("person_id")
+  person   Person? @relation(fields: [personId], references: [id])
+
+  @@map("contacts")
+  @@index([companyId])
+  @@index([personId])
+}
+
+// Location related models
+model Province {
+  id    Int    @id @default(autoincrement())
+  code  String @unique @map("code")
+  name  String @unique @map("name")
+  
+  // Relations
+  cities City[]
+
+  @@map("provinces")
+}
+
+model City {
+  id         Int    @id @default(autoincrement())
+  name       String @map("name")
+  postalCode String @map("postal_code")
+  provinceId Int    @map("province_id")
+  
+  // Relations
+  province  Province  @relation(fields: [provinceId], references: [id])
+  addresses Address[]
+
+  @@unique([name, provinceId], name: "unique_city_per_province")
+  @@map("cities")
+  @@index([provinceId])
+}
+
+model Address {
+  id         Int     @id @default(autoincrement())
+  streetName String  @map("street_name")
+  number     String? @map("number")
+  floor      String? @map("floor")
+  apartment  String? @map("apartment")
+  cityId     Int     @map("city_id")
+  
+  // Relations
+  city      City     @relation(fields: [cityId], references: [id])
+  companyId Int?     @map("company_id")
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  @@map("addresses")
+  @@index([cityId])
+  @@index([companyId])
+}
+
+// Employee related models
+model Person {
+  id            Int       @id @default(autoincrement())
+  firstName     String    @map("nombre")
+  lastName      String    @map("apellido")
+  birthDate     DateTime? @map("nacimiento")
+  idNumber      String?   @map("dni") @unique
+  taxId         String?   @map("cuil")
+  gender        Int?      @map("genero")
+  maritalStatus Int?      @map("estado_civil")
+  information   String?   @map("info")
+  status        Int?      @map("estado")
+  address       String?   @map("direccion")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  contacts    Contact[]
+  employee    Employee?
+  relatives   Family[]  @relation("Person_Family")
+  isRelativeOf Family[] @relation("Relative_Person")
+
+  @@map("persons")
+  @@index([idNumber])
+}
+
+model Employee {
+  id          Int       @id @default(autoincrement())
+  information String?   @map("info")
+  status      String?   @map("estado")
+  hireDate    DateTime  @map("fecha_alta")
+  endDate     DateTime? @map("fecha_baja")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  companyId   Int?      @map("company_id")
+  company     Company?  @relation(fields: [companyId], references: [id])
+  
+  categoryId  Int       @map("category_id")
+  category    EmployeeCategory @relation(fields: [categoryId], references: [id])
+  
+  positionId  Int       @map("position_id")
+  position    EmployeePosition @relation(fields: [positionId], references: [id])
+  
+  personId    Int?      @unique @map("person_id")
+  person      Person?   @relation(fields: [personId], references: [id])
+  
+  vacations   EmployeeVacation[]
+  inspections Inspection[]
+
+  @@map("employees")
+  @@index([companyId])
+  @@index([categoryId])
+  @@index([positionId])
+}
+
+model EmployeeCategory {
+  id          Int        @id @default(autoincrement())
+  name        String     @map("nombre")
+  information String?    @map("info")
+  description String?    @map("descripcion")
+  
+  // Relations
+  employees   Employee[]
+
+  @@map("employee_categories")
+}
+
+model EmployeePosition {
+  id          Int        @id @default(autoincrement())
+  name        String     @map("nombre")
+  information String?    @map("info")
+  description String?    @map("descripcion")
+  
+  // Relations
+  employees   Employee[]
+
+  @@map("employee_positions")
+}
+
+model EmployeeVacation {
+  id              Int      @id @default(autoincrement())
+  detail          String?  @map("detalle")
+  days            Int?     @map("dias")
+  year            Int?     @map("anio")
+  information     String?  @map("info")
+  startDate       DateTime @map("fecha_toma")
+  settlementDate  DateTime @map("fecha_liquida")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  employeeId Int      @map("employee_id")
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  @@map("employee_vacations")
+  @@index([employeeId])
+}
+
+model Family {
+  id           Int    @id @default(autoincrement())
+  relationship String @map("relacion")
+
+  // Relations
+  personId   Int    @map("person_id")
+  person     Person @relation("Person_Family", fields: [personId], references: [id])
+  
+  relativeId Int    @map("relative_id")
+  relative   Person @relation("Relative_Person", fields: [relativeId], references: [id])
+
+  @@map("family_relationships")
+  @@index([personId])
+  @@index([relativeId])
+}
+
+// Equipment related models
+model Equipment {
+  id            Int       @id @default(autoincrement())
+  name          String?   @map("nombre")
+  number        String?   @map("numero")
+  description   String?   @map("descripcion")
+  observation   String?   @map("observacion")
+  year          String?   @map("anio")
+  chassis       String?   @map("chasis")
+  engine        String?   @map("motor")
+  licensePlate  String?   @map("patente")
+  color         String?
+  information   String?   @map("info")
+  diesel        Boolean?  @map("gasoil")
+  status        Boolean?  @map("estado")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  companyId     Int?      @map("company_id")
+  company       Company?  @relation(fields: [companyId], references: [id])
+  
+  categoryId    Int?      @map("category_id")
+  category      EquipmentCategory? @relation(fields: [categoryId], references: [id])
+  
+  typeId        Int?      @map("type_id")
+  type          EquipmentType? @relation(fields: [typeId], references: [id])
+  
+  modelId       Int?      @map("model_id")
+  model         EquipmentModel? @relation(fields: [modelId], references: [id])
+  
+  parts         PartOrderEquipment[]
+  inspections   Inspection[]
+
+  @@map("equipment")
+  @@index([companyId])
+  @@index([categoryId])
+  @@index([typeId])
+  @@index([modelId])
+}
+
+model EquipmentCategory {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique @map("nombre")
+  description String?     @map("descripcion")
+  
+  // Relations
+  equipment   Equipment[]
+  types       EquipmentType[]
+
+  @@map("equipment_categories")
+}
+
+model EquipmentType {
+  id          Int         @id @default(autoincrement())
+  name        String      @map("nombre")
+  description String?     @map("descripcion")
+  categoryId  Int?        @map("category_id")
+  
+  // Relations
+  equipment   Equipment[]
+  category    EquipmentCategory? @relation(fields: [categoryId], references: [id])
+
+  @@unique([name, categoryId])
+  @@map("equipment_types")
+  @@index([categoryId])
+}
+
+model EquipmentModel {
+  id          Int                       @id @default(autoincrement())
+  name        String                    @map("nombre")
+  year        Int?                      @map("anio")
+  information String?                   @map("info")
+  description String?                   @map("descripcion")
+  typeId      Int?                      @map("type_id")
+  
+  // Relations
+  equipment   Equipment[]
+  parts       PartOrderEquipmentModel[]
+
+  @@map("equipment_models")
+  @@index([typeId])
+}
+
+// Inspection related models
+model Inspection {
+  id                Int       @id @default(autoincrement())
+  date              DateTime  @default(now())
+  description       String?   @map("descripcion") @db.Text
+  observation       String?   @map("observacion") @db.Text
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  equipmentId       Int       @map("equipment_id")
+  equipment         Equipment @relation(fields: [equipmentId], references: [id])
+  
+  employeeId        Int       @map("employee_id")
+  employee          Employee  @relation(fields: [employeeId], references: [id])
+  
+  inspectionTypeId  Int?      @map("inspection_type_id")
+  inspectionType    InspectionType? @relation(fields: [inspectionTypeId], references: [id])
+
+  @@map("inspections")
+  @@index([equipmentId])
+  @@index([employeeId])
+  @@index([inspectionTypeId])
+}
+
+model InspectionType {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique @map("nombre")
+  description String?      @map("descripcion")
+  
+  // Relations
+  inspections Inspection[]
+
+  @@map("inspection_types")
+}
+
+// Parts and Products related models
+model Part {
+  id          Int                       @id @default(autoincrement())
+  code        String?                    @map("codigo")
+  information String?                    @map("info")
+  brand       String?                    @map("marca")
+  partName    String?                    @map("parte")
+  
+  // Relations
+  companies   PartOrderCompany[]
+  models      PartOrderEquipmentModel[]
+  equipments  PartOrderEquipment[]
+
+  @@map("parts")
+}
+
+model PartOrderCompany {
+  // Relations
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId Int     @map("company_id")
+  
+  part      Part    @relation(fields: [partId], references: [id])
+  partId    Int     @map("part_id")
+
+  @@id([companyId, partId])
+  @@map("part_company")
+}
+
+model PartOrderEquipmentModel {
+  // Relations
+  model   EquipmentModel @relation(fields: [modelId], references: [id])
+  modelId Int            @map("model_id")
+  
+  part    Part           @relation(fields: [partId], references: [id])
+  partId  Int            @map("part_id")
+
+  @@id([modelId, partId])
+  @@map("part_equipment_model")
+}
+
+model PartOrderEquipment {
+  // Relations
+  part        Part      @relation(fields: [partId], references: [id])
+  partId      Int       @map("part_id")
+  
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  equipmentId Int       @map("equipment_id")
+
+  @@id([equipmentId, partId])
+  @@map("part_equipment")
+}
+
+model Product {
+  id           Int              @id @default(autoincrement())
+  name         String           @map("nombre")
+  code         String?          @map("codigo")
+  brand        String?          @map("marca")
+  information  String?          @map("info")
+  presentation Int?             @map("presentacion")
+  
+  // Relations
+  companies    ProductCompany[]
+
+  @@map("products")
+}
+
+model ProductCompany {
+  // Relations
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @map("product_id")
+  
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId Int     @map("company_id")
+
+  @@id([productId, companyId])
+  @@map("product_company")
+}
+
+// Additional models
+model Presentation {
+  id          Int     @id @default(autoincrement())
+  name        String  @map("nombre")
+  code        String? @map("codigo")
+  information String? @map("info")
+
+  @@map("presentations")
+}
+
+model Tire {
+  id          Int     @id @default(autoincrement())
+  size        String? @map("medida")
+  information String? @map("info")
+
+  @@map("tires")
+}
+
+model Brand {
+  id          Int     @id @default(autoincrement())
+  name        String  @map("nombre")
+  information String? @map("info")
+  description String? @map("descripcion")
+
+  @@map("brands")
+}

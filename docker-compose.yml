@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # Database
+  mysql:
+    image: mysql:8.0
+    container_name: sae-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: sae_database
+      MYSQL_USER: sae_user
+      MYSQL_PASSWORD: sae_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - sae-network
+
+  # Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sae-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://sae_user:sae_password@mysql:3306/sae_database
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - sae-network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        npx prisma migrate deploy &&
+        npx prisma db seed &&
+        node dist/main.js
+      "
+
+  # Development version (optional)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: sae-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: mysql://sae_user:sae_password@mysql:3306/sae_database
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - mysql
+    networks:
+      - sae-network
+    command: npm run start:dev
+
+volumes:
+  mysql_data:
+
+networks:
+  sae-network:
+    driver: bridge
