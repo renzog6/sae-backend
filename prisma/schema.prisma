@@ -1,6 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+// filepath: sae-backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,33 +19,31 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("users")
   @@index([email])
+  @@map("users")
 }
 
 enum Role {
   USER
   ADMIN
-  MANAGER
-  EMPLOYEE
 }
 
 // Company related models
 model Company {
-  id           Int       @id @default(autoincrement())
-  taxId        String?   @unique @map("cuit")
-  name         String    @map("nombre")
-  businessName String?   @map("razon_social")
-  sector       String?   @default("none") @map("rubro")
-  information  String?   @default("") @map("info")
-  address      String?   @default("") @map("direccion")
-  observation  String?   @map("observacion")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id           Int      @id @default(autoincrement())
+  taxId        String?  @unique @map("cuit")
+  name         String   @map("nombre")
+  businessName String?  @map("razon_social")
+  sector       String?  @default("none") @map("rubro")
+  information  String?  @default("") @map("info")
+  address      String?  @default("") @map("direccion")
+  observation  String?  @map("observacion")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
-  businessCategoryId Int?            @map("rubro_id")
-  businessCategory   BusinessCategory? @relation(fields: [businessCategoryId], references: [id])
+  businessCategoryId Int?               @map("rubro_id")
+  businessCategory   BusinessCategory?  @relation(fields: [businessCategoryId], references: [id])
   contacts           Contact[]
   addresses          Address[]
   employees          Employee[]
@@ -55,9 +51,9 @@ model Company {
   products           ProductCompany[]
   parts              PartOrderCompany[]
 
-  @@map("companies")
   @@index([taxId])
   @@index([businessCategoryId])
+  @@map("companies")
 }
 
 model BusinessCategory {
@@ -83,8 +79,8 @@ model BusinessSubCategory {
   // Relations
   businessCategory BusinessCategory? @relation(fields: [businessCategoryId], references: [id])
 
-  @@map("business_subcategories")
   @@index([businessCategoryId])
+  @@map("business_subcategories")
 }
 
 // Contact related models
@@ -94,25 +90,25 @@ model Contact {
   type        String? @map("tipo")
   data        String? @map("dato") // Phone, email, etc.
   information String? @map("info")
-  
+
   // Relations
   companyId Int?     @map("company_id")
   company   Company? @relation(fields: [companyId], references: [id])
-  
+
   personId Int?    @map("person_id")
   person   Person? @relation(fields: [personId], references: [id])
 
-  @@map("contacts")
   @@index([companyId])
   @@index([personId])
+  @@map("contacts")
 }
 
 // Location related models
 model Province {
-  id    Int    @id @default(autoincrement())
-  code  String @unique @map("code")
-  name  String @unique @map("name")
-  
+  id   Int    @id @default(autoincrement())
+  code String @unique @map("code")
+  name String @unique @map("name")
+
   // Relations
   cities City[]
 
@@ -124,14 +120,14 @@ model City {
   name       String @map("name")
   postalCode String @map("postal_code")
   provinceId Int    @map("province_id")
-  
+
   // Relations
   province  Province  @relation(fields: [provinceId], references: [id])
   addresses Address[]
 
   @@unique([name, provinceId], name: "unique_city_per_province")
-  @@map("cities")
   @@index([provinceId])
+  @@map("cities")
 }
 
 model Address {
@@ -141,15 +137,15 @@ model Address {
   floor      String? @map("floor")
   apartment  String? @map("apartment")
   cityId     Int     @map("city_id")
-  
+
   // Relations
   city      City     @relation(fields: [cityId], references: [id])
   companyId Int?     @map("company_id")
   company   Company? @relation(fields: [companyId], references: [id])
 
-  @@map("addresses")
   @@index([cityId])
   @@index([companyId])
+  @@map("addresses")
 }
 
 // Employee related models
@@ -158,7 +154,7 @@ model Person {
   firstName     String    @map("nombre")
   lastName      String    @map("apellido")
   birthDate     DateTime? @map("nacimiento")
-  idNumber      String?   @map("dni") @unique
+  idNumber      String?   @unique @map("dni")
   taxId         String?   @map("cuil")
   gender        Int?      @map("genero")
   maritalStatus Int?      @map("estado_civil")
@@ -169,13 +165,13 @@ model Person {
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  contacts    Contact[]
-  employee    Employee?
-  relatives   Family[]  @relation("Person_Family")
-  isRelativeOf Family[] @relation("Relative_Person")
+  contacts     Contact[]
+  employee     Employee?
+  relatives    Family[]  @relation("Person_Family")
+  isRelativeOf Family[]  @relation("Relative_Person")
 
-  @@map("persons")
   @@index([idNumber])
+  @@map("persons")
 }
 
 model Employee {
@@ -188,68 +184,68 @@ model Employee {
   updatedAt   DateTime  @updatedAt
 
   // Relations
-  companyId   Int?      @map("company_id")
-  company     Company?  @relation(fields: [companyId], references: [id])
-  
-  categoryId  Int       @map("category_id")
-  category    EmployeeCategory @relation(fields: [categoryId], references: [id])
-  
-  positionId  Int       @map("position_id")
-  position    EmployeePosition @relation(fields: [positionId], references: [id])
-  
-  personId    Int?      @unique @map("person_id")
-  person      Person?   @relation(fields: [personId], references: [id])
-  
+  companyId Int?     @map("company_id")
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  categoryId Int              @map("category_id")
+  category   EmployeeCategory @relation(fields: [categoryId], references: [id])
+
+  positionId Int              @map("position_id")
+  position   EmployeePosition @relation(fields: [positionId], references: [id])
+
+  personId Int?    @unique @map("person_id")
+  person   Person? @relation(fields: [personId], references: [id])
+
   vacations   EmployeeVacation[]
   inspections Inspection[]
 
-  @@map("employees")
   @@index([companyId])
   @@index([categoryId])
   @@index([positionId])
+  @@map("employees")
 }
 
 model EmployeeCategory {
-  id          Int        @id @default(autoincrement())
-  name        String     @map("nombre")
-  information String?    @map("info")
-  description String?    @map("descripcion")
-  
+  id          Int     @id @default(autoincrement())
+  name        String  @map("nombre")
+  information String? @map("info")
+  description String? @map("descripcion")
+
   // Relations
-  employees   Employee[]
+  employees Employee[]
 
   @@map("employee_categories")
 }
 
 model EmployeePosition {
-  id          Int        @id @default(autoincrement())
-  name        String     @map("nombre")
-  information String?    @map("info")
-  description String?    @map("descripcion")
-  
+  id          Int     @id @default(autoincrement())
+  name        String  @map("nombre")
+  information String? @map("info")
+  description String? @map("descripcion")
+
   // Relations
-  employees   Employee[]
+  employees Employee[]
 
   @@map("employee_positions")
 }
 
 model EmployeeVacation {
-  id              Int      @id @default(autoincrement())
-  detail          String?  @map("detalle")
-  days            Int?     @map("dias")
-  year            Int?     @map("anio")
-  information     String?  @map("info")
-  startDate       DateTime @map("fecha_toma")
-  settlementDate  DateTime @map("fecha_liquida")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  detail         String?  @map("detalle")
+  days           Int?     @map("dias")
+  year           Int?     @map("anio")
+  information    String?  @map("info")
+  startDate      DateTime @map("fecha_toma")
+  settlementDate DateTime @map("fecha_liquida")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relations
   employeeId Int      @map("employee_id")
   employee   Employee @relation(fields: [employeeId], references: [id])
 
-  @@map("employee_vacations")
   @@index([employeeId])
+  @@map("employee_vacations")
 }
 
 model Family {
@@ -257,131 +253,131 @@ model Family {
   relationship String @map("relacion")
 
   // Relations
-  personId   Int    @map("person_id")
-  person     Person @relation("Person_Family", fields: [personId], references: [id])
-  
+  personId Int    @map("person_id")
+  person   Person @relation("Person_Family", fields: [personId], references: [id])
+
   relativeId Int    @map("relative_id")
   relative   Person @relation("Relative_Person", fields: [relativeId], references: [id])
 
-  @@map("family_relationships")
   @@index([personId])
   @@index([relativeId])
+  @@map("family_relationships")
 }
 
 // Equipment related models
 model Equipment {
-  id            Int       @id @default(autoincrement())
-  name          String?   @map("nombre")
-  number        String?   @map("numero")
-  description   String?   @map("descripcion")
-  observation   String?   @map("observacion")
-  year          String?   @map("anio")
-  chassis       String?   @map("chasis")
-  engine        String?   @map("motor")
-  licensePlate  String?   @map("patente")
-  color         String?
-  information   String?   @map("info")
-  diesel        Boolean?  @map("gasoil")
-  status        Boolean?  @map("estado")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           Int      @id @default(autoincrement())
+  name         String?  @map("nombre")
+  number       String?  @map("numero")
+  description  String?  @map("descripcion")
+  observation  String?  @map("observacion")
+  year         String?  @map("anio")
+  chassis      String?  @map("chasis")
+  engine       String?  @map("motor")
+  licensePlate String?  @map("patente")
+  color        String?
+  information  String?  @map("info")
+  diesel       Boolean? @map("gasoil")
+  status       Boolean? @map("estado")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
-  companyId     Int?      @map("company_id")
-  company       Company?  @relation(fields: [companyId], references: [id])
-  
-  categoryId    Int?      @map("category_id")
-  category      EquipmentCategory? @relation(fields: [categoryId], references: [id])
-  
-  typeId        Int?      @map("type_id")
-  type          EquipmentType? @relation(fields: [typeId], references: [id])
-  
-  modelId       Int?      @map("model_id")
-  model         EquipmentModel? @relation(fields: [modelId], references: [id])
-  
-  parts         PartOrderEquipment[]
-  inspections   Inspection[]
+  companyId Int?     @map("company_id")
+  company   Company? @relation(fields: [companyId], references: [id])
 
-  @@map("equipment")
+  categoryId Int?               @map("category_id")
+  category   EquipmentCategory? @relation(fields: [categoryId], references: [id])
+
+  typeId Int?           @map("type_id")
+  type   EquipmentType? @relation(fields: [typeId], references: [id])
+
+  modelId Int?            @map("model_id")
+  model   EquipmentModel? @relation(fields: [modelId], references: [id])
+
+  parts       PartOrderEquipment[]
+  inspections Inspection[]
+
   @@index([companyId])
   @@index([categoryId])
   @@index([typeId])
   @@index([modelId])
+  @@map("equipment")
 }
 
 model EquipmentCategory {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique @map("nombre")
-  description String?     @map("descripcion")
-  
+  id          Int     @id @default(autoincrement())
+  name        String  @unique @map("nombre")
+  description String? @map("descripcion")
+
   // Relations
-  equipment   Equipment[]
-  types       EquipmentType[]
+  equipment Equipment[]
+  types     EquipmentType[]
 
   @@map("equipment_categories")
 }
 
 model EquipmentType {
-  id          Int         @id @default(autoincrement())
-  name        String      @map("nombre")
-  description String?     @map("descripcion")
-  categoryId  Int?        @map("category_id")
-  
+  id          Int     @id @default(autoincrement())
+  name        String  @map("nombre")
+  description String? @map("descripcion")
+  categoryId  Int?    @map("category_id")
+
   // Relations
-  equipment   Equipment[]
-  category    EquipmentCategory? @relation(fields: [categoryId], references: [id])
+  equipment Equipment[]
+  category  EquipmentCategory? @relation(fields: [categoryId], references: [id])
 
   @@unique([name, categoryId])
-  @@map("equipment_types")
   @@index([categoryId])
+  @@map("equipment_types")
 }
 
 model EquipmentModel {
-  id          Int                       @id @default(autoincrement())
-  name        String                    @map("nombre")
-  year        Int?                      @map("anio")
-  information String?                   @map("info")
-  description String?                   @map("descripcion")
-  typeId      Int?                      @map("type_id")
-  
-  // Relations
-  equipment   Equipment[]
-  parts       PartOrderEquipmentModel[]
+  id          Int     @id @default(autoincrement())
+  name        String  @map("nombre")
+  year        Int?    @map("anio")
+  information String? @map("info")
+  description String? @map("descripcion")
+  typeId      Int?    @map("type_id")
 
-  @@map("equipment_models")
+  // Relations
+  equipment Equipment[]
+  parts     PartOrderEquipmentModel[]
+
   @@index([typeId])
+  @@map("equipment_models")
 }
 
 // Inspection related models
 model Inspection {
-  id                Int       @id @default(autoincrement())
-  date              DateTime  @default(now())
-  description       String?   @map("descripcion") @db.Text
-  observation       String?   @map("observacion") @db.Text
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id          Int      @id @default(autoincrement())
+  date        DateTime @default(now())
+  description String?  @map("descripcion") @db.Text
+  observation String?  @map("observacion") @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  equipmentId       Int       @map("equipment_id")
-  equipment         Equipment @relation(fields: [equipmentId], references: [id])
-  
-  employeeId        Int       @map("employee_id")
-  employee          Employee  @relation(fields: [employeeId], references: [id])
-  
-  inspectionTypeId  Int?      @map("inspection_type_id")
-  inspectionType    InspectionType? @relation(fields: [inspectionTypeId], references: [id])
+  equipmentId Int       @map("equipment_id")
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
 
-  @@map("inspections")
+  employeeId Int      @map("employee_id")
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  inspectionTypeId Int?            @map("inspection_type_id")
+  inspectionType   InspectionType? @relation(fields: [inspectionTypeId], references: [id])
+
   @@index([equipmentId])
   @@index([employeeId])
   @@index([inspectionTypeId])
+  @@map("inspections")
 }
 
 model InspectionType {
-  id          Int          @id @default(autoincrement())
-  name        String       @unique @map("nombre")
-  description String?      @map("descripcion")
-  
+  id          Int     @id @default(autoincrement())
+  name        String  @unique @map("nombre")
+  description String? @map("descripcion")
+
   // Relations
   inspections Inspection[]
 
@@ -390,16 +386,16 @@ model InspectionType {
 
 // Parts and Products related models
 model Part {
-  id          Int                       @id @default(autoincrement())
-  code        String?                    @map("codigo")
-  information String?                    @map("info")
-  brand       String?                    @map("marca")
-  partName    String?                    @map("parte")
-  
+  id          Int     @id @default(autoincrement())
+  code        String? @map("codigo")
+  information String? @map("info")
+  brand       String? @map("marca")
+  partName    String? @map("parte")
+
   // Relations
-  companies   PartOrderCompany[]
-  models      PartOrderEquipmentModel[]
-  equipments  PartOrderEquipment[]
+  companies  PartOrderCompany[]
+  models     PartOrderEquipmentModel[]
+  equipments PartOrderEquipment[]
 
   @@map("parts")
 }
@@ -408,9 +404,9 @@ model PartOrderCompany {
   // Relations
   company   Company @relation(fields: [companyId], references: [id])
   companyId Int     @map("company_id")
-  
-  part      Part    @relation(fields: [partId], references: [id])
-  partId    Int     @map("part_id")
+
+  part   Part @relation(fields: [partId], references: [id])
+  partId Int  @map("part_id")
 
   @@id([companyId, partId])
   @@map("part_company")
@@ -420,9 +416,9 @@ model PartOrderEquipmentModel {
   // Relations
   model   EquipmentModel @relation(fields: [modelId], references: [id])
   modelId Int            @map("model_id")
-  
-  part    Part           @relation(fields: [partId], references: [id])
-  partId  Int            @map("part_id")
+
+  part   Part @relation(fields: [partId], references: [id])
+  partId Int  @map("part_id")
 
   @@id([modelId, partId])
   @@map("part_equipment_model")
@@ -430,9 +426,9 @@ model PartOrderEquipmentModel {
 
 model PartOrderEquipment {
   // Relations
-  part        Part      @relation(fields: [partId], references: [id])
-  partId      Int       @map("part_id")
-  
+  part   Part @relation(fields: [partId], references: [id])
+  partId Int  @map("part_id")
+
   equipment   Equipment @relation(fields: [equipmentId], references: [id])
   equipmentId Int       @map("equipment_id")
 
@@ -441,15 +437,15 @@ model PartOrderEquipment {
 }
 
 model Product {
-  id           Int              @id @default(autoincrement())
-  name         String           @map("nombre")
-  code         String?          @map("codigo")
-  brand        String?          @map("marca")
-  information  String?          @map("info")
-  presentation Int?             @map("presentacion")
-  
+  id           Int     @id @default(autoincrement())
+  name         String  @map("nombre")
+  code         String? @map("codigo")
+  brand        String? @map("marca")
+  information  String? @map("info")
+  presentation Int?    @map("presentacion")
+
   // Relations
-  companies    ProductCompany[]
+  companies ProductCompany[]
 
   @@map("products")
 }
@@ -458,7 +454,7 @@ model ProductCompany {
   // Relations
   product   Product @relation(fields: [productId], references: [id])
   productId Int     @map("product_id")
-  
+
   company   Company @relation(fields: [companyId], references: [id])
   companyId Int     @map("company_id")
 

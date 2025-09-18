@@ -1,8 +1,8 @@
 {
-  "name": "rcm-backend",
+  "name": "sae-backend",
   "version": "1.0.0",
-  "description": "Sistema de Administración Empresarial unificado",
-  "author": "",
+  "description": "Sistema de Administración Empresarial",
+  "author": "Renzo O. Gorosito",
   "private": true,
   "license": "UNLICENSED",
   "prisma": {

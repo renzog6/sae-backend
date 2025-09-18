@@ -1,10 +1,19 @@
-import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import * as bcrypt from 'bcrypt';
-import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto';
-import { Role } from '@prisma/client';
+// filepath: sae-backend/src/users/users.service.ts
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  Logger,
+} from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import * as bcrypt from "bcrypt";
+import {
+  PaginationDto,
+  PaginatedResponseDto,
+} from "../common/dto/pagination.dto";
+import { Role } from "@prisma/client";
 
 @Injectable()
 export class UsersService {
@@ -13,19 +22,16 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    // Check if user with email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
 
     if (existingUser) {
-      throw new ConflictException('Email already in use');
+      throw new ConflictException("Email already in use");
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    // Create user
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
@@ -33,7 +39,6 @@ export class UsersService {
       },
     });
 
-    // Remove password from returned user object
     const { password, ...result } = user;
     return result;
   }
@@ -54,7 +59,7 @@ export class UsersService {
           updatedAt: true,
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
       }),
       this.prisma.user.count(),
@@ -63,16 +68,15 @@ export class UsersService {
     return new PaginatedResponseDto(users, total, page, limit);
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
-      where: { id: parseInt(id) },
+      where: { id },
     });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // Remove password from returned user object
     const { password, ...result } = user;
     return result;
   }
@@ -86,52 +90,44 @@ export class UsersService {
       throw new NotFoundException(`User with email ${email} not found`);
     }
 
-    // Remove password from returned user object
     const { password, ...result } = user;
     return result;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    // Check if user exists
+  async update(id: number, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
 
-    // If email is being updated, check if it's already in use
     if (updateUserDto.email) {
       const existingUser = await this.prisma.user.findFirst({
         where: {
           email: updateUserDto.email,
-          id: { not: parseInt(id) },
+          id: { not: id },
         },
       });
 
       if (existingUser) {
-        throw new ConflictException('Email already in use');
+        throw new ConflictException("Email already in use");
       }
     }
 
-    // If password is being updated, hash it
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    // Update user
     const updatedUser = await this.prisma.user.update({
-      where: { id: parseInt(id) },
+      where: { id },
       data: updateUserDto,
     });
 
-    // Remove password from returned user object
     const { password, ...result } = updatedUser;
     return result;
   }
 
-  async remove(id: string) {
-    // Check if user exists
+  async remove(id: number) {
     await this.findOne(id);
 
-    // Delete user
     await this.prisma.user.delete({
-      where: { id: parseInt(id) },
+      where: { id },
     });
 
     return { id };
