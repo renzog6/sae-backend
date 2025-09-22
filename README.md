@@ -1,103 +1,159 @@
-# SAE Backend
+# SAE Backend - Sistema de Administración Empresarial
 
-API para el Sistema de Administración Empresarial (SAE) desarrollada con NestJS y Prisma ORM.
+## 📋 Descripción
 
-## Descripción
+SAE Backend es una API REST robusta desarrollada con NestJS para la gestión integral de equipos, ubicaciones, usuarios y procesos de inspección. El sistema proporciona una arquitectura escalable y moderna para administrar recursos empresariales de manera eficiente.
 
-Este proyecto es una API RESTful que proporciona servicios para la gestión de empresas, contactos, empleados, equipos, inspecciones y ubicaciones. Está construido con NestJS, Prisma ORM y MySQL.
+## 🚀 Tecnologías
 
-## Requisitos previos
+- **Framework**: NestJS 10.x
+- **Base de Datos**: MySQL con Prisma ORM
+- **Autenticación**: JWT (JSON Web Tokens)
+- **Documentación**: Swagger/OpenAPI
+- **Validación**: class-validator y class-transformer
+- **Testing**: Jest
+- **Lenguaje**: TypeScript
 
-- Node.js (v16 o superior)
-- MySQL (v8 o superior)
-- npm o yarn
+## 📁 Estructura del Proyecto
 
-## Instalación
-
-1. Clonar el repositorio.
-
-   ```bash
-   git clone <url-del-repositorio>
-   cd sae-backend
-   ```
-
-2. Instalar dependencias.
-
-   ```bash
-   npm install
-   ```
-
-3. Configurar variables de entorno
-
-   Copiar el archivo `.env.example` a `.env` y configurar las variables de entorno según sea necesario.
-
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Configurar la base de datos
-
-```bash
-npm run db:setup
+```
+sae-backend/
+├── prisma/
+│   ├── schema.prisma          # Esquema de base de datos
+│   └── seed.ts               # Datos de prueba
+├── src/
+│   ├── auth/                 # Módulo de autenticación
+│   ├── locations/            # Módulo de ubicaciones
+│   │   ├── dto/             # Data Transfer Objects
+│   │   ├── locations.controller.ts
+│   │   ├── locations.service.ts
+│   │   └── locations.module.ts
+│   ├── prisma/              # Servicio de Prisma
+│   ├── app.module.ts        # Módulo principal
+│   └── main.ts             # Punto de entrada
+├── test/                    # Pruebas
+└── package.json
 ```
 
-Este comando realizará las siguientes acciones:
+## 📚 API Endpoints
 
-- Generar el cliente Prisma
-- Ejecutar las migraciones de la base de datos
-- Poblar la base de datos con datos iniciales
+### Autenticación
 
-## Ejecución
+- `POST /auth/login` - Iniciar sesión
+- `POST /auth/register` - Registrar usuario
+- `GET /auth/profile` - Obtener perfil del usuario
 
-### Desarrollo
+### Ubicaciones
 
-```bash
-npm run start:dev
+#### Countries (Países)
+
+- `GET /locations/countries` - Listar todos los países
+- `GET /locations/countries/:id` - Obtener país por ID
+- `GET /locations/countries/:id/provinces` - Obtener provincias de un país
+
+#### Provinces (Provincias)
+
+- `GET /locations/provinces` - Listar todas las provincias
+- `GET /locations/provinces/:id` - Obtener provincia por ID
+- `GET /locations/provinces/code/:code` - Obtener provincia por código
+- `GET /locations/provinces/:id/cities` - Obtener ciudades de una provincia
+
+#### Cities (Ciudades)
+
+- `GET /locations/cities` - Listar todas las ciudades
+- `GET /locations/cities/:id` - Obtener ciudad por ID
+- `POST /locations/cities` - Crear nueva ciudad
+- `PATCH /locations/cities/:id` - Actualizar ciudad
+- `DELETE /locations/cities/:id` - Eliminar ciudad
+- `GET /locations/cities/province/:provinceId` - Obtener ciudades por provincia
+- `GET /locations/cities/postal-code/:postalCode` - Obtener ciudad por código postal
+
+#### Addresses (Direcciones)
+
+- `GET /locations/addresses` - Listar todas las direcciones
+- `GET /locations/addresses/:id` - Obtener dirección por ID
+- `POST /locations/addresses` - Crear nueva dirección
+- `PATCH /locations/addresses/:id` - Actualizar dirección
+- `DELETE /locations/addresses/:id` - Eliminar dirección
+- `GET /locations/addresses/city/:cityId` - Obtener direcciones por ciudad
+- `GET /locations/addresses/company/:companyId` - Obtener direcciones por empresa
+
+## 📖 Documentación API
+
+Una vez que el servidor esté ejecutándose, puedes acceder a la documentación interactiva de Swagger en:
+
+```
+http://localhost:3000/api
 ```
 
-### Producción
+## 🗄️ Modelo de Datos
 
-```bash
-npm run build
-npm run start:prod
-```
+### Entidades Principales
 
-## Documentación de la API
+#### Country (País)
 
-La documentación de la API está disponible en la ruta `/api/docs` cuando el servidor está en ejecución.
+- `id`: Identificador único
+- `name`: Nombre del país
+- `code`: Código ISO del país
+- `provinces`: Relación con provincias
 
-## Características principales
+#### Province (Provincia)
 
-- Autenticación y autorización con JWT
-- Gestión de usuarios y roles
-- Gestión de empresas y contactos
-- Gestión de empleados
-- Gestión de equipos e inspecciones
-- Gestión de ubicaciones
+- `id`: Identificador único
+- `name`: Nombre de la provincia
+- `code`: Código de la provincia
+- `countryId`: Referencia al país
+- `cities`: Relación con ciudades
 
-## Estructura del proyecto
+#### City (Ciudad)
 
-src/
-├── auth/ # Módulo de autenticación
-├── common/ # Componentes comunes (decoradores, filtros, etc.)
-├── companies/ # Módulo de empresas
-├── contacts/ # Módulo de contactos
-├── employees/ # Módulo de empleados
-├── equipment/ # Módulo de equipos
-├── inspections/ # Módulo de inspecciones
-├── locations/ # Módulo de ubicaciones
-├── prisma/ # Servicio y módulo de Prisma
-├── users/ # Módulo de usuarios
-├── app.module.ts # Módulo principal de la aplicación
-└── main.ts # Punto de entrada de la aplicación
+- `id`: Identificador único
+- `name`: Nombre de la ciudad
+- `postalCode`: Código postal
+- `provinceId`: Referencia a la provincia
+- `addresses`: Relación con direcciones
 
-## Credenciales por defecto
+#### Address (Dirección)
 
-Después de ejecutar el seed, se creará un usuario administrador con las siguientes credenciales:
+- `id`: Identificador único
+- `street`: Calle
+- `number`: Número
+- `floor`: Piso (opcional)
+- `apartment`: Departamento (opcional)
+- `postalCode`: Código postal
+- `neighborhood`: Barrio (opcional)
+- `reference`: Referencia (opcional)
+- `latitude`: Latitud (opcional)
+- `longitude`: Longitud (opcional)
+- `cityId`: Referencia a la ciudad
+- `isActive`: Estado activo
 
-- Email: <admin@example.com>
-- Contraseña: admin123
+## 🔐 Autenticación
 
-## Licencia
+El sistema utiliza JWT para la autenticación. Para acceder a endpoints protegidos:
 
-Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
+1. Obtener token mediante `/auth/login`
+2. Incluir token en headers: `Authorization: Bearer <token>`
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit cambios (`git commit -am 'Agregar nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Crear Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 📞 Soporte
+
+Para soporte técnico o consultas:
+
+- Email: soporte@sae.com
+- Issues: [GitHub Issues](link-to-issues)
+
+---
+
+**Desarrollado con ❤️ usando NestJS**

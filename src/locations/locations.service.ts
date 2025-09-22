@@ -1,9 +1,49 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import {
+  CreateCityDto,
+  UpdateCityDto,
+  CreateAddressDto,
+  UpdateAddressDto,
+} from "./dto";
 
 @Injectable()
 export class LocationsService {
   constructor(private prisma: PrismaService) {}
+
+  // Country methods
+  async findAllCountries() {
+    return this.prisma.country.findMany({
+      include: {
+        provinces: true,
+      },
+    });
+  }
+
+  async findOneCountry(id: number) {
+    const country = await this.prisma.country.findUnique({
+      where: { id },
+      include: {
+        provinces: true,
+      },
+    });
+
+    if (!country) {
+      throw new NotFoundException(`Country with ID ${id} not found`);
+    }
+
+    return country;
+  }
+
+  async findProvincesByCountry(countryId: number) {
+    return this.prisma.province.findMany({
+      where: { countryId },
+      include: {
+        country: true,
+        cities: true,
+      },
+    });
+  }
 
   // Province methods
   async findAllProvinces() {
@@ -43,12 +83,57 @@ export class LocationsService {
   }
 
   async findOneCity(id: number) {
-    return this.prisma.city.findUnique({
+    const city = await this.prisma.city.findUnique({
       where: { id },
       include: {
         province: true,
         addresses: true,
       },
+    });
+
+    if (!city) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+
+    return city;
+  }
+
+  async createCity(createCityDto: CreateCityDto) {
+    return this.prisma.city.create({
+      data: createCityDto,
+      include: {
+        province: true,
+        addresses: true,
+      },
+    });
+  }
+
+  async updateCity(id: number, updateCityDto: UpdateCityDto) {
+    const city = await this.prisma.city.findUnique({ where: { id } });
+
+    if (!city) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+
+    return this.prisma.city.update({
+      where: { id },
+      data: updateCityDto,
+      include: {
+        province: true,
+        addresses: true,
+      },
+    });
+  }
+
+  async removeCity(id: number) {
+    const city = await this.prisma.city.findUnique({ where: { id } });
+
+    if (!city) {
+      throw new NotFoundException(`City with ID ${id} not found`);
+    }
+
+    return this.prisma.city.delete({
+      where: { id },
     });
   }
 
@@ -87,7 +172,7 @@ export class LocationsService {
   }
 
   async findOneAddress(id: number) {
-    return this.prisma.address.findUnique({
+    const address = await this.prisma.address.findUnique({
       where: { id },
       include: {
         city: {
@@ -96,7 +181,63 @@ export class LocationsService {
           },
         },
         company: true,
+        person: true,
       },
+    });
+
+    if (!address) {
+      throw new NotFoundException(`Address with ID ${id} not found`);
+    }
+
+    return address;
+  }
+
+  async createAddress(createAddressDto: CreateAddressDto) {
+    return this.prisma.address.create({
+      data: createAddressDto,
+      include: {
+        city: {
+          include: {
+            province: true,
+          },
+        },
+        company: true,
+        person: true,
+      },
+    });
+  }
+
+  async updateAddress(id: number, updateAddressDto: UpdateAddressDto) {
+    const address = await this.prisma.address.findUnique({ where: { id } });
+
+    if (!address) {
+      throw new NotFoundException(`Address with ID ${id} not found`);
+    }
+
+    return this.prisma.address.update({
+      where: { id },
+      data: updateAddressDto,
+      include: {
+        city: {
+          include: {
+            province: true,
+          },
+        },
+        company: true,
+        person: true,
+      },
+    });
+  }
+
+  async removeAddress(id: number) {
+    const address = await this.prisma.address.findUnique({ where: { id } });
+
+    if (!address) {
+      throw new NotFoundException(`Address with ID ${id} not found`);
+    }
+
+    return this.prisma.address.delete({
+      where: { id },
     });
   }
 

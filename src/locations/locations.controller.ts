@@ -1,11 +1,36 @@
-import { Controller, Get, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { LocationsService } from './locations.service';
+import { CreateCityDto, UpdateCityDto, CreateAddressDto, UpdateAddressDto } from './dto';
 
 @ApiTags('locations')
 @Controller('locations')
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
+
+  // Country endpoints
+  @Get('countries')
+  @ApiOperation({ summary: 'Get all countries' })
+  @ApiResponse({ status: 200, description: 'List of countries' })
+  findAllCountries() {
+    return this.locationsService.findAllCountries();
+  }
+
+  @Get('countries/:id')
+  @ApiOperation({ summary: 'Get country by ID' })
+  @ApiParam({ name: 'id', description: 'Country ID' })
+  @ApiResponse({ status: 200, description: 'Country found' })
+  findOneCountry(@Param('id') id: string) {
+    return this.locationsService.findOneCountry(+id);
+  }
+
+  @Get('countries/:id/provinces')
+  @ApiOperation({ summary: 'Get all provinces by country' })
+  @ApiParam({ name: 'id', description: 'Country ID' })
+  @ApiResponse({ status: 200, description: 'List of provinces for the country' })
+  findProvincesByCountry(@Param('id') id: string) {
+    return this.locationsService.findProvincesByCountry(+id);
+  }
 
   // Province endpoints
   @Get('provinces')
@@ -38,8 +63,32 @@ export class LocationsController {
   @Get('cities/:id')
   @ApiOperation({ summary: 'Get city by ID' })
   @ApiParam({ name: 'id', description: 'City ID' })
+  @ApiResponse({ status: 200, description: 'City found' })
   findOneCity(@Param('id') id: string) {
     return this.locationsService.findOneCity(+id);
+  }
+
+  @Post('cities')
+  @ApiOperation({ summary: 'Create a new city' })
+  @ApiResponse({ status: 201, description: 'City created successfully' })
+  createCity(@Body() createCityDto: CreateCityDto) {
+    return this.locationsService.createCity(createCityDto);
+  }
+
+  @Patch('cities/:id')
+  @ApiOperation({ summary: 'Update city by ID' })
+  @ApiParam({ name: 'id', description: 'City ID' })
+  @ApiResponse({ status: 200, description: 'City updated successfully' })
+  updateCity(@Param('id') id: string, @Body() updateCityDto: UpdateCityDto) {
+    return this.locationsService.updateCity(+id, updateCityDto);
+  }
+
+  @Delete('cities/:id')
+  @ApiOperation({ summary: 'Delete city by ID' })
+  @ApiParam({ name: 'id', description: 'City ID' })
+  @ApiResponse({ status: 200, description: 'City deleted successfully' })
+  removeCity(@Param('id') id: string) {
+    return this.locationsService.removeCity(+id);
   }
 
   @Get('cities/province/:provinceId')
@@ -66,8 +115,32 @@ export class LocationsController {
   @Get('addresses/:id')
   @ApiOperation({ summary: 'Get address by ID' })
   @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiResponse({ status: 200, description: 'Address found' })
   findOneAddress(@Param('id') id: string) {
     return this.locationsService.findOneAddress(+id);
+  }
+
+  @Post('addresses')
+  @ApiOperation({ summary: 'Create a new address' })
+  @ApiResponse({ status: 201, description: 'Address created successfully' })
+  createAddress(@Body() createAddressDto: CreateAddressDto) {
+    return this.locationsService.createAddress(createAddressDto);
+  }
+
+  @Patch('addresses/:id')
+  @ApiOperation({ summary: 'Update address by ID' })
+  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiResponse({ status: 200, description: 'Address updated successfully' })
+  updateAddress(@Param('id') id: string, @Body() updateAddressDto: UpdateAddressDto) {
+    return this.locationsService.updateAddress(+id, updateAddressDto);
+  }
+
+  @Delete('addresses/:id')
+  @ApiOperation({ summary: 'Delete address by ID' })
+  @ApiParam({ name: 'id', description: 'Address ID' })
+  @ApiResponse({ status: 200, description: 'Address deleted successfully' })
+  removeAddress(@Param('id') id: string) {
+    return this.locationsService.removeAddress(+id);
   }
 
   @Get('addresses/city/:cityId')

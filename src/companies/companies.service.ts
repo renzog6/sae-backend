@@ -1,8 +1,11 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
-import { PaginationDto, PaginatedResponseDto } from '../common/dto/pagination.dto';
+import { Injectable, NotFoundException, Logger } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { CreateCompanyDto } from "./dto/create-company.dto";
+import { UpdateCompanyDto } from "./dto/update-company.dto";
+import {
+  PaginationDto,
+  PaginatedResponseDto,
+} from "../common/dto/pagination.dto";
 
 @Injectable()
 export class CompaniesService {
@@ -18,11 +21,13 @@ export class CompaniesService {
         businessName: createCompanyDto.businessName,
         taxId: createCompanyDto.taxId,
         information: createCompanyDto.notes,
-        businessCategoryId: createCompanyDto.businessCategoryId ? parseInt(createCompanyDto.businessCategoryId) : undefined,
+        businessCategoryId: createCompanyDto.businessCategoryId
+          ? parseInt(createCompanyDto.businessCategoryId)
+          : undefined,
         addresses: createCompanyDto.address
           ? {
               create: {
-                streetName: createCompanyDto.address.street,
+                street: createCompanyDto.address.street,
                 number: createCompanyDto.address.city, // Using city as number placeholder
                 floor: createCompanyDto.address.state,
                 apartment: createCompanyDto.address.postalCode,
@@ -52,7 +57,7 @@ export class CompaniesService {
           businessCategory: true,
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
       }),
       this.prisma.company.count(),
@@ -90,11 +95,13 @@ export class CompaniesService {
         businessName: updateCompanyDto.businessName,
         taxId: updateCompanyDto.taxId,
         information: updateCompanyDto.notes,
-        businessCategoryId: updateCompanyDto.businessCategoryId ? parseInt(updateCompanyDto.businessCategoryId) : undefined,
+        businessCategoryId: updateCompanyDto.businessCategoryId
+          ? parseInt(updateCompanyDto.businessCategoryId)
+          : undefined,
         addresses: updateCompanyDto.address
           ? {
               create: {
-                streetName: updateCompanyDto.address.street,
+                street: updateCompanyDto.address.street,
                 number: updateCompanyDto.address.city,
                 floor: updateCompanyDto.address.state,
                 apartment: updateCompanyDto.address.postalCode,
