@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
+// filepath: sae-backend/src/catalogs/brands/brands.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class BrandsService {
-  create(createBrandDto: CreateBrandDto) {
-    return 'This action adds a new brand';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createBrandDto: CreateBrandDto) {
+    const { name, code, information } = createBrandDto;
+    return this.prisma.brand.create({
+      data: {
+        name,
+        code,
+        information,
+      },
+    });
   }
 
-  findAll() {
-    return `This action returns all brands`;
+  async findAll() {
+    // Return only active brands by default
+    return this.prisma.brand.findMany({ where: { isActive: true } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} brand`;
+  async findOne(id: number) {
+    const brand = await this.prisma.brand.findUnique({ where: { id } });
+    if (!brand) {
+      throw new NotFoundException(`Brand with id ${id} not found`);
+    }
+    return brand;
   }
 
-  update(id: number, updateBrandDto: UpdateBrandDto) {
-    return `This action updates a #${id} brand`;
+  async update(id: number, updateBrandDto: UpdateBrandDto) {
+    // Ensure brand exists
+    await this.findOne(id);
+    return this.prisma.brand.update({ where: { id }, data: updateBrandDto });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} brand`;
+  async remove(id: number) {
+    // Soft delete: set isActive to false
+    // Ensure brand exists
+    await this.findOne(id);
+    return this.prisma.brand.update({ where: { id }, data: { isActive: false } });
   }
 }

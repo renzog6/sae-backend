@@ -432,7 +432,7 @@ model Part {
   id          Int     @id @default(autoincrement())
   code        String? @map("codigo")
   information String? @map("info")
-  brand       String? @map("marca")
+  brand       String? @map("brand")
   partName    String? @map("parte")
 
   // Relations
@@ -483,7 +483,7 @@ model Product {
   id           Int     @id @default(autoincrement())
   name         String  @map("nombre")
   code         String? @map("codigo")
-  brand        String? @map("marca")
+  brand        String? @map("brand")
   information  String? @map("info")
   presentation Int?    @map("presentacion")
 
@@ -524,10 +524,25 @@ model Tire {
 }
 
 model Brand {
-  id          Int     @id @default(autoincrement())
-  name        String  @map("nombre")
-  information String? @map("info")
-  description String? @map("descripcion")
+  id          Int      @id @default(autoincrement())
+  name        String
+  information String?
+  code        String   @unique
+  isActive    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("brands")
+  @@index([name])
+}
+
+model Unit {
+  id           Int     @id @default(autoincrement())
+  name         String
+  abbreviation String  @unique
+  isActive     Boolean @default(true)
+
+  @@map("units")
+  @@index([name])
 }

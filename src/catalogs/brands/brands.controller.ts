@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+// filepath: sae-backend/src/catalogs/brands/brands.controller.ts
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { BrandsService } from './brands.service';
 import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
@@ -18,17 +19,17 @@ export class BrandsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.brandsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.brandsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBrandDto: UpdateBrandDto) {
-    return this.brandsService.update(+id, updateBrandDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateBrandDto: UpdateBrandDto) {
+    return this.brandsService.update(id, updateBrandDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.brandsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.brandsService.remove(id);
   }
 }
