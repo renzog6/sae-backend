@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/companies/companies.controller.ts
 import {
   Controller,
   Get,
@@ -42,21 +43,6 @@ export class CompaniesController {
     return this.companiesService.findAll(paginationDto);
   }
 
-  @Get('categories')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all business categories' })
-  @ApiResponse({ status: 200, description: 'Categories retrieved successfully' })
-  findBusinessCategories() {
-    return this.companiesService.findBusinessCategories();
-  }
-
-  @Get('categories/:id/subcategories')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get business subcategories by category ID' })
-  @ApiResponse({ status: 200, description: 'Subcategories retrieved successfully' })
-  findBusinessSubCategories(@Param('id') id: string) {
-    return this.companiesService.findBusinessSubCategories(id);
-  }
 
   @Get(':id')
   @ApiBearerAuth()

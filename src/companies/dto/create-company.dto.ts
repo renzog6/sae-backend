@@ -1,151 +1,82 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUUID,
-  ValidateNested,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, ValidateNested, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class AddressDto {
-  @ApiProperty({
-    description: 'Street address',
-    example: '123 Main St',
-  })
-  @IsString()
-  @IsNotEmpty()
-  street: string;
-
-  @ApiProperty({
-    description: 'City',
-    example: 'New York',
-  })
-  @IsString()
-  @IsNotEmpty()
-  city: string;
-
-  @ApiProperty({
-    description: 'State or province',
-    example: 'NY',
-  })
-  @IsString()
-  @IsNotEmpty()
-  state: string;
-
-  @ApiProperty({
-    description: 'Postal code',
-    example: '10001',
-  })
-  @IsString()
-  @IsNotEmpty()
-  postalCode: string;
-
-  @ApiProperty({
-    description: 'Country',
-    example: 'USA',
-  })
-  @IsString()
-  @IsNotEmpty()
-  country: string;
-
-  @ApiProperty({
-    description: 'Location ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    required: false,
-  })
-  @IsUUID()
+  @ApiProperty({ description: 'ID de la dirección (solo para actualizar)', required: false, example: 10 })
+  @IsInt()
   @IsOptional()
-  locationId?: string;
+  @Type(() => Number)
+  id?: number;
+  @ApiProperty({ description: 'Calle', required: false })
+  @IsString()
+  @IsOptional()
+  street?: string;
+
+  @ApiProperty({ description: 'Número', required: false })
+  @IsString()
+  @IsOptional()
+  number?: string;
+
+  @ApiProperty({ description: 'Piso', required: false })
+  @IsString()
+  @IsOptional()
+  floor?: string;
+
+  @ApiProperty({ description: 'Departamento', required: false })
+  @IsString()
+  @IsOptional()
+  apartment?: string;
+
+  @ApiProperty({ description: 'Código postal', required: false })
+  @IsString()
+  @IsOptional()
+  postalCode?: string;
+
+  @ApiProperty({ description: 'Barrio', required: false })
+  @IsString()
+  @IsOptional()
+  neighborhood?: string;
+
+  @ApiProperty({ description: 'Referencia', required: false })
+  @IsString()
+  @IsOptional()
+  reference?: string;
+
+  @ApiProperty({ description: 'ID de ciudad', example: 1 })
+  @IsInt()
+  @Type(() => Number)
+  cityId: number;
 }
 
 export class CreateCompanyDto {
-  @ApiProperty({
-    description: 'Company name',
-    example: 'Acme Inc.',
-  })
+  @ApiProperty({ description: 'CUIT', example: '30-12345678-9' })
+  @IsString()
+  @IsNotEmpty()
+  cuit: string;
+
+  @ApiProperty({ description: 'Nombre comercial', example: 'Acme SRL' })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    description: 'Legal business name',
-    example: 'Acme Incorporated',
-    required: false,
-  })
+  @ApiProperty({ description: 'Razón social', required: false })
   @IsString()
   @IsOptional()
   businessName?: string;
 
-  @ApiProperty({
-    description: 'Tax ID or business registration number',
-    example: '123456789',
-    required: false,
-  })
+  @ApiProperty({ description: 'Información adicional', required: false })
   @IsString()
   @IsOptional()
-  taxId?: string;
+  information?: string;
 
-  @ApiProperty({
-    description: 'Company email',
-    example: 'info@acme.com',
-    required: false,
-  })
-  @IsEmail()
+  @ApiProperty({ description: 'ID de rubro/categoría', required: false, example: 1 })
+  @IsInt()
   @IsOptional()
-  email?: string;
+  @Type(() => Number)
+  businessCategoryId?: number;
 
-  @ApiProperty({
-    description: 'Company phone number',
-    example: '+1 (555) 123-4567',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  phone?: string;
-
-  @ApiProperty({
-    description: 'Company website',
-    example: 'https://www.acme.com',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  website?: string;
-
-  @ApiProperty({
-    description: 'Additional notes',
-    example: 'Key client since 2020',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  notes?: string;
-
-  @ApiProperty({
-    description: 'Business category ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    required: false,
-  })
-  @IsUUID()
-  @IsOptional()
-  businessCategoryId?: string;
-
-  @ApiProperty({
-    description: 'Business subcategory ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    required: false,
-  })
-  @IsUUID()
-  @IsOptional()
-  businessSubCategoryId?: string;
-
-  @ApiProperty({
-    description: 'Company address',
-    type: AddressDto,
-    required: false,
-  })
+  @ApiProperty({ description: 'Dirección asociada', required: false, type: AddressDto })
   @ValidateNested()
   @Type(() => AddressDto)
   @IsOptional()

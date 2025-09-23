@@ -14,24 +14,25 @@ export class CompaniesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCompanyDto: CreateCompanyDto) {
-    // Create company with nested address if provided
+    // Create company with optional nested address
     const company = await this.prisma.company.create({
       data: {
+        cuit: createCompanyDto.cuit,
         name: createCompanyDto.name,
         businessName: createCompanyDto.businessName,
-        taxId: createCompanyDto.taxId,
-        information: createCompanyDto.notes,
-        businessCategoryId: createCompanyDto.businessCategoryId
-          ? parseInt(createCompanyDto.businessCategoryId)
-          : undefined,
+        information: createCompanyDto.information,
+        businessCategoryId: createCompanyDto.businessCategoryId,
         addresses: createCompanyDto.address
           ? {
               create: {
                 street: createCompanyDto.address.street,
-                number: createCompanyDto.address.city, // Using city as number placeholder
-                floor: createCompanyDto.address.state,
-                apartment: createCompanyDto.address.postalCode,
-                cityId: 1, // Default city ID, should be properly mapped
+                number: createCompanyDto.address.number,
+                floor: createCompanyDto.address.floor,
+                apartment: createCompanyDto.address.apartment,
+                postalCode: createCompanyDto.address.postalCode,
+                neighborhood: createCompanyDto.address.neighborhood,
+                reference: createCompanyDto.address.reference,
+                cityId: createCompanyDto.address.cityId,
               },
             }
           : undefined,
@@ -87,34 +88,58 @@ export class CompaniesService {
     // Check if company exists
     await this.findOne(id);
 
-    // Update company and address if provided
+    // Update company
     const company = await this.prisma.company.update({
       where: { id: parseInt(id) },
       data: {
+        cuit: updateCompanyDto.cuit,
         name: updateCompanyDto.name,
         businessName: updateCompanyDto.businessName,
-        taxId: updateCompanyDto.taxId,
-        information: updateCompanyDto.notes,
-        businessCategoryId: updateCompanyDto.businessCategoryId
-          ? parseInt(updateCompanyDto.businessCategoryId)
-          : undefined,
-        addresses: updateCompanyDto.address
-          ? {
-              create: {
-                street: updateCompanyDto.address.street,
-                number: updateCompanyDto.address.city,
-                floor: updateCompanyDto.address.state,
-                apartment: updateCompanyDto.address.postalCode,
-                cityId: 1, // Default city ID, should be properly mapped
-              },
-            }
-          : undefined,
+        information: updateCompanyDto.information,
+        businessCategoryId: updateCompanyDto.businessCategoryId,
       },
       include: {
         addresses: true,
         businessCategory: true,
       },
     });
+
+    // Address upsert: if payload has address
+    if (updateCompanyDto.address) {
+      const a = updateCompanyDto.address as any;
+      if (a.id) {
+        // Update existing address by id
+        await this.prisma.address.update({
+          where: { id: a.id },
+          data: {
+            street: a.street,
+            number: a.number,
+            floor: a.floor,
+            apartment: a.apartment,
+            postalCode: a.postalCode,
+            neighborhood: a.neighborhood,
+            reference: a.reference,
+            cityId: a.cityId,
+            companyId: company.id,
+          },
+        });
+      } else {
+        // Create a new address and attach to company
+        await this.prisma.address.create({
+          data: {
+            street: a.street,
+            number: a.number,
+            floor: a.floor,
+            apartment: a.apartment,
+            postalCode: a.postalCode,
+            neighborhood: a.neighborhood,
+            reference: a.reference,
+            cityId: a.cityId,
+            companyId: company.id,
+          },
+        });
+      }
+    }
 
     return company;
   }
@@ -131,19 +156,5 @@ export class CompaniesService {
     return { id };
   }
 
-  async findBusinessCategories() {
-    return this.prisma.businessCategory.findMany({
-      include: {
-        subCategories: true,
-      },
-    });
-  }
-
-  async findBusinessSubCategories(categoryId: string) {
-    return this.prisma.businessSubCategory.findMany({
-      where: {
-        businessCategoryId: parseInt(categoryId),
-      },
-    });
-  }
+  
 }

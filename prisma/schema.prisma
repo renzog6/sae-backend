@@ -31,18 +31,16 @@ enum Role {
 // Company related models
 model Company {
   id           Int      @id @default(autoincrement())
-  taxId        String?  @unique @map("cuit")
-  name         String   @map("nombre")
-  businessName String?  @map("razon_social")
-  sector       String?  @default("none") @map("rubro")
-  information  String?  @default("") @map("info")
-  address      String?  @default("") @map("direccion")
-  observation  String?  @map("observacion")
+  cuit         String   @unique @db.VarChar(20) // obligatorio y optimizado
+  name         String
+  businessName String?  @db.VarChar(255)
+  information  String? 
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   // Relations
-  businessCategoryId Int?               @map("rubro_id")
+  businessCategoryId Int?
   businessCategory   BusinessCategory?  @relation(fields: [businessCategoryId], references: [id])
   contacts           Contact[]
   addresses          Address[]
@@ -51,17 +49,15 @@ model Company {
   products           ProductCompany[]
   parts              PartOrderCompany[]
 
-  @@index([taxId])
-  @@index([businessCategoryId])
+  @@index([businessName])
   @@map("companies")
 }
 
 model BusinessCategory {
   id          Int     @id @default(autoincrement())
-  name        String  @unique @map("nombre")
-  code        String? @map("codigo")
-  description String? @map("descripcion")
-  information String? @map("info")
+  name        String  @unique
+  code        String? @unique
+  information String?
 
   // Relations
   companies     Company[]
@@ -72,24 +68,25 @@ model BusinessCategory {
 
 model BusinessSubCategory {
   id                 Int     @id @default(autoincrement())
-  name               String  @map("nombre")
-  description        String? @map("descripcion")
-  businessCategoryId Int?    @map("category_id")
+  name               String
+  description        String?
+  businessCategoryId Int
 
   // Relations
-  businessCategory BusinessCategory? @relation(fields: [businessCategoryId], references: [id])
+  businessCategory BusinessCategory @relation(fields: [businessCategoryId], references: [id])
 
-  @@index([businessCategoryId])
+  @@unique([businessCategoryId, name]) // evita duplicados dentro de la misma categoría
   @@map("business_subcategories")
 }
+
 
 // Contact related models
 model Contact {
   id          Int     @id @default(autoincrement())
-  name        String  @map("nombre")
-  type        String? @map("tipo")
-  data        String? @map("dato") // Phone, email, etc.
-  information String? @map("info")
+  name        String  
+  type        String? 
+  data        String? 
+  information String? 
 
   // Relations
   companyId Int?     @map("company_id")
@@ -524,14 +521,14 @@ model Tire {
 }
 
 model Brand {
-  id          Int      @id @default(autoincrement())
-  name        String
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   information String?
-  code        String   @unique
-  isActive    Boolean  @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  code        String  @unique
+  isActive    Boolean @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("brands")
   @@index([name])

@@ -5,6 +5,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
+import { BusinessCategoriesModule } from './companies/business-categories/business-categories.module';
+import { BusinessSubcategoriesModule } from './companies/business-subcategories/business-subcategories.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { EmployeesModule } from './employees/employees.module';
@@ -33,6 +35,8 @@ import { CatalogsModule } from './catalogs/catalogs.module';
     AuthModule,
     UsersModule,
     CompaniesModule,
+    BusinessCategoriesModule,
+    BusinessSubcategoriesModule,
     ContactsModule,
     
     // Feature modules

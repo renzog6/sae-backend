@@ -13,6 +13,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# prisma
+/prisma/*.json
+
 # dotenv environment variable files
 .env
 .env.development
