@@ -1,79 +1,42 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, ValidateIf, IsEmail, Matches } from 'class-validator';
+import { ContactType } from '@prisma/client';
+import { Type } from 'class-transformer';
 
 export class CreateContactDto {
-  @ApiProperty({
-    description: 'Contact first name',
-    example: 'John',
-  })
-  @IsString()
-  @IsNotEmpty()
-  firstName: string;
+  @ApiProperty({ enum: ContactType })
+  @IsEnum(ContactType)
+  type: ContactType;
 
-  @ApiProperty({
-    description: 'Contact last name',
-    example: 'Doe',
-  })
+  @ApiProperty({ description: 'Value of the contact (email, phone number, handle, etc.)' })
   @IsString()
-  @IsNotEmpty()
-  lastName: string;
-
-  @ApiProperty({
-    description: 'Contact email',
-    example: 'john.doe@example.com',
-    required: false,
-  })
+  @ValidateIf((o) => o.type === ContactType.EMAIL)
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  @ValidateIf((o) => o.type === ContactType.PHONE || o.type === ContactType.WHATSAPP)
+  @Matches(/^\+\d{7,15}$/) // E.164 format
+  value: string;
 
-  @ApiProperty({
-    description: 'Contact phone number',
-    example: '+1 (555) 123-4567',
-    required: false,
-  })
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  phone?: string;
+  label?: string;
 
-  @ApiProperty({
-    description: 'Contact mobile number',
-    example: '+1 (555) 987-6543',
-    required: false,
-  })
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  mobile?: string;
+  information?: string;
 
-  @ApiProperty({
-    description: 'Contact position or job title',
-    example: 'Sales Manager',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  position?: string;
+  // Nota: Se aplican validaciones condicionales directamente sobre `value` para evitar duplicidad
 
-  @ApiProperty({
-    description: 'Additional notes',
-    example: 'Prefers email communication',
-    required: false,
-  })
-  @IsString()
+  @ApiProperty({ description: 'Associated company id', required: false })
   @IsOptional()
-  notes?: string;
+  @Type(() => Number)
+  @IsInt()
+  companyId?: number;
 
-  @ApiProperty({
-    description: 'Company ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  companyId: string;
+  @ApiProperty({ description: 'Associated person id', required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  personId?: number;
 }

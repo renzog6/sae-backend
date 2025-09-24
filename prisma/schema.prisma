@@ -42,7 +42,7 @@ model Company {
   // Relations
   businessCategoryId Int?
   businessCategory   BusinessCategory?  @relation(fields: [businessCategoryId], references: [id])
-  contacts           Contact[]
+  contacts           ContactLink[]
   addresses          Address[]
   employees          Employee[]
   equipment          Equipment[]
@@ -82,23 +82,45 @@ model BusinessSubCategory {
 
 // Contact related models
 model Contact {
-  id          Int     @id @default(autoincrement())
-  name        String  
-  type        String? 
-  data        String? 
-  information String? 
+  id          Int         @id @default(autoincrement())
+  type        ContactType
+  value       String
+  label       String?
+  information String?     @default("")
+  
+  // Relaciones polimórficas
+  contactLinks ContactLink[]
 
-  // Relations
-  companyId Int?     @map("company_id")
-  company   Company? @relation(fields: [companyId], references: [id])
+  @@map("contacts")
+}
 
-  personId Int?    @map("person_id")
-  person   Person? @relation(fields: [personId], references: [id])
+enum ContactType {
+  EMAIL
+  PHONE
+  WHATSAPP
+  TELEGRAM
+  INSTAGRAM
+  LINKEDIN
+  OTHER
+}
+
+model ContactLink {
+  id         Int       @id @default(autoincrement())
+  contactId  Int
+  contact    Contact   @relation(fields: [contactId], references: [id])
+
+  companyId  Int?
+  company    Company?  @relation(fields: [companyId], references: [id])
+
+  personId   Int?
+  person     Person?   @relation(fields: [personId], references: [id])
 
   @@index([companyId])
   @@index([personId])
-  @@map("contacts")
+  @@map("contact_links")
 }
+
+
 
 // Location related models
 model Country {
@@ -205,7 +227,7 @@ model Person {
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  contacts     Contact[]
+  contacts     ContactLink[]
   employee     Employee?
   relatives    Family[]  @relation("Person_Family")
   isRelativeOf Family[]  @relation("Relative_Person")

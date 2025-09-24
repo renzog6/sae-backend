@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/companies/companies.service.ts
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateCompanyDto } from "./dto/create-company.dto";

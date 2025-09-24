@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/contacts/contacts.service.ts
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateContactDto } from './dto/create-contact.dto';
@@ -11,17 +12,24 @@ export class ContactsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createContactDto: CreateContactDto) {
-    // Create contact
+    // Create contact and optional link(s)
     const contact = await this.prisma.contact.create({
       data: {
-        name: `${createContactDto.firstName} ${createContactDto.lastName}`,
-        type: createContactDto.position || 'contact',
-        data: createContactDto.email || createContactDto.phone || createContactDto.mobile,
-        information: createContactDto.notes,
-        companyId: createContactDto.companyId ? parseInt(createContactDto.companyId) : undefined,
+        type: createContactDto.type,
+        value: createContactDto.value,
+        label: createContactDto.label,
+        information: createContactDto.information,
+        contactLinks: (createContactDto.companyId || createContactDto.personId)
+          ? {
+              create: [
+                ...(createContactDto.companyId ? [{ companyId: createContactDto.companyId }] : []),
+                ...(createContactDto.personId ? [{ personId: createContactDto.personId }] : []),
+              ],
+            }
+          : undefined,
       },
       include: {
-        company: true,
+        contactLinks: { include: { company: true, person: true } },
       },
     });
 
@@ -35,12 +43,8 @@ export class ContactsService {
       this.prisma.contact.findMany({
         skip,
         take: limit,
-        include: {
-          company: true,
-        },
-        orderBy: {
-          name: 'asc',
-        },
+        include: { contactLinks: { include: { company: true, person: true } } },
+        orderBy: { id: 'desc' },
       }),
       this.prisma.contact.count(),
     ]);
@@ -51,22 +55,17 @@ export class ContactsService {
   async findByCompany(companyId: string, paginationDto: PaginationDto) {
     const { page, limit, skip } = paginationDto;
 
+    const companyIdNum = parseInt(companyId);
+    const whereClause = { contactLinks: { some: { companyId: companyIdNum } } } as const;
     const [contacts, total] = await Promise.all([
       this.prisma.contact.findMany({
-        where: {
-          companyId: parseInt(companyId),
-        },
+        where: whereClause,
         skip,
         take: limit,
-        orderBy: {
-          name: 'asc',
-        },
+        include: { contactLinks: { include: { company: true } } },
+        orderBy: { id: 'desc' },
       }),
-      this.prisma.contact.count({
-        where: {
-          companyId: parseInt(companyId),
-        },
-      }),
+      this.prisma.contact.count({ where: whereClause }),
     ]);
 
     return new PaginatedResponseDto(contacts, total, page, limit);
@@ -75,9 +74,7 @@ export class ContactsService {
   async findOne(id: string) {
     const contact = await this.prisma.contact.findUnique({
       where: { id: parseInt(id) },
-      include: {
-        company: true,
-      },
+      include: { contactLinks: { include: { company: true, person: true } } },
     });
 
     if (!contact) {
@@ -91,34 +88,46 @@ export class ContactsService {
     // Check if contact exists
     await this.findOne(id);
 
-    // Update contact
+    // Update contact core fields
     const contact = await this.prisma.contact.update({
       where: { id: parseInt(id) },
       data: {
-        name: updateContactDto.firstName && updateContactDto.lastName 
-          ? `${updateContactDto.firstName} ${updateContactDto.lastName}` 
-          : undefined,
-        type: updateContactDto.position || undefined,
-        data: updateContactDto.email || updateContactDto.phone || updateContactDto.mobile || undefined,
-        information: updateContactDto.notes || undefined,
-        companyId: updateContactDto.companyId ? parseInt(updateContactDto.companyId) : undefined,
+        type: updateContactDto.type,
+        value: updateContactDto.value,
+        label: updateContactDto.label,
+        information: updateContactDto.information,
       },
-      include: {
-        company: true,
-      },
+      include: { contactLinks: true },
     });
 
-    return contact;
+    // Manage links if provided
+    const ops: Promise<any>[] = [];
+    if (typeof updateContactDto.companyId !== 'undefined') {
+      // remove existing company links and optionally create new
+      ops.push(this.prisma.contactLink.deleteMany({ where: { contactId: contact.id, companyId: { not: null } } }));
+      if (updateContactDto.companyId !== null) {
+        ops.push(this.prisma.contactLink.create({ data: { contactId: contact.id, companyId: updateContactDto.companyId! } }));
+      }
+    }
+    if (typeof updateContactDto.personId !== 'undefined') {
+      ops.push(this.prisma.contactLink.deleteMany({ where: { contactId: contact.id, personId: { not: null } } }));
+      if (updateContactDto.personId !== null) {
+        ops.push(this.prisma.contactLink.create({ data: { contactId: contact.id, personId: updateContactDto.personId! } }));
+      }
+    }
+    if (ops.length) await Promise.all(ops);
+
+    return this.findOne(String(contact.id));
   }
 
   async remove(id: string) {
     // Check if contact exists
     await this.findOne(id);
 
-    // Delete contact
-    await this.prisma.contact.delete({
-      where: { id: parseInt(id) },
-    });
+    // Delete links then contact
+    const contactId = parseInt(id);
+    await this.prisma.contactLink.deleteMany({ where: { contactId } });
+    await this.prisma.contact.delete({ where: { id: contactId } });
 
     return { id };
   }

@@ -1,5 +1,5 @@
 // filepath: sae-backend/src/companies/business-subcategories/business-subcategories.controller.ts
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BusinessSubcategoriesService } from './business-subcategories.service';
 import { CreateBusinessSubCategoryDto } from './dto/create-business-subcategory.dto';
@@ -15,6 +15,7 @@ export class BusinessSubcategoriesController {
   constructor(private readonly service: BusinessSubcategoriesService) {}
 
   @Get()
+  @HttpCode(200)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'List business subcategories by category id' })
   findAll(@Query('categoryId') categoryId?: string) {

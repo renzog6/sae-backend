@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/contacts/contacts.controller.ts
 import {
   Controller,
   Get,
@@ -42,7 +43,7 @@ export class ContactsController {
     return this.contactsService.findAll(paginationDto);
   }
 
-  @Get('company/:companyId')
+  @Get('company/:companyId(\\d+)')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get contacts by company ID' })
   @ApiResponse({ status: 200, description: 'Contacts retrieved successfully' })
@@ -53,7 +54,7 @@ export class ContactsController {
     return this.contactsService.findByCompany(companyId, paginationDto);
   }
 
-  @Get(':id')
+  @Get(':id(\\d+)')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a contact by ID' })
   @ApiResponse({ status: 200, description: 'Contact retrieved successfully' })
@@ -62,7 +63,7 @@ export class ContactsController {
     return this.contactsService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch(':id(\\d+)')
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a contact' })
@@ -72,7 +73,7 @@ export class ContactsController {
     return this.contactsService.update(id, updateContactDto);
   }
 
-  @Delete(':id')
+  @Delete(':id(\\d+)')
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a contact' })

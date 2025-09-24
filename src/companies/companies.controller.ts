@@ -44,7 +44,7 @@ export class CompaniesController {
   }
 
 
-  @Get(':id')
+  @Get(':id(\\d+)')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a company by ID' })
   @ApiResponse({ status: 200, description: 'Company retrieved successfully' })
@@ -53,7 +53,7 @@ export class CompaniesController {
     return this.companiesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch(':id(\\d+)')
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a company' })
@@ -63,7 +63,7 @@ export class CompaniesController {
     return this.companiesService.update(id, updateCompanyDto);
   }
 
-  @Delete(':id')
+  @Delete(':id(\\d+)')
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a company' })
