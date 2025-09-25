@@ -35,11 +35,6 @@ export class CreateAddressDto {
   @MaxLength(10)
   apartment?: string;
 
-  @ApiProperty({ description: 'Postal code', example: '2000', maxLength: 20, required: false })
-  @IsString()
-  @IsOptional()
-  @MaxLength(20)
-  postalCode?: string;
 
   @ApiProperty({ description: 'Neighborhood', example: 'Centro', maxLength: 100, required: false })
   @IsString()

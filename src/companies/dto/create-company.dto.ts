@@ -28,10 +28,6 @@ class AddressDto {
   @IsOptional()
   apartment?: string;
 
-  @ApiProperty({ description: 'Código postal', required: false })
-  @IsString()
-  @IsOptional()
-  postalCode?: string;
 
   @ApiProperty({ description: 'Barrio', required: false })
   @IsString()

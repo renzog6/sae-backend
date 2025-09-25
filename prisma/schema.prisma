@@ -45,6 +45,7 @@ model Company {
   contacts           ContactLink[]
   addresses          Address[]
   employees          Employee[]
+  documents          Document[]
   equipment          Equipment[]
   products           ProductCompany[]
   parts              PartOrderCompany[]
@@ -180,7 +181,6 @@ model Address {
   number     String?  @map("number") // Número
   floor      String?  @map("floor") // Piso
   apartment  String?  @map("apartment") // Departamento
-  postalCode String?  @map("postal_code")
   latitude   Decimal? @db.Decimal(10, 7)
   longitude  Decimal? @db.Decimal(10, 7)
   
@@ -206,7 +206,6 @@ model Address {
   @@index([cityId])
   @@index([personId])
   @@index([companyId])
-  @@index([postalCode])
   @@map("addresses")
 }
 
@@ -263,6 +262,7 @@ model Employee {
   person   Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   vacations   EmployeeVacation[]
+  documents   Document[]
   inspections Inspection[]
 
   @@index([companyId])
@@ -374,6 +374,25 @@ model Family {
   @@index([personId])
   @@index([relativeId])
   @@map("family_relationships")
+}
+
+model Document {
+  id          Int       @id @default(autoincrement())
+  filename    String    // Nombre original del archivo
+  mimetype    String    // Tipo MIME (ej: application/pdf, image/png)
+  size        Int       // Tamaño en bytes
+  path        String    // Ruta donde se guarda el archivo (o URL en S3/MinIO)
+  description String?   // Descripción opcional
+  uploadedAt  DateTime  @default(now())
+
+  // Relaciones opcionales
+  employeeId  Int?      
+  companyId   Int?      
+
+  employee    Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  company     Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
 }
 
 

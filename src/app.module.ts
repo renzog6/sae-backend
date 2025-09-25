@@ -15,6 +15,7 @@ import { InspectionsModule } from './inspections/inspections.module';
 import { HealthModule } from './health/health.module';
 import { CatalogsModule } from './catalogs/catalogs.module';
 import { PersonsModule } from './persons/persons.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { PersonsModule } from './persons/persons.module';
     HealthModule,
     CatalogsModule,
     PersonsModule,
+    DocumentsModule,
   ],
   controllers: [],
   providers: [],
