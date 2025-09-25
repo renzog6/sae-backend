@@ -33,7 +33,9 @@ describe('Contacts E2E', () => {
   it('GET /contacts should list contacts (paginated)', async () => {
     const res = await request(app.getHttpServer()).get('/contacts');
     expect(res.status).toBe(200);
+    // Expect unified { data, meta } shape
     expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.meta).toBeDefined();
   });
 
   it('GET /contacts/company/:companyId should list contacts by company', async () => {
@@ -41,12 +43,13 @@ describe('Contacts E2E', () => {
     const res = await request(app.getHttpServer()).get('/contacts/company/10');
     expect(res.status).toBe(200);
     expect(res.body.meta.total).toBeDefined();
+    expect(Array.isArray(res.body.data)).toBe(true);
   });
 
   it('GET /contacts/:id should return one', async () => {
     const res = await request(app.getHttpServer()).get('/contacts/1');
     expect(res.status).toBe(200);
-    expect(res.body.id).toBe(1);
+    expect(res.body.data.id).toBe(1);
   });
 
   it('POST /contacts should create', async () => {
@@ -54,7 +57,7 @@ describe('Contacts E2E', () => {
       .post('/contacts')
       .send({ type: 'PHONE', value: '+5491112345678' });
     expect(res.status).toBe(201);
-    expect(res.body.id).toBe(2);
+    expect(res.body.data.id).toBe(2);
   });
 
   it('PATCH /contacts/:id should update', async () => {
@@ -62,12 +65,12 @@ describe('Contacts E2E', () => {
       .patch('/contacts/1')
       .send({ value: 'updated@b.com', type: 'EMAIL' });
     expect(res.status).toBe(200);
-    expect(res.body.id).toBe(1);
+    expect(res.body.data.id).toBe(1);
   });
 
   it('DELETE /contacts/:id should delete', async () => {
     const res = await request(app.getHttpServer()).delete('/contacts/1');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ id: '1' });
+    expect(res.body).toEqual({ data: { id: '1' } });
   });
 });

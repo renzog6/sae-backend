@@ -32,7 +32,7 @@ export class CompaniesController {
   @ApiResponse({ status: 201, description: 'Company created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   create(@Body() createCompanyDto: CreateCompanyDto) {
-    return this.companiesService.create(createCompanyDto);
+    return this.companiesService.create(createCompanyDto).then((data) => ({ data }));
   }
 
   @Get()
@@ -40,7 +40,14 @@ export class CompaniesController {
   @ApiOperation({ summary: 'Get all companies' })
   @ApiResponse({ status: 200, description: 'Companies retrieved successfully' })
   findAll(@Query() paginationDto: PaginationDto) {
-    return this.companiesService.findAll(paginationDto);
+    return this.companiesService.findAll(paginationDto).then((result: any) => {
+      // Support either PaginatedResponseDto or plain array (fallback)
+      if (result && typeof result === 'object' && 'data' in result && 'meta' in result) {
+        const { data, meta } = result as { data: any[]; meta: any };
+        return { data, meta };
+      }
+      return { data: result };
+    });
   }
 
 
@@ -50,7 +57,7 @@ export class CompaniesController {
   @ApiResponse({ status: 200, description: 'Company retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Company not found' })
   findOne(@Param('id') id: string) {
-    return this.companiesService.findOne(id);
+    return this.companiesService.findOne(id).then((data) => ({ data }));
   }
 
   @Patch(':id(\\d+)')
@@ -60,7 +67,7 @@ export class CompaniesController {
   @ApiResponse({ status: 200, description: 'Company updated successfully' })
   @ApiResponse({ status: 404, description: 'Company not found' })
   update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
-    return this.companiesService.update(id, updateCompanyDto);
+    return this.companiesService.update(id, updateCompanyDto).then((data) => ({ data }));
   }
 
   @Delete(':id(\\d+)')
@@ -70,6 +77,6 @@ export class CompaniesController {
   @ApiResponse({ status: 200, description: 'Company deleted successfully' })
   @ApiResponse({ status: 404, description: 'Company not found' })
   remove(@Param('id') id: string) {
-    return this.companiesService.remove(id);
+    return this.companiesService.remove(id).then((data) => ({ data }));
   }
 }

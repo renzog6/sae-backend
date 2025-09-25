@@ -14,6 +14,7 @@ import { LocationsModule } from './locations/locations.module';
 import { InspectionsModule } from './inspections/inspections.module';
 import { HealthModule } from './health/health.module';
 import { CatalogsModule } from './catalogs/catalogs.module';
+import { PersonsModule } from './persons/persons.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { CatalogsModule } from './catalogs/catalogs.module';
     InspectionsModule,
     HealthModule,
     CatalogsModule,
+    PersonsModule,
   ],
   controllers: [],
   providers: [],

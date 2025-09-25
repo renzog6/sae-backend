@@ -39,7 +39,7 @@ describe('Companies E2E', () => {
   it('GET /companies/:id should return one', async () => {
     const res = await request(app.getHttpServer()).get('/companies/1');
     expect(res.status).toBe(200);
-    expect(res.body.id).toBe(1);
+    expect(res.body.data.id).toBe(1);
   });
 
   it('POST /companies should create', async () => {
@@ -47,7 +47,7 @@ describe('Companies E2E', () => {
       .post('/companies')
       .send({ name: 'New', cuit: '30-123' });
     expect(res.status).toBe(201);
-    expect(res.body.id).toBe(2);
+    expect(res.body.data.id).toBe(2);
   });
 
   it('PATCH /companies/:id should update', async () => {
@@ -55,12 +55,12 @@ describe('Companies E2E', () => {
       .patch('/companies/1')
       .send({ name: 'Updated' });
     expect(res.status).toBe(200);
-    expect(res.body.name).toBe('Updated');
+    expect(res.body.data.name).toBe('Updated');
   });
 
   it('DELETE /companies/:id should delete', async () => {
     const res = await request(app.getHttpServer()).delete('/companies/1');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ id: '1' });
+    expect(res.body).toEqual({ data: { id: '1' } });
   });
 });

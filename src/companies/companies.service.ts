@@ -15,7 +15,7 @@ export class CompaniesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCompanyDto: CreateCompanyDto) {
-    // Create company with optional nested address
+    // Create company: only base fields (relations handled separately)
     const company = await this.prisma.company.create({
       data: {
         cuit: createCompanyDto.cuit,
@@ -23,23 +23,8 @@ export class CompaniesService {
         businessName: createCompanyDto.businessName,
         information: createCompanyDto.information,
         businessCategoryId: createCompanyDto.businessCategoryId,
-        addresses: createCompanyDto.address
-          ? {
-              create: {
-                street: createCompanyDto.address.street,
-                number: createCompanyDto.address.number,
-                floor: createCompanyDto.address.floor,
-                apartment: createCompanyDto.address.apartment,
-                postalCode: createCompanyDto.address.postalCode,
-                neighborhood: createCompanyDto.address.neighborhood,
-                reference: createCompanyDto.address.reference,
-                cityId: createCompanyDto.address.cityId,
-              },
-            }
-          : undefined,
       },
       include: {
-        addresses: true,
         businessCategory: true,
       },
     });
@@ -56,6 +41,7 @@ export class CompaniesService {
         take: limit,
         include: {
           addresses: true,
+          contacts: true,
           businessCategory: true,
         },
         orderBy: {
@@ -73,8 +59,8 @@ export class CompaniesService {
       where: { id: parseInt(id) },
       include: {
         addresses: true,
-        businessCategory: true,
         contacts: true,
+        businessCategory: true,
       },
     });
 
@@ -100,47 +86,9 @@ export class CompaniesService {
         businessCategoryId: updateCompanyDto.businessCategoryId,
       },
       include: {
-        addresses: true,
         businessCategory: true,
       },
     });
-
-    // Address upsert: if payload has address
-    if (updateCompanyDto.address) {
-      const a = updateCompanyDto.address as any;
-      if (a.id) {
-        // Update existing address by id
-        await this.prisma.address.update({
-          where: { id: a.id },
-          data: {
-            street: a.street,
-            number: a.number,
-            floor: a.floor,
-            apartment: a.apartment,
-            postalCode: a.postalCode,
-            neighborhood: a.neighborhood,
-            reference: a.reference,
-            cityId: a.cityId,
-            companyId: company.id,
-          },
-        });
-      } else {
-        // Create a new address and attach to company
-        await this.prisma.address.create({
-          data: {
-            street: a.street,
-            number: a.number,
-            floor: a.floor,
-            apartment: a.apartment,
-            postalCode: a.postalCode,
-            neighborhood: a.neighborhood,
-            reference: a.reference,
-            cityId: a.cityId,
-            companyId: company.id,
-          },
-        });
-      }
-    }
 
     return company;
   }

@@ -32,7 +32,7 @@ export class ContactsController {
   @ApiResponse({ status: 201, description: 'Contact created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   create(@Body() createContactDto: CreateContactDto) {
-    return this.contactsService.create(createContactDto);
+    return this.contactsService.create(createContactDto).then((data) => ({ data }));
   }
 
   @Get()
@@ -40,7 +40,13 @@ export class ContactsController {
   @ApiOperation({ summary: 'Get all contacts' })
   @ApiResponse({ status: 200, description: 'Contacts retrieved successfully' })
   findAll(@Query() paginationDto: PaginationDto) {
-    return this.contactsService.findAll(paginationDto);
+    return this.contactsService.findAll(paginationDto).then((result: any) => {
+      if (result && typeof result === 'object' && 'data' in result && 'meta' in result) {
+        const { data, meta } = result as { data: any[]; meta: any };
+        return { data, meta };
+      }
+      return { data: result };
+    });
   }
 
   @Get('company/:companyId(\\d+)')
@@ -51,7 +57,13 @@ export class ContactsController {
     @Param('companyId') companyId: string,
     @Query() paginationDto: PaginationDto,
   ) {
-    return this.contactsService.findByCompany(companyId, paginationDto);
+    return this.contactsService.findByCompany(companyId, paginationDto).then((result: any) => {
+      if (result && typeof result === 'object' && 'data' in result && 'meta' in result) {
+        const { data, meta } = result as { data: any[]; meta: any };
+        return { data, meta };
+      }
+      return { data: result };
+    });
   }
 
   @Get(':id(\\d+)')
@@ -60,7 +72,7 @@ export class ContactsController {
   @ApiResponse({ status: 200, description: 'Contact retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Contact not found' })
   findOne(@Param('id') id: string) {
-    return this.contactsService.findOne(id);
+    return this.contactsService.findOne(id).then((data) => ({ data }));
   }
 
   @Patch(':id(\\d+)')
@@ -70,7 +82,7 @@ export class ContactsController {
   @ApiResponse({ status: 200, description: 'Contact updated successfully' })
   @ApiResponse({ status: 404, description: 'Contact not found' })
   update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
-    return this.contactsService.update(id, updateContactDto);
+    return this.contactsService.update(id, updateContactDto).then((data) => ({ data }));
   }
 
   @Delete(':id(\\d+)')
@@ -80,6 +92,6 @@ export class ContactsController {
   @ApiResponse({ status: 200, description: 'Contact deleted successfully' })
   @ApiResponse({ status: 404, description: 'Contact not found' })
   remove(@Param('id') id: string) {
-    return this.contactsService.remove(id);
+    return this.contactsService.remove(id).then((data) => ({ data }));
   }
 }

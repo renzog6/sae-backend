@@ -49,7 +49,7 @@ describe('CompaniesService', () => {
       const res = await service.create(payload);
       expect(prismaMock.company.create).toHaveBeenCalledWith({
         data: expect.objectContaining({ cuit: '30-123', name: 'ACME' }),
-        include: { addresses: true, businessCategory: true },
+        include: { businessCategory: true },
       });
       expect(res).toEqual(created);
     });
@@ -91,27 +91,22 @@ describe('CompaniesService', () => {
   });
 
   describe('update', () => {
-    it('updates company basic fields and upserts address (create)', async () => {
+    it('updates company basic fields (no address upsert)', async () => {
       (prismaMock.company.findUnique as any).mockResolvedValue({ id: 1 });
       (prismaMock.company.update as any).mockResolvedValue({ id: 1 });
-      (prismaMock.address.create as any).mockResolvedValue({ id: 2 });
-
       const payload = { name: 'New', address: { street: 'S', number: '1', cityId: 10 } } as any;
       const res = await service.update('1', payload);
 
       expect(prismaMock.company.update).toHaveBeenCalled();
-      expect(prismaMock.address.create).toHaveBeenCalled();
       expect(res).toEqual({ id: 1 });
     });
 
-    it('updates address when id provided', async () => {
+    it('updates company when address id provided (no address update)', async () => {
       (prismaMock.company.findUnique as any).mockResolvedValue({ id: 1 });
       (prismaMock.company.update as any).mockResolvedValue({ id: 1 });
-      (prismaMock.address.update as any).mockResolvedValue({ id: 2 });
-
       const payload = { address: { id: 2, street: 'S', number: '1', cityId: 10 } } as any;
       await service.update('1', payload);
-      expect(prismaMock.address.update).toHaveBeenCalled();
+      expect(prismaMock.company.update).toHaveBeenCalled();
     });
   });
 

@@ -33,34 +33,34 @@ describe('CompaniesController', () => {
     (serviceMock.create as any).mockResolvedValue({ id: 1 });
     const res = await controller.create({ name: 'ACME' } as any);
     expect(serviceMock.create).toHaveBeenCalled();
-    expect(res).toEqual({ id: 1 });
+    expect(res).toEqual({ data: { id: 1 } });
   });
 
   it('findAll delegates to service', async () => {
-    (serviceMock.findAll as any).mockResolvedValue({ data: [], total: 0 });
+    (serviceMock.findAll as any).mockResolvedValue({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
     const res = await controller.findAll({ page: 1, limit: 10 } as any);
     expect(serviceMock.findAll).toHaveBeenCalled();
-    expect(res).toEqual({ data: [], total: 0 });
+    expect(res).toEqual({ data: [], meta: { total: 0, page: 1, limit: 10, totalPages: 0 } });
   });
 
   it('findOne delegates to service', async () => {
     (serviceMock.findOne as any).mockResolvedValue({ id: 1 });
     const res = await controller.findOne('1');
     expect(serviceMock.findOne).toHaveBeenCalledWith('1');
-    expect(res).toEqual({ id: 1 });
+    expect(res).toEqual({ data: { id: 1 } });
   });
 
   it('update delegates to service', async () => {
     (serviceMock.update as any).mockResolvedValue({ id: 1 });
     const res = await controller.update('1', { name: 'New' } as any);
     expect(serviceMock.update).toHaveBeenCalledWith('1', { name: 'New' });
-    expect(res).toEqual({ id: 1 });
+    expect(res).toEqual({ data: { id: 1 } });
   });
 
   it('remove delegates to service', async () => {
     (serviceMock.remove as any).mockResolvedValue({ id: '1' });
     const res = await controller.remove('1');
     expect(serviceMock.remove).toHaveBeenCalledWith('1');
-    expect(res).toEqual({ id: '1' });
+    expect(res).toEqual({ data: { id: '1' } });
   });
 });
