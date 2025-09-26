@@ -3,6 +3,7 @@
 /node_modules
 /build
 /tmp
+/prisma/seeds-data
 
 # Logs
 logs

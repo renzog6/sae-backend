@@ -12,13 +12,16 @@ import {
   UseInterceptors,
   Res,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { diskStorage } from "multer";
 import { DocumentsService } from "./documents.service";
 import { CreateDocumentDto } from "./dto/create-document.dto";
 import { UpdateDocumentDto } from "./dto/update-document.dto";
-import { extname, join, isAbsolute, basename } from "path";
+import { UploadDocumentDto } from "./dto/upload-document.dto";
+import { extname, join, isAbsolute, basename, relative as pathRelative } from "path";
 import { Response } from "express";
 import { existsSync, mkdirSync, renameSync } from "fs";
 
@@ -38,12 +41,27 @@ if (!existsSync(BASE_UPLOAD_DIR)) {
   } catch {}
 }
 
+@ApiTags("documents")
 @Controller("documents")
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   // 📂 Subida de archivos
   @Post("upload")
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Subida de archivo asociada a un empleado o una empresa (exactamente uno)',
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        description: { type: 'string' },
+        employeeId: { type: 'integer', minimum: 1 },
+        companyId: { type: 'integer', minimum: 1 },
+      },
+      required: ['file'],
+    },
+  })
   @UseInterceptors(
     FileInterceptor("file", {
       storage: diskStorage({
@@ -57,11 +75,19 @@ export class DocumentsController {
       }),
     }),
   )
-  async uploadFile(@UploadedFile() file: UploadedDiskFile, @Body() body: any) {
+  async uploadFile(@UploadedFile() file: UploadedDiskFile, @Body() body: UploadDocumentDto) {
     // Determine target subfolder based on employee or company
     let targetDir = BASE_UPLOAD_DIR;
     let employeeId: number | undefined = body.employeeId ? Number(body.employeeId) : undefined;
     let companyId: number | undefined = body.companyId ? Number(body.companyId) : undefined;
+
+    // Validation: exactly one of employeeId or companyId must be provided
+    const provided = [employeeId !== undefined, companyId !== undefined].filter(Boolean).length;
+    if (provided !== 1) {
+      throw new BadRequestException(
+        "Debe especificar exactamente uno: employeeId o companyId"
+      );
+    }
 
     if (employeeId) {
       const folder = await this.documentsService.getEmployeeFolderName(employeeId);
@@ -86,12 +112,15 @@ export class DocumentsController {
       }
     } catch {}
 
-    // Guardamos metadata en DB con la nueva ruta
+    // Compute relative path for portability
+    const relativePath = pathRelative(process.cwd(), newPath);
+
+    // Guardamos metadata en DB con la ruta relativa
     return this.documentsService.create({
       filename: file.originalname,
       mimetype: file.mimetype,
       size: file.size,
-      path: newPath,
+      path: relativePath,
       description: body.description,
       employeeId,
       companyId,

@@ -4,6 +4,12 @@ import { IsDateString, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, MaxLengt
 import { EmployeeStatus } from '@prisma/client';
 
 export class CreateEmployeeDto {
+  @ApiProperty({ required: false, description: 'Número de legajo interno de la empresa' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(50)
+  employeeCode?: string;
+
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()

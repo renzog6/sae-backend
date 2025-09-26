@@ -241,6 +241,7 @@ enum PersonStatus {
 // ==================================
 model Employee {
   id          Int             @id @default(autoincrement())
+  employeeCode String?         @default("00000") // Número de legajo interno de la empresa
   information String?         
   status      EmployeeStatus  @default(ACTIVE)
   hireDate    DateTime        

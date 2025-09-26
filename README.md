@@ -121,6 +121,49 @@ src/
 
 - Catálogos (`/brands`, `/units`) y Equipos (`/equipment`): CRUD y listados, con endpoints auxiliares para categorías/tipos/modelos.
 
+## 📄 Documentos (uploads)
+
+- Endpoint: `POST /${API_PREFIX}/documents/upload`
+- Autenticación: `Authorization: Bearer <token>`
+- Consumes: `multipart/form-data`
+- Campos del formulario:
+  - `file`: archivo binario (requerido)
+  - `description`: texto (opcional, máx. 500)
+  - `employeeId`: entero (opcional)
+  - `companyId`: entero (opcional)
+
+- Reglas de validación:
+  - Debe especificarse exactamente uno de `employeeId` o `companyId`.
+  - Si se pasa `employeeId`, el archivo se organiza en la carpeta del empleado.
+  - Si se pasa `companyId`, el archivo se organiza en la carpeta de la empresa.
+
+- Estructura de carpetas en `src/uploads/`:
+  - Empleados: `src/uploads/employees/<apellido_nombre_dni>/`
+  - Empresas: `src/uploads/companies/<nombre_cuit>/`
+  - Ejemplos:
+    - `src/uploads/employees/gomez_juan_12345678/1730000000000-12345.pdf`
+    - `src/uploads/companies/acme_sa_30-12345678-9/1730000000000-67890.pdf`
+
+- Ruta almacenada en DB (`Document.path`): relativa al root del proyecto (ej.: `src/uploads/employees/...`).
+
+- Ejemplos de uso
+  - PowerShell (usar `curl.exe`):
+    ```powershell
+    curl.exe -X POST "http://localhost:3000/api/documents/upload" \
+      -H "Authorization: Bearer <TOKEN>" \
+      -F "file=@C:\workspace-nextjs\sae-web-ia\sae-backend\README.md" \
+      -F "description=Contrato firmado" \
+      -F "employeeId=1"
+    ```
+  - Bash/Git Bash:
+    ```bash
+    curl -X POST "http://localhost:3000/api/documents/upload" \
+      -H "Authorization: Bearer <TOKEN>" \
+      -F "file=@/c/workspace-nextjs/sae-web-ia/sae-backend/README.md" \
+      -F "description=Contrato firmado" \
+      -F "companyId=1"
+    ```
+
 ## 🧱 Prisma y performance
 
 - Esquema: `prisma/schema.prisma`

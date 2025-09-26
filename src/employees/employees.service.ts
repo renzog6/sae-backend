@@ -1,3 +1,5 @@
+// filepath: sae-backend/src/employees/employees.service.ts
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -12,6 +14,7 @@ export class EmployeesService {
   create(dto: CreateEmployeeDto) {
     return this.prisma.employee.create({
       data: {
+        employeeCode: dto.employeeCode,
         information: dto.information,
         status: (dto.status ?? EmployeeStatus.ACTIVE) as any,
         hireDate: new Date(dto.hireDate),
@@ -54,6 +57,7 @@ export class EmployeesService {
     return this.prisma.employee.update({
       where: { id },
       data: {
+        ...(typeof dto.employeeCode !== 'undefined' ? { employeeCode: dto.employeeCode } : {}),
         ...(typeof dto.information !== 'undefined' ? { information: dto.information } : {}),
         ...(typeof dto.status !== 'undefined' ? { status: dto.status as any } : {}),
         ...(typeof dto.hireDate !== 'undefined' ? { hireDate: new Date(dto.hireDate as any) } : {}),
