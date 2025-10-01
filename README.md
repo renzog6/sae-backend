@@ -4,49 +4,65 @@
 
 SAE Backend es una API REST desarrollada con NestJS y Prisma para gestionar empresas, personas, empleados, ubicaciones, equipos, inspecciones y contactos. La arquitectura está orientada a escalabilidad, con DTOs validados, documentación OpenAPI y pruebas unitarias/e2e.
 
+- **Versión**: 1.0.0
+- **Autor**: Renzo O. Gorosito
+- **Licencia**: MIT
+
 ## 🚀 Tecnologías
 
 - Framework: NestJS 10.x
 - Base de Datos: MySQL + Prisma ORM
-- Autenticación: JWT (guards por módulo cuando aplica)
+- Autenticación: JWT con refresh tokens (guards por módulo cuando aplica)
+- Rate Limiting: @nestjs/throttler (10 req/min por defecto)
 - Documentación: Swagger (OpenAPI)
 - Validación: class-validator / class-transformer
 - Testing: Jest (unit y e2e)
+- Subida de archivos: Multer
+- Generación de PDFs: pdf-lib
 - Lenguaje: TypeScript
 
 ## ⚙️ Configuración rápida
 
-1) Requisitos
+1. Requisitos
+
 - Node 18+
 - MySQL 8+
 
-2) Variables de entorno (crear `.env` en `sae-backend/`)
+2. Variables de entorno (crear `.env` en `sae-backend/`)
+
 ```
 DATABASE_URL="mysql://user:pass@localhost:3306/sae"
 JWT_SECRET="changeme"
+JWT_EXPIRATION=1d
+JWT_REFRESH_SECRET="changeme_refresh"
+JWT_REFRESH_EXPIRATION=7d
 PORT=3000
 API_PREFIX=api
 ```
 
-3) Instalar dependencias y preparar base
+3. Instalar dependencias y preparar base
+
 ```
 npm install
+npm run db:setup  # Genera cliente Prisma, migra DB y ejecuta seed
+```
+
+O manualmente:
+
+```
 npx prisma generate
 npx prisma migrate dev -n "init"
-```
-
-4) Seed de datos
-```
 npx tsx prisma/seed.ts
-npx tsx prisma/seed-compnies-init.ts
 ```
 
-5) Ejecutar aplicación
+4. Ejecutar aplicación
+
 ```
 npm run start:dev
 ```
 
-6) Pruebas
+5. Pruebas
+
 ```
 npm test           # unit
 npm run test:e2e   # end-to-end
@@ -60,17 +76,35 @@ src/
 ├── main.ts
 ├── prisma/
 │   ├── prisma.module.ts
-│   └── prisma.service.ts
+│   ├── prisma.service.ts
+│   ├── schema.prisma
+│   └── seed.ts
 ├── common/
-│   ├── dto/ (e.g. PaginationDto)
-│   └── guards, decorators
+│   ├── dto/ (PaginationDto, etc.)
+│   ├── guards/ (RolesGuard)
+│   ├── decorators/ (Roles, Public)
+│   ├── interceptors/ (HttpResponseInterceptor)
+│   ├── exceptions/ (HttpExceptionFilter)
+│   └── validators/ (ExactlyOneOf)
 ├── auth/
-├── companies/ (companies + business-categories + business-subcategories)
+│   ├── auth.module.ts
+│   ├── auth.service.ts
+│   ├── auth.controller.ts
+│   ├── guards/ (JwtAuthGuard)
+│   ├── strategies/ (JwtStrategy)
+│   └── dto/ (LoginDto, RefreshTokenDto)
+├── users/
+├── companies/ (companies, business-categories, business-subcategories)
 ├── contacts/
 ├── employees/ (employees, employee-categories, employee-positions, employee-vacations)
 ├── locations/ (countries, provinces, cities, addresses)
 ├── persons/ (persons, family)
-└── catalogs/ (brands, units)
+├── equipment/
+├── catalogs/ (brands, units)
+├── inspections/
+├── documents/
+├── health/
+└── uploads/ (carpeta para archivos subidos)
 ```
 
 ## 🌐 Prefijo API y Swagger
@@ -118,8 +152,14 @@ src/
 - Empleados (`/employees`)
   - Employees: CRUD + listado paginado.
   - Employee Categories/Positions/Vacations: CRUD + listados paginados (vacations incluye `employee`).
+  - Employee Vacations: adicionalmente GET /employee-vacations/:id/pdf (genera PDF de notificación de vacaciones usando pdf-lib).
 
-- Catálogos (`/brands`, `/units`) y Equipos (`/equipment`): CRUD y listados, con endpoints auxiliares para categorías/tipos/modelos.
+- Catálogos (`/brands`, `/units`): CRUD y listados.
+- Equipos (`/equipment`): CRUD y listados, con endpoints auxiliares para categorías/tipos/modelos (`/equipment/categories/all`, `/equipment/types/all`, `/equipment/models/all`).
+- Inspecciones (`/inspections`): GET /inspections (paginación), GET /inspections/:id, GET /inspections/types.
+- Usuarios (`/users`): CRUD de usuarios (solo ADMIN).
+- Salud (`/health`): GET /health (health check público).
+- Documentos (`/documents`): POST /documents/upload (subida de archivos), GET /documents/:id/download (descarga), CRUD normal.
 
 ## 📄 Documentos (uploads)
 
@@ -166,19 +206,26 @@ src/
 
 ## 🧱 Prisma y performance
 
-- Esquema: `prisma/schema.prisma`
+- Esquema: `prisma/schema.prisma` (modelos principales: User, Company, Person, Employee, Equipment, etc.)
+- Enums: Role, ContactType, EmployeeStatus, Gender, MaritalStatus, PersonStatus, VacationType, etc.
 - Índices añadidos para mejorar consultas frecuentes (no-únicos):
   - `EmployeeCategory(name, code)`, `EmployeePosition(name, code)`
   - `EmployeeVacation(year)`, `EmployeeVacation(startDate)`
   - `Person(lastName)`, `Person(firstName)`
+  - Y otros en campos de búsqueda comunes
 - Ejecutar migraciones tras cambios de esquema:
+
 ```
 npx prisma migrate dev -n "add_indexes_for_perf"
 ```
 
 ## 🔐 Autenticación
 
-- Login en `/auth/login`. Usar `Authorization: Bearer <token>` donde apliquen guards (ver `contacts`, `companies`).
+- Login en `/auth/login` (POST con email/password).
+- Refresh token en `/auth/refresh` (POST con refreshToken).
+- Profile en `/auth/profile` (GET, requiere JWT).
+- Usar `Authorization: Bearer <token>` donde apliquen guards (ver `contacts`, `companies`, `users`, etc.).
+- Roles: USER, ADMIN, MANAGER (definidos en enum Role).
 
 ## 🧪 Testing
 

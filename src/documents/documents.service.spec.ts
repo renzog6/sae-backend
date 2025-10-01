@@ -6,6 +6,7 @@ const prismaMock = {
   document: {
     create: jest.fn(),
     findMany: jest.fn(),
+    findUnique: jest.fn(),
     findUniqueOrThrow: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
@@ -60,6 +61,7 @@ describe('DocumentsService', () => {
   });
 
   it('remove calls prisma.document.delete', async () => {
+    (prismaMock.document.findUnique as any).mockResolvedValue({ id: 1, path: undefined });
     (prismaMock.document.delete as any).mockResolvedValue({ id: 1 });
     const res = await service.remove(1);
     expect(prismaMock.document.delete).toHaveBeenCalledWith({ where: { id: 1 } });

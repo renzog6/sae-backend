@@ -70,4 +70,11 @@ export class AddressesController {
   byCompany(@Param('companyId') companyId: string) {
     return this.addressesService.findByCompany(+companyId).then((data) => ({ data }));
   }
+
+  @Get('person/:personId')
+  @ApiOperation({ summary: 'Get addresses by person' })
+  @ApiParam({ name: 'personId', description: 'Person ID' })
+  byPerson(@Param('personId') personId: string) {
+    return this.addressesService.findByPerson(+personId).then((data) => ({ data }));
+  }
 }

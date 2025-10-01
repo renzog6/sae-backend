@@ -52,6 +52,25 @@ export class ContactsService {
     return new PaginatedResponseDto(contacts, total, page, limit);
   }
 
+  async findByPerson(personId: string, paginationDto: PaginationDto) {
+    const { page, limit, skip } = paginationDto;
+
+    const personIdNum = parseInt(personId);
+    const whereClause = { contactLinks: { some: { personId: personIdNum } } } as const;
+    const [contacts, total] = await Promise.all([
+      this.prisma.contact.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        include: { contactLinks: { include: { person: true } } },
+        orderBy: { id: 'desc' },
+      }),
+      this.prisma.contact.count({ where: whereClause }),
+    ]);
+
+    return new PaginatedResponseDto(contacts, total, page, limit);
+  }
+
   async findByCompany(companyId: string, paginationDto: PaginationDto) {
     const { page, limit, skip } = paginationDto;
 

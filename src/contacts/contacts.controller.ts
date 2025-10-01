@@ -66,6 +66,23 @@ export class ContactsController {
     });
   }
 
+  @Get('person/:personId(\\d+)')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get contacts by person ID' })
+  @ApiResponse({ status: 200, description: 'Contacts retrieved successfully' })
+  findByPerson(
+    @Param('personId') personId: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.contactsService.findByPerson(personId, paginationDto).then((result: any) => {
+      if (result && typeof result === 'object' && 'data' in result && 'meta' in result) {
+        const { data, meta } = result as { data: any[]; meta: any };
+        return { data, meta };
+      }
+      return { data: result };
+    });
+  }
+
   @Get(':id(\\d+)')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a contact by ID' })

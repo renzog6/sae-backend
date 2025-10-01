@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class PaginationDto {
   @ApiProperty({
@@ -24,6 +24,16 @@ export class PaginationDto {
   @IsInt()
   @Min(1)
   limit?: number = 10;
+
+  @ApiProperty({ description: 'Free text search', required: false })
+  @IsOptional()
+  @IsString()
+  q?: string;
+
+  @ApiProperty({ description: 'Employee status filter', required: false })
+  @IsOptional()
+  @IsString()
+  status?: string;
 
   get skip(): number {
     return (this.page - 1) * this.limit;

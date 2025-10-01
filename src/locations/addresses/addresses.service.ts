@@ -32,6 +32,21 @@ export class AddressesService {
   }
 
   create(dto: CreateAddressDto) {
+    // If personId is present, enforce one address per person via upsert
+    if (dto.personId) {
+      const { personId, companyId: _ignoredCompany, ...rest } = dto as any;
+      return this.prisma.address.upsert({
+        where: { personId },
+        update: { ...rest },
+        create: { ...rest, personId },
+        include: {
+          city: { include: { province: true } },
+          company: true,
+          person: true,
+        },
+      });
+    }
+    // Default create for company addresses or addresses without person linkage
     return this.prisma.address.create({
       data: dto,
       include: {
@@ -44,8 +59,11 @@ export class AddressesService {
 
   createForPerson(personId: number, dto: CreateAddressDto) {
     const { personId: _ignored, companyId: _ignoredCompany, ...rest } = dto;
-    return this.prisma.address.create({
-      data: { ...rest, personId },
+    // Upsert to ensure a single address per person
+    return this.prisma.address.upsert({
+      where: { personId },
+      update: { ...rest },
+      create: { ...rest, personId },
       include: {
         city: { include: { province: true } },
         company: true,
@@ -97,6 +115,13 @@ export class AddressesService {
     return this.prisma.address.findMany({
       where: { companyId },
       include: { city: { include: { province: true } } },
+    });
+  }
+
+  findByPerson(personId: number) {
+    return this.prisma.address.findMany({
+      where: { personId },
+      include: { city: { include: { province: true } }, company: true, person: true },
     });
   }
 }

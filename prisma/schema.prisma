@@ -311,25 +311,31 @@ model EmployeePosition {
 }
 
 model EmployeeVacation {
-  id             Int      @id @default(autoincrement())
-  detail         String?  
-  days           Int?     
-  year           Int?     
-  information    String?  
-  startDate      DateTime 
-  settlementDate DateTime 
-
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id             Int          @id @default(autoincrement())
+  detail         String?      
+  days           Int          @default(0)
+  year           Int          @default(0)
+  startDate      DateTime
+  endDate        DateTime
+  settlementDate DateTime     @default(now())
+  type           VacationType @default(TAKEN)
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   // Relations
-  employeeId Int      
+  employeeId Int
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
-  @@map("employee_vacations")
-  @@index([year])
   @@index([startDate])
+  @@index([endDate])
+  @@map("employee_vacations")
+}
+
+enum VacationType {
+  ASSIGNED   // Días nuevos acreditados (carga administrativa)
+  TAKEN      // Días efectivamente tomados  
 }
 
 // ==================================

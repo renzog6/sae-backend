@@ -1,42 +1,71 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+// filepath: sae-backend/src/employees/employee-vacations/dto/create-employee-vacation.dto.ts
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEnum, IsInt, IsOptional, IsString, Min } from "class-validator";
+import { VacationType } from "@prisma/client";
 
 export class CreateEmployeeVacationDto {
-  @ApiProperty({ example: 'Vacaciones de verano', required: false })
-  @IsString()
+  constructor(dto?: any) {
+    if (dto) {
+      Object.assign(this, dto);
+      console.log(
+        "CreateEmployeeVacationDto - Received values:",
+        JSON.stringify(dto, null, 2)
+      );
+    }
+  }
+
+  @ApiProperty({
+    description: "Detalle adicional sobre la vacación",
+    required: false,
+  })
   @IsOptional()
-  @MaxLength(500)
+  @IsString()
   detail?: string;
 
-  @ApiProperty({ example: 10, required: false })
+  @ApiProperty({ description: "Cantidad de días de la vacación", example: 14 })
   @IsInt()
-  @IsOptional()
-  @Min(0)
-  days?: number;
+  @Min(1)
+  days: number;
 
-  @ApiProperty({ example: 2025, required: false })
-  @IsInt()
+  @ApiProperty({
+    description:
+      "Año al que corresponde la vacación (si no se envía se calcula desde startDate)",
+    required: false,
+    example: 2025,
+  })
   @IsOptional()
+  @IsInt()
   year?: number;
 
-  @ApiProperty({ example: 'Observaciones', required: false })
+  @ApiProperty({
+    description: "Fecha de inicio de la vacación en formato ISO",
+    example: "2025-10-01T00:00:00.000Z",
+  })
   @IsString()
+  startDate: string;
+
+  @ApiProperty({
+    description:
+      "Tipo de vacación (ASSIGNED = días acreditados, TAKEN = días tomados)",
+    enum: VacationType,
+    required: false,
+    example: VacationType.TAKEN,
+  })
   @IsOptional()
-  @MaxLength(500)
-  information?: string;
+  @IsString()
+  type?: string;
 
-  @ApiProperty({ example: '2025-01-10T00:00:00.000Z' })
-  @IsDateString()
-  @IsNotEmpty()
-  startDate!: string;
+  @ApiProperty({
+    description:
+      "Fecha de liquidación en formato ISO (opcional, por defecto ahora)",
+    example: "2025-10-01T00:00:00.000Z",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  settlementDate?: string;
 
-  @ApiProperty({ example: '2025-01-20T00:00:00.000Z' })
-  @IsDateString()
-  @IsNotEmpty()
-  settlementDate!: string;
-
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ description: "ID del empleado asociado", example: 1 })
   @IsInt()
-  @IsNotEmpty()
   employeeId!: number;
 }
