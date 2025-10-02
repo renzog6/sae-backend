@@ -27,7 +27,8 @@ COPY --from=deps-dev /app/node_modules ./node_modules
 COPY . .
 # Generar el cliente Prisma ANTES del build
 RUN npx prisma generate
-RUN npm run build
+RUN npm run build && ls -la dist/
+RUN date > dummy
 
 # Stage de producción con cliente Prisma generado
 FROM base AS runner
@@ -42,16 +43,18 @@ COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nestjs:nodejs /app/src ./src
+COPY --from=builder --chown=nestjs:nodejs /app/assets ./assets
 
 # Variables de entorno
 USER nestjs
 ENV NODE_ENV=production
-ENV PORT=3000
-EXPOSE 3000
+ENV PORT=3005
+EXPOSE 3005
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+    CMD node -e "require('http').get('http://localhost:3005', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 # Comando de inicio
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main.js"]

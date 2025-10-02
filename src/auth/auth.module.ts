@@ -1,3 +1,4 @@
+// file: sae-backend/src/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -16,7 +17,7 @@ import { PrismaModule } from '../prisma/prisma.module';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRATION', '1d'),
+          expiresIn: configService.get<string>('JWT_EXPIRATION') || '1d',
         },
       }),
     }),
