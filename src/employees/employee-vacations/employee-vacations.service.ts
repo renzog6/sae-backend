@@ -5,9 +5,15 @@ import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";
 import { PrismaService } from "../../prisma/prisma.service";
 import { PaginationDto } from "../../common/dto/pagination.dto";
 import { PDFDocument } from "pdf-lib";
+import { Response } from "express";
 import * as fs from "fs";
 import * as path from "path";
+import * as ExcelJS from "exceljs";
 
+interface ExportOptions {
+  filename?: string;
+  includeCompany?: boolean;
+}
 @Injectable()
 export class EmployeeVacationsService {
   constructor(private prisma: PrismaService) {}
@@ -180,5 +186,344 @@ export class EmployeeVacationsService {
 
     const pdfBytes = await pdfDoc.save();
     return Buffer.from(pdfBytes);
+  }
+
+  /**
+   * Genera un archivo Excel con las vacaciones de un empleado específico
+   */
+  async exportVacationsToExcel(
+    employeeId: number,
+    options: ExportOptions = {}
+  ): Promise<Buffer> {
+    const { includeCompany = false } = options; // Para empleado específico, no incluir empresa
+
+    try {
+      const vacations = await this.fetchVacationsData();
+      const employeeVacations = vacations.filter(
+        (v) => v.employee?.id === employeeId
+      );
+      const workbook = this.createWorkbook(employeeVacations, includeCompany);
+      const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+
+      return buffer;
+    } catch (error) {
+      throw new Error(`Error al exportar Excel: ${error.message}`);
+    }
+  }
+
+  /**
+   * Genera un archivo Excel con los datos de empleados y sus vacaciones
+   */
+  async exportEmployeesVacationsToExcel(
+    options: ExportOptions = {}
+  ): Promise<Buffer> {
+    const { includeCompany = true } = options;
+
+    try {
+      const employees = await this.fetchEmployeesData();
+      const workbook = this.createEmployeesWorkbook(employees, includeCompany);
+      const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+
+      return buffer;
+    } catch (error) {
+      throw new Error(`Error al exportar Excel: ${error.message}`);
+    }
+  }
+
+  /**
+   * Obtiene los datos de vacaciones desde la base de datos
+   */
+  private async fetchVacationsData() {
+    return this.prisma.employeeVacation.findMany({
+      include: {
+        employee: {
+          include: {
+            person: true,
+            company: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  /**
+   * Obtiene los datos de empleados con sus vacaciones
+   */
+  private async fetchEmployeesData() {
+    return this.prisma.employee.findMany({
+      include: {
+        person: true,
+        category: true,
+        position: true,
+        company: true,
+        vacations: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  /**
+   * Crea y configura el workbook de Excel
+   */
+  private createWorkbook(vacations: any[], includeCompany: boolean) {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Vacaciones");
+
+    this.configureSheetColumns(sheet, includeCompany);
+    this.addDataToSheet(sheet, vacations, includeCompany);
+    this.applyStyles(sheet);
+
+    return workbook;
+  }
+
+  /**
+   * Crea y configura el workbook de Excel para empleados
+   */
+  private createEmployeesWorkbook(employees: any[], includeCompany: boolean) {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Empleados Vacaciones");
+
+    this.configureEmployeesSheetColumns(sheet, includeCompany);
+    this.addEmployeesDataToSheet(sheet, employees, includeCompany);
+    this.applyStyles(sheet);
+
+    return workbook;
+  }
+
+  /**
+   * Configura las columnas de la hoja
+   */
+  private configureSheetColumns(
+    sheet: ExcelJS.Worksheet,
+    includeCompany: boolean
+  ) {
+    const columns = [
+      { header: "Fecha", key: "settlementDate", width: 15 },
+      { header: "Tipo", key: "type", width: 12 },
+      { header: "Días", key: "days", width: 10 },
+      { header: "Año", key: "year", width: 10 },
+      { header: "Periodo", key: "period", width: 25 },
+      { header: "Detalle", key: "detail", width: 30 },
+    ];
+
+    sheet.columns = columns;
+  }
+
+  /**
+   * Configura las columnas de la hoja de empleados
+   */
+  private configureEmployeesSheetColumns(
+    sheet: ExcelJS.Worksheet,
+    includeCompany: boolean
+  ) {
+    const baseColumns = [
+      { header: "Legajo", key: "employeeCode", width: 15 },
+      { header: "Apellido y Nombre", key: "fullName", width: 30 },
+      { header: "Ingreso", key: "hireDate", width: 15 },
+      { header: "Antigüedad", key: "tenure", width: 15 },
+      { header: "Días Disponibles", key: "availableDays", width: 15 },
+      { header: "Categoría y Puesto", key: "categoryPosition", width: 30 },
+    ];
+
+    if (includeCompany) {
+      baseColumns.splice(1, 0, {
+        header: "Empresa",
+        key: "company",
+        width: 25,
+      });
+    }
+
+    sheet.columns = baseColumns;
+  }
+
+  /**
+   * Agrega los datos a la hoja
+   */
+  private addDataToSheet(
+    sheet: ExcelJS.Worksheet,
+    vacations: any[],
+    includeCompany: boolean
+  ) {
+    vacations.forEach((vacation) => {
+      const rowData = this.mapVacationToRow(vacation, includeCompany);
+      sheet.addRow(rowData);
+    });
+  }
+
+  /**
+   * Agrega los datos de empleados a la hoja
+   */
+  private addEmployeesDataToSheet(
+    sheet: ExcelJS.Worksheet,
+    employees: any[],
+    includeCompany: boolean
+  ) {
+    employees.forEach((employee) => {
+      const rowData = this.mapEmployeeToRow(employee, includeCompany);
+      sheet.addRow(rowData);
+    });
+  }
+
+  /**
+   * Mapea una vacación a una fila de Excel
+   */
+  private mapVacationToRow(vacation: any, includeCompany: boolean) {
+    const period =
+      vacation.type !== "ASSIGNED"
+        ? `${this.formatDate(vacation.startDate)} - ${this.formatDate(vacation.endDate)}`
+        : "-";
+
+    return {
+      settlementDate: this.formatDate(vacation.settlementDate),
+      type: vacation.type === "ASSIGNED" ? "Asignadas" : "Tomadas",
+      days: vacation.days,
+      year: vacation.year,
+      period,
+      detail: vacation.detail || "",
+    };
+  }
+
+  /**
+   * Mapea un empleado a una fila de Excel
+   */
+  private mapEmployeeToRow(employee: any, includeCompany: boolean) {
+    const fullName = this.formatEmployeeName(employee.person);
+    const hireDate = this.formatDate(employee.hireDate);
+    const tenure = this.calculateTenure(employee.hireDate);
+    const availableDays = this.calculateAvailableDays(employee.vacations);
+    const categoryPosition = `${employee.category?.name ?? "-"} - ${employee.position?.name ?? "-"}`;
+
+    const baseRow = {
+      employeeCode: employee.employeeCode || "",
+      fullName,
+      hireDate,
+      tenure,
+      availableDays,
+      categoryPosition,
+    };
+
+    if (includeCompany) {
+      return {
+        ...baseRow,
+        company: employee.company?.name || "",
+      };
+    }
+
+    return baseRow;
+  }
+
+  /**
+   * Formatea el nombre del empleado
+   */
+  private formatEmployeeName(person: any): string {
+    if (!person) return "";
+    return `${person.lastName || ""} ${person.firstName || ""}`.trim();
+  }
+
+  /**
+   * Formatea una fecha consistentemente
+   */
+  private formatDate(date?: Date | null): string {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+
+  /**
+   * Calcula la antigüedad desde la fecha de ingreso
+   */
+  private calculateTenure(hireDate?: Date | null): string {
+    if (!hireDate) return "";
+    const hire = new Date(hireDate);
+    const now = new Date();
+    const years = now.getFullYear() - hire.getFullYear();
+    const months = now.getMonth() - hire.getMonth();
+    const totalMonths = years * 12 + months;
+    const y = Math.floor(totalMonths / 12);
+    const m = totalMonths % 12;
+    return `${y} años ${m} meses`;
+  }
+
+  /**
+   * Calcula los días disponibles de vacaciones
+   */
+  private calculateAvailableDays(vacations: any[]): number {
+    let assigned = 0;
+    let taken = 0;
+    for (const v of vacations || []) {
+      const d = Number(v?.days ?? 0) || 0;
+      if (v?.type === "ASSIGNED") assigned += d;
+      else if (v?.type === "TAKEN") taken += d;
+    }
+    return assigned - taken;
+  }
+
+  /**
+   * Aplica estilos a la hoja
+   */
+  private applyStyles(sheet: ExcelJS.Worksheet) {
+    // Estilo para la fila de encabezados
+    const headerRow = sheet.getRow(1);
+    headerRow.font = {
+      bold: true,
+      color: { argb: "FFFFFFFF" },
+    };
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF2E86AB" },
+    };
+    headerRow.alignment = {
+      horizontal: "center",
+      vertical: "middle",
+    };
+
+    // Estilos para las filas de datos
+    sheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.alignment = {
+          vertical: "middle",
+          horizontal: "center",
+        };
+
+        // Alternar colores de fondo para mejor legibilidad
+        if (rowNumber % 2 === 0) {
+          row.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF0F0F0" },
+          };
+        }
+      }
+    });
+
+    // Ajustar automáticamente el ancho de las columnas según el contenido
+    sheet.columns.forEach((column) => {
+      let maxLength = 10;
+      column.eachCell?.({ includeEmpty: true }, (cell) => {
+        const length = cell.value ? cell.value.toString().length : 0;
+        if (length > maxLength) maxLength = length;
+      });
+      column.width = maxLength < 10 ? 10 : maxLength + 2;
+    });
+
+    // Congelar la fila de encabezados
+    sheet.views = [{ state: "frozen", ySplit: 1 }];
+  }
+
+  /**
+   * Envía el archivo como descarga
+   */
+  private sendAsDownload(res: Response, buffer: Buffer, filename: string) {
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.send(buffer);
   }
 }

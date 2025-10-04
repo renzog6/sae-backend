@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/main.ts
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { ValidationPipe, ClassSerializerInterceptor } from "@nestjs/common";
@@ -12,9 +13,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Get environment variables
-  const port = configService.get<number>("PORT", 3000);
-  const apiPrefix = configService.get<string>("API_PREFIX", "api");
-  const environment = configService.get<string>("NODE_ENV", "development");
+  const port = configService.get<number>("PORT") || 3000;
+  const apiPrefix = configService.get<string>("API_PREFIX") || "api";
+  const environment = configService.get<string>("NODE_ENV") || "development";
 
   // Configure CORS
   app.enableCors();

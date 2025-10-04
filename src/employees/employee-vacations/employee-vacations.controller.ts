@@ -77,4 +77,40 @@ export class EmployeeVacationsController {
     res.setHeader("Content-Length", pdfBuffer.length);
     res.end(pdfBuffer);
   }
+
+  @Get(":employeeId/exportVacations/excel")
+  async exportExcel(
+    @Param("employeeId") employeeId: string,
+    @Res() res: Response
+  ) {
+    const buffer = await this.employeeVacationsService.exportVacationsToExcel(
+      Number(employeeId)
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="vacaciones.xlsx"`
+    );
+    res.setHeader("Content-Length", buffer.length);
+    res.end(buffer);
+  }
+
+  @Get("exportEmployees/excel")
+  async exportEmployeesExcel(@Res() res: Response) {
+    const buffer =
+      await this.employeeVacationsService.exportEmployeesVacationsToExcel();
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="empleados_vacaciones.xlsx"`
+    );
+    res.setHeader("Content-Length", buffer.length);
+    res.end(buffer);
+  }
 }
