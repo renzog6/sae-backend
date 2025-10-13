@@ -18,6 +18,7 @@ import { CatalogsModule } from "./catalogs/catalogs.module";
 import { PersonsModule } from "./persons/persons.module";
 import { DocumentsModule } from "./documents/documents.module";
 import { join } from "path";
+import { HistoryModule } from './history/history.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { join } from "path";
     CatalogsModule,
     PersonsModule,
     DocumentsModule,
+    HistoryModule,
   ],
   controllers: [],
   providers: [],

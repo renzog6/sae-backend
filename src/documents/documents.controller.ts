@@ -13,6 +13,7 @@ import {
   Res,
   NotFoundException,
   BadRequestException,
+  Query,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
@@ -21,7 +22,13 @@ import { DocumentsService } from "./documents.service";
 import { CreateDocumentDto } from "./dto/create-document.dto";
 import { UpdateDocumentDto } from "./dto/update-document.dto";
 import { UploadDocumentDto } from "./dto/upload-document.dto";
-import { extname, join, isAbsolute, basename, relative as pathRelative } from "path";
+import {
+  extname,
+  join,
+  isAbsolute,
+  basename,
+  relative as pathRelative,
+} from "path";
 import { Response } from "express";
 import { existsSync, mkdirSync, renameSync } from "fs";
 
@@ -48,18 +55,19 @@ export class DocumentsController {
 
   // 📂 Subida de archivos
   @Post("upload")
-  @ApiConsumes('multipart/form-data')
+  @ApiConsumes("multipart/form-data")
   @ApiBody({
-    description: 'Subida de archivo asociada a un empleado o una empresa (exactamente uno)',
+    description:
+      "Subida de archivo asociada a un empleado o una empresa (exactamente uno)",
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
-        file: { type: 'string', format: 'binary' },
-        description: { type: 'string' },
-        employeeId: { type: 'integer', minimum: 1 },
-        companyId: { type: 'integer', minimum: 1 },
+        file: { type: "string", format: "binary" },
+        description: { type: "string" },
+        employeeId: { type: "integer", minimum: 1 },
+        companyId: { type: "integer", minimum: 1 },
       },
-      required: ['file'],
+      required: ["file"],
     },
   })
   @UseInterceptors(
@@ -69,20 +77,37 @@ export class DocumentsController {
         destination: BASE_UPLOAD_DIR,
         filename: (req, file, cb) => {
           // Generar nombre único
-          const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + "-" + Math.round(Math.random() * 1e9);
           cb(null, uniqueSuffix + extname(file.originalname));
         },
       }),
-    }),
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+      },
+      fileFilter: (req, file, cb) => {
+        // Additional validation can be added here if needed
+        cb(null, true);
+      },
+    })
   )
-  async uploadFile(@UploadedFile() file: UploadedDiskFile, @Body() body: UploadDocumentDto) {
+  async uploadFile(
+    @UploadedFile() file: UploadedDiskFile,
+    @Body() body: UploadDocumentDto
+  ) {
     // Determine target subfolder based on employee or company
     let targetDir = BASE_UPLOAD_DIR;
-    let employeeId: number | undefined = body.employeeId ? Number(body.employeeId) : undefined;
-    let companyId: number | undefined = body.companyId ? Number(body.companyId) : undefined;
+    let employeeId: number | undefined = body.employeeId
+      ? Number(body.employeeId)
+      : undefined;
+    let companyId: number | undefined = body.companyId
+      ? Number(body.companyId)
+      : undefined;
 
     // Validation: exactly one of employeeId or companyId must be provided
-    const provided = [employeeId !== undefined, companyId !== undefined].filter(Boolean).length;
+    const provided = [employeeId !== undefined, companyId !== undefined].filter(
+      Boolean
+    ).length;
     if (provided !== 1) {
       throw new BadRequestException(
         "Debe especificar exactamente uno: employeeId o companyId"
@@ -90,11 +115,13 @@ export class DocumentsController {
     }
 
     if (employeeId) {
-      const folder = await this.documentsService.getEmployeeFolderName(employeeId);
-      targetDir = join(BASE_UPLOAD_DIR, 'employees', folder);
+      const folder =
+        await this.documentsService.getEmployeeFolderName(employeeId);
+      targetDir = join(BASE_UPLOAD_DIR, "employees", folder);
     } else if (companyId) {
-      const folder = await this.documentsService.getCompanyFolderName(companyId);
-      targetDir = join(BASE_UPLOAD_DIR, 'companies', folder);
+      const folder =
+        await this.documentsService.getCompanyFolderName(companyId);
+      targetDir = join(BASE_UPLOAD_DIR, "companies", folder);
     }
 
     // Ensure target directory exists
@@ -131,7 +158,9 @@ export class DocumentsController {
   @Get(":id/download")
   async download(@Param("id") id: string, @Res() res: Response) {
     const doc = await this.documentsService.findOne(+id);
-    const filePath = isAbsolute(doc.path) ? doc.path : join(process.cwd(), doc.path);
+    const filePath = isAbsolute(doc.path)
+      ? doc.path
+      : join(process.cwd(), doc.path);
     if (!existsSync(filePath)) {
       throw new NotFoundException("File not found");
     }
@@ -146,8 +175,14 @@ export class DocumentsController {
   }
 
   @Get()
-  findAll() {
-    return this.documentsService.findAll();
+  findAll(
+    @Query("employeeId") employeeId?: string,
+    @Query("companyId") companyId?: string
+  ) {
+    const filter: { employeeId?: number; companyId?: number } = {};
+    if (employeeId) filter.employeeId = Number(employeeId);
+    if (companyId) filter.companyId = Number(companyId);
+    return this.documentsService.findAll(filter);
   }
 
   @Get(":id")

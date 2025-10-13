@@ -30,14 +30,14 @@ enum Role {
 
 // Company related models
 model Company {
-  id           Int      @id @default(autoincrement())
-  cuit         String   @unique @db.VarChar(20) // obligatorio y optimizado
+  id           Int     @id @default(autoincrement())
+  cuit         String  @unique @db.VarChar(20) // obligatorio y optimizado
   name         String
-  businessName String?  @db.VarChar(255)
-  information  String? 
+  businessName String? @db.VarChar(255)
+  information  String?
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   businessCategoryId Int?
@@ -49,6 +49,7 @@ model Company {
   equipment          Equipment[]
   products           ProductCompany[]
   parts              PartOrderCompany[]
+  HistoryLog         HistoryLog[]
 
   @@index([businessName])
   @@map("companies")
@@ -80,7 +81,6 @@ model BusinessSubCategory {
   @@map("business_subcategories")
 }
 
-
 // Contact related models
 model Contact {
   id          Int         @id @default(autoincrement())
@@ -88,7 +88,7 @@ model Contact {
   value       String
   label       String?
   information String?     @default("")
-  
+
   // Relaciones polimórficas
   contactLinks ContactLink[]
 
@@ -106,30 +106,28 @@ enum ContactType {
 }
 
 model ContactLink {
-  id         Int       @id @default(autoincrement())
-  contactId  Int
-  contact    Contact   @relation(fields: [contactId], references: [id])
+  id        Int     @id @default(autoincrement())
+  contactId Int
+  contact   Contact @relation(fields: [contactId], references: [id])
 
-  companyId  Int?
-  company    Company?  @relation(fields: [companyId], references: [id])
+  companyId Int?
+  company   Company? @relation(fields: [companyId], references: [id])
 
-  personId   Int?
-  person     Person?   @relation(fields: [personId], references: [id])
+  personId Int?
+  person   Person? @relation(fields: [personId], references: [id])
 
   @@index([companyId])
   @@index([personId])
   @@map("contact_links")
 }
 
-
-
 // Location related models
 model Country {
-  id      Int    @id @default(autoincrement())
-  name    String @unique
-  isoCode String @unique // ISO 3166-1 alpha-2 (ej: AR, US, ES)
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  isoCode String  @unique // ISO 3166-1 alpha-2 (ej: AR, US, ES)
   code    String? // Código numérico del país
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -144,12 +142,12 @@ model Province {
   id   Int    @id @default(autoincrement())
   code String @unique @map("code")
   name String @map("name")
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  countryId Int @map("country_id")
+  countryId Int     @map("country_id")
   country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
   cities    City[]
 
@@ -161,14 +159,14 @@ model City {
   id         Int    @id @default(autoincrement())
   name       String @map("name")
   postalCode String @map("postal_code")
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  provinceId Int    @map("province_id")
-  province  Province  @relation(fields: [provinceId], references: [id], onDelete: Cascade)
-  addresses Address[]
+  provinceId Int       @map("province_id")
+  province   Province  @relation(fields: [provinceId], references: [id], onDelete: Cascade)
+  addresses  Address[]
 
   @@index([provinceId])
   @@index([postalCode])
@@ -176,14 +174,14 @@ model City {
 }
 
 model Address {
-  id         Int      @id @default(autoincrement())
-  street     String?  @map("street") // Calle
-  number     String?  @map("number") // Número
-  floor      String?  @map("floor") // Piso
-  apartment  String?  @map("apartment") // Departamento
-  latitude   Decimal? @db.Decimal(10, 7)
-  longitude  Decimal? @db.Decimal(10, 7)
-  
+  id        Int      @id @default(autoincrement())
+  street    String?  @map("street") // Calle
+  number    String?  @map("number") // Número
+  floor     String?  @map("floor") // Piso
+  apartment String?  @map("apartment") // Departamento
+  latitude  Decimal? @db.Decimal(10, 7)
+  longitude Decimal? @db.Decimal(10, 7)
+
   // Campos adicionales
   neighborhood String? @map("neighborhood") // Barrio
   reference    String? @map("reference") // Referencia
@@ -193,7 +191,7 @@ model Address {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  cityId Int @map("city_id")
+  cityId Int  @map("city_id")
   city   City @relation(fields: [cityId], references: [id], onDelete: Cascade)
 
   // Polimorfismo simple: puede pertenecer a persona o empresa
@@ -209,9 +207,6 @@ model Address {
   @@map("addresses")
 }
 
-// ==================================
-// ENUMS
-// ==================================
 enum EmployeeStatus {
   ACTIVE
   SUSPENDED
@@ -236,35 +231,34 @@ enum PersonStatus {
   INACTIVE
 }
 
-// ==================================
-// EMPLOYEE RELATED MODELS
-// ==================================
 model Employee {
-  id          Int             @id @default(autoincrement())
-  employeeCode String?         @default("00000") // Número de legajo interno de la empresa
-  information String?         
-  status      EmployeeStatus  @default(ACTIVE)
-  hireDate    DateTime        
-  endDate     DateTime?       
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id           Int            @id @default(autoincrement())
+  employeeCode String?        @default("00000") // Número de legajo interno de la empresa
+  information  String?
+  status       EmployeeStatus @default(ACTIVE)
+  hireDate     DateTime
+  endDate      DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   // Relations
-  companyId Int?     
+  companyId Int?
   company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
 
-  categoryId Int              
+  categoryId Int
   category   EmployeeCategory @relation(fields: [categoryId], references: [id])
 
-  positionId Int              
+  positionId Int
   position   EmployeePosition @relation(fields: [positionId], references: [id])
 
-  personId Int     @unique
-  person   Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  personId Int    @unique
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-  vacations   EmployeeVacation[]
-  documents   Document[]
-  inspections Inspection[]
+  vacations        EmployeeVacation[]
+  documents        Document[]
+  inspections      Inspection[]
+  EmployeeIncident EmployeeIncident[]
+  HistoryLog       HistoryLog[]
 
   @@index([companyId])
   @@index([categoryId])
@@ -275,53 +269,53 @@ model Employee {
 }
 
 model EmployeeCategory {
-  id          Int      @id @default(autoincrement())
-  name        String   
-  code        String?  
-  information String?  
-  isActive    Boolean  @default(true)
+  id          Int     @id @default(autoincrement())
+  name        String
+  code        String?
+  information String?
+  isActive    Boolean @default(true)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   employees Employee[]
 
-  @@map("employee_categories")
   @@index([name])
   @@index([code])
+  @@map("employee_categories")
 }
 
 model EmployeePosition {
-  id          Int      @id @default(autoincrement())
-  name        String   
-  code        String?  
-  information String?  
-  isActive    Boolean  @default(true)
+  id          Int     @id @default(autoincrement())
+  name        String
+  code        String?
+  information String?
+  isActive    Boolean @default(true)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   employees Employee[]
 
-  @@map("employee_positions")
   @@index([name])
   @@index([code])
+  @@map("employee_positions")
 }
 
 model EmployeeVacation {
   id             Int          @id @default(autoincrement())
-  detail         String?      
+  detail         String?
   days           Int          @default(0)
   year           Int          @default(0)
   startDate      DateTime
   endDate        DateTime
   settlementDate DateTime     @default(now())
   type           VacationType @default(TAKEN)
-  
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   employeeId Int
@@ -334,13 +328,10 @@ model EmployeeVacation {
 }
 
 enum VacationType {
-  ASSIGNED   // Días nuevos acreditados (carga administrativa)
-  TAKEN      // Días efectivamente tomados  
+  ASSIGNED // Días nuevos acreditados (carga administrativa)
+  TAKEN // Días efectivamente tomados  
 }
 
-// ==================================
-// PERSON RELATED MODELS
-// ==================================
 model Person {
   id            Int            @id @default(autoincrement())
   firstName     String
@@ -359,12 +350,13 @@ model Person {
   // Relations
   contacts     ContactLink[]
   employee     Employee?
-  relatives    Family[]  @relation("Person_Family")
-  isRelativeOf Family[]  @relation("Relative_Person")
+  relatives    Family[]      @relation("Person_Family")
+  isRelativeOf Family[]      @relation("Relative_Person")
+  HistoryLog   HistoryLog[]
 
-  @@map("persons")
   @@index([lastName])
   @@index([firstName])
+  @@map("persons")
 }
 
 model Family {
@@ -372,8 +364,8 @@ model Family {
   relationship String @map("relacion")
 
   // Relations
-  personId  Int
-  person    Person @relation("Person_Family", fields: [personId], references: [id], onDelete: Cascade)
+  personId Int
+  person   Person @relation("Person_Family", fields: [personId], references: [id], onDelete: Cascade)
 
   relativeId Int
   relative   Person @relation("Relative_Person", fields: [relativeId], references: [id], onDelete: Cascade)
@@ -384,26 +376,24 @@ model Family {
 }
 
 model Document {
-  id          Int       @id @default(autoincrement())
-  filename    String    // Nombre original del archivo
-  mimetype    String    // Tipo MIME (ej: application/pdf, image/png)
-  size        Int       // Tamaño en bytes
-  path        String    // Ruta donde se guarda el archivo (o URL en S3/MinIO)
-  description String?   // Descripción opcional
-  uploadedAt  DateTime  @default(now())
+  id          Int      @id @default(autoincrement())
+  filename    String // Nombre original del archivo
+  mimetype    String // Tipo MIME (ej: application/pdf, image/png)
+  size        Int // Tamaño en bytes
+  path        String // Ruta donde se guarda el archivo (o URL en S3/MinIO)
+  description String? // Descripción opcional
+  uploadedAt  DateTime @default(now())
 
   // Relaciones opcionales
-  employeeId  Int?      
-  companyId   Int?      
+  employeeId Int?
+  companyId  Int?
 
-  employee    Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  company     Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employee Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  company  Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@map("documents")
 }
 
-
-// Equipment related models
 model Equipment {
   id           Int      @id @default(autoincrement())
   name         String?  @map("nombre")
@@ -434,8 +424,10 @@ model Equipment {
   modelId Int?            @map("model_id")
   model   EquipmentModel? @relation(fields: [modelId], references: [id])
 
-  parts       PartOrderEquipment[]
-  inspections Inspection[]
+  parts                PartOrderEquipment[]
+  inspections          Inspection[]
+  EquipmentMaintenance EquipmentMaintenance[]
+  HistoryLog           HistoryLog[]
 
   @@index([companyId])
   @@index([categoryId])
@@ -601,7 +593,6 @@ model ProductCompany {
   @@map("product_company")
 }
 
-// Additional models
 model Presentation {
   id          Int     @id @default(autoincrement())
   name        String  @map("nombre")
@@ -625,12 +616,12 @@ model Brand {
   information String?
   code        String  @unique
   isActive    Boolean @default(true)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  @@map("brands")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([name])
+  @@map("brands")
 }
 
 model Unit {
@@ -639,6 +630,126 @@ model Unit {
   abbreviation String  @unique
   isActive     Boolean @default(true)
 
-  @@map("units")
   @@index([name])
+  @@map("units")
+}
+
+// Modelo general para eventos diversos
+model HistoryLog {
+  id          Int           @id @default(autoincrement())
+  title       String // Título del evento
+  description String? // Descripción detallada
+  type        HistoryType // Tipo de evento
+  severity    SeverityLevel @default(INFO)
+  eventDate   DateTime      @default(now()) // Cuándo ocurrió el evento
+  createdAt   DateTime      @default(now())
+
+  // Relaciones polimórficas - puede pertenecer a múltiples entidades
+  employeeId  Int?
+  companyId   Int?
+  equipmentId Int?
+  personId    Int?
+
+  // Relations
+  employee  Employee?  @relation(fields: [employeeId], references: [id])
+  company   Company?   @relation(fields: [companyId], references: [id])
+  equipment Equipment? @relation(fields: [equipmentId], references: [id])
+  person    Person?    @relation(fields: [personId], references: [id])
+
+  // Metadata adicional
+  metadata String? // Datos específicos del evento en JSON (stored as string)
+
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([equipmentId])
+  @@index([personId])
+  @@index([type])
+  @@index([eventDate])
+  @@map("history_logs")
+}
+
+enum HistoryType {
+  EMPLOYEE_ILLNESS // Enfermedad empleado
+  EMPLOYEE_WARNING // Llamado de atención
+  EMPLOYEE_ACHIEVEMENT // Logro/reconocimiento
+  EMPLOYEE_HIRE // Contratación de empleado
+  VACATION_ASSIGNED // Vacaciones asignadas
+  VACATION_TAKEN // Vacaciones tomadas
+  COMPANY_REMINDER // Recordatorio empresa
+  COMPANY_EVENT // Evento corporativo
+  EQUIPMENT_MAINTENANCE // Mantenimiento equipo
+  EQUIPMENT_ACCIDENT // Accidente equipo
+  EQUIPMENT_REPAIR // Reparación
+  PERSONAL_EVENT // Evento personal
+  GENERAL_NOTE // Nota general
+}
+
+enum SeverityLevel {
+  INFO // Informativo
+  WARNING // Advertencia
+  CRITICAL // Crítico
+  SUCCESS // Exitoso
+}
+
+// Tablas específicas para casos que requieren estructura fija
+model EmployeeIncident {
+  id          Int                  @id @default(autoincrement())
+  type        EmployeeIncidentType
+  description String
+  startDate   DateTime? // Fecha inicio enfermedad/incidente
+  endDate     DateTime? // Fecha fin
+  doctorNote  Boolean              @default(false) // ¿Tiene certificado médico?
+  paidLeave   Boolean              @default(false) // ¿Es licencia paga?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([type])
+  @@index([startDate])
+  @@map("employee_incidents")
+}
+
+enum EmployeeIncidentType {
+  SICK_LEAVE // Licencia por enfermedad
+  DISCIPLINARY // Medida disciplinaria
+  WARNING // Llamado de atención formal
+  ACCIDENT // Accidente laboral
+  FAMILY_EMERGENCY // Emergencia familiar
+  UNJUSTIFIED_ABSENCE // Ausencia sin justificar
+  VACATION_LEAVE // Licencia por vacaciones
+}
+
+model EquipmentMaintenance {
+  id          Int             @id @default(autoincrement())
+  type        MaintenanceType
+  description String
+  cost        Decimal?        @db.Decimal(10, 2)
+  startDate   DateTime
+  endDate     DateTime?
+  technician  String? // Nombre del técnico/taller
+  warranty    Boolean         @default(false) // ¿En garantía?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  equipmentId Int
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+
+  @@index([equipmentId])
+  @@index([type])
+  @@index([startDate])
+  @@map("equipment_maintenance")
+}
+
+enum MaintenanceType {
+  PREVENTIVE // Mantenimiento preventivo
+  CORRECTIVE // Mantenimiento correctivo
+  ACCIDENT_REPAIR // Reparación por accidente
+  ROUTINE_CHECK // Revisión rutinaria
 }

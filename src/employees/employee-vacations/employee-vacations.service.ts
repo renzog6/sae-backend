@@ -9,6 +9,8 @@ import { Response } from "express";
 import * as fs from "fs";
 import * as path from "path";
 import * as ExcelJS from "exceljs";
+import { HistoryLogService } from "../../history/services/history-log.service";
+import { HistoryType, SeverityLevel } from "@prisma/client";
 
 interface ExportOptions {
   filename?: string;
@@ -16,9 +18,12 @@ interface ExportOptions {
 }
 @Injectable()
 export class EmployeeVacationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private historyLogService: HistoryLogService
+  ) {}
 
-  create(dto: CreateEmployeeVacationDto) {
+  async create(dto: CreateEmployeeVacationDto) {
     console.log(
       "EmployeeVacationsService.create - DTO received:",
       JSON.stringify(dto, null, 2)
@@ -33,7 +38,7 @@ export class EmployeeVacationsService {
       ? new Date(dto.settlementDate)
       : new Date();
 
-    return this.prisma.employeeVacation.create({
+    const vacation = await this.prisma.employeeVacation.create({
       data: {
         detail: (dto as any).detail,
         days,
@@ -44,8 +49,39 @@ export class EmployeeVacationsService {
         type: type as any,
         employee: { connect: { id: Number(dto.employeeId) } },
       },
-      include: { employee: true },
+      include: { employee: { include: { person: true } } },
     });
+
+    // Create history log based on vacation type
+    const historyType =
+      type === "ASSIGNED"
+        ? HistoryType.VACATION_ASSIGNED
+        : HistoryType.VACATION_TAKEN;
+    const title =
+      type === "ASSIGNED" ? "Vacaciones asignadas" : "Vacaciones tomadas";
+    const description =
+      type === "ASSIGNED"
+        ? `${vacation.employee.person.firstName} ${vacation.employee.person.lastName} recibió ${days} días de vacaciones para el año ${year}`
+        : `${vacation.employee.person.firstName} ${vacation.employee.person.lastName} tomó ${days} días de vacaciones`;
+
+    await this.historyLogService.createLog({
+      title,
+      description,
+      type: historyType,
+      severity: SeverityLevel.INFO,
+      eventDate: settlementDate,
+      employeeId: vacation.employeeId,
+      metadata: JSON.stringify({
+        vacationId: vacation.id,
+        days: vacation.days,
+        year: vacation.year,
+        startDate: vacation.startDate.toISOString(),
+        endDate: vacation.endDate.toISOString(),
+        type: vacation.type,
+      }),
+    });
+
+    return vacation;
   }
 
   async findAll(pagination?: PaginationDto) {

@@ -3,16 +3,20 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
-import { EmployeeStatus } from "@prisma/client";
+import { EmployeeStatus, HistoryType, SeverityLevel } from "@prisma/client";
 import { PaginationDto } from "../common/dto/pagination.dto";
 import { UpdateEmployeeDto } from "./dto/update-employee.dto";
+import { HistoryLogService } from "../history/services/history-log.service";
 
 @Injectable()
 export class EmployeesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private historyLogService: HistoryLogService
+  ) {}
 
-  create(dto: CreateEmployeeDto) {
-    return this.prisma.employee.create({
+  async create(dto: CreateEmployeeDto) {
+    const employee = await this.prisma.employee.create({
       data: {
         employeeCode: dto.employeeCode,
         information: dto.information,
@@ -32,6 +36,24 @@ export class EmployeesService {
         vacations: true,
       },
     });
+
+    // Create history log for employee hire
+    await this.historyLogService.createLog({
+      title: `Nuevo empleado contratado`,
+      description: `${employee.person.firstName} ${employee.person.lastName} comenzó a trabajar en la empresa`,
+      type: HistoryType.EMPLOYEE_HIRE,
+      severity: SeverityLevel.SUCCESS,
+      eventDate: employee.hireDate,
+      employeeId: employee.id,
+      metadata: JSON.stringify({
+        hireDate: employee.hireDate.toISOString(),
+        employeeCode: employee.employeeCode,
+        category: employee.category?.name,
+        position: employee.position?.name,
+      }),
+    });
+
+    return employee;
   }
 
   async findAll(pagination?: PaginationDto) {
