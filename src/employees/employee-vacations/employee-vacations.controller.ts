@@ -26,10 +26,6 @@ export class EmployeeVacationsController {
 
   @Post()
   create(@Body() createEmployeeVacationDto: CreateEmployeeVacationDto) {
-    console.log(
-      "EmployeeVacationsController.create - DTO received:",
-      JSON.stringify(createEmployeeVacationDto, null, 2)
-    );
     return this.employeeVacationsService
       .create(createEmployeeVacationDto)
       .then((data) => ({ data }));

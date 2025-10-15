@@ -24,10 +24,6 @@ export class EmployeeVacationsService {
   ) {}
 
   async create(dto: CreateEmployeeVacationDto) {
-    console.log(
-      "EmployeeVacationsService.create - DTO received:",
-      JSON.stringify(dto, null, 2)
-    );
     const start = new Date(dto.startDate);
     const days = dto.days;
     const end = new Date(start);

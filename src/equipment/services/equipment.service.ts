@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateEquipmentDto } from './dto/create-equipment.dto';
-import { UpdateEquipmentDto } from './dto/update-equipment.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CreateEquipmentDto } from "../dto/create-equipment.dto";
+import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
 
 @Injectable()
 export class EquipmentService {
@@ -15,9 +15,9 @@ export class EquipmentService {
 
   async findAll(page = 1, limit = 10, companyId?: number) {
     const skip = (page - 1) * limit;
-    
+
     const where = companyId ? { companyId } : {};
-    
+
     const [items, total] = await Promise.all([
       this.prisma.equipment.findMany({
         where,
@@ -94,6 +94,54 @@ export class EquipmentService {
 
   async findModels(typeId?: number) {
     const where = typeId ? { typeId } : {};
-    return this.prisma.equipmentModel.findMany({ where });
+    return this.prisma.equipmentModel.findMany({
+      where,
+      include: {
+        brand: true,
+        type: true,
+      },
+    });
+  }
+
+  async findCategory(id: number) {
+    const category = await this.prisma.equipmentCategory.findUnique({
+      where: { id },
+      include: { types: true },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Equipment category with ID ${id} not found`);
+    }
+
+    return category;
+  }
+
+  async findType(id: number) {
+    const type = await this.prisma.equipmentType.findUnique({
+      where: { id },
+      include: { category: true },
+    });
+
+    if (!type) {
+      throw new NotFoundException(`Equipment type with ID ${id} not found`);
+    }
+
+    return type;
+  }
+
+  async findModel(id: number) {
+    const model = await this.prisma.equipmentModel.findUnique({
+      where: { id },
+      include: {
+        brand: true,
+        type: true,
+      },
+    });
+
+    if (!model) {
+      throw new NotFoundException(`Equipment model with ID ${id} not found`);
+    }
+
+    return model;
   }
 }

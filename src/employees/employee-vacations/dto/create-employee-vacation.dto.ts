@@ -7,10 +7,6 @@ export class CreateEmployeeVacationDto {
   constructor(dto?: any) {
     if (dto) {
       Object.assign(this, dto);
-      console.log(
-        "CreateEmployeeVacationDto - Received values:",
-        JSON.stringify(dto, null, 2)
-      );
     }
   }
 
