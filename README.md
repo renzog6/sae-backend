@@ -1273,7 +1273,7 @@ npm test -- --testNamePattern="CompaniesService"
 
 ## 📄 Licencia
 
-MIT - Ver archivo [LICENSE](LICENSE) para más detalles.
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 
