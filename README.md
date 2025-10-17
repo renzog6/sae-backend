@@ -167,6 +167,7 @@ graph TB
     A --> L[Inspections Module]
     A --> M[Health Module]
     A --> N[Catalogs Module]
+    A --> O[Tires Module]
 
     D --> D1[Business Categories]
     D --> D2[Business Subcategories]
@@ -192,6 +193,13 @@ graph TB
 
     N --> N1[Brands]
     N --> N2[Units]
+
+    O --> O1[Tire Sizes]
+    O --> O2[Tire Assignments]
+    O --> O3[Tire Rotations]
+    O --> O4[Tire Recaps]
+    O --> O5[Tire Inspections]
+    O --> O6[Tire Reports]
 ```
 
 ### Estructura de Directorios
@@ -504,6 +512,355 @@ Authorization: Bearer <access_token>
 - `GET /equipment/types/all` - Todos los tipos
 - `GET /equipment/models/all` - Todos los modelos
 
+### 🛞 Gestión de Neumáticos (`/tires`)
+
+El módulo de neumáticos implementa un sistema completo de gestión del ciclo de vida de neumáticos, desde el ingreso al stock hasta el descarte final. Incluye tracking de asignaciones, rotaciones, recapados e inspecciones técnicas.
+
+#### 🎯 Características Principales
+
+- **Ciclo de Vida Completo**: Desde stock hasta descarte con tracking detallado
+- **Gestión de Asignaciones**: Montaje/desmontaje en equipos con cálculo automático de km
+- **Sistema de Rotaciones**: Cambios de posición y vehículo con historial
+- **Recapado y Mantenimiento**: Control de reconstrucciones con costos
+- **Inspecciones Técnicas**: Seguimiento de presión, profundidad y estado
+- **Reportes Analíticos**: Vida útil, costos, desgaste y rankings
+- **Eventos Auditables**: Timeline completo con metadata JSON
+
+#### 📊 Arquitectura de Datos
+
+```mermaid
+erDiagram
+    Tire ||--o{ TireAssignment : assigned
+    Tire ||--o{ TireRotation : rotated
+    Tire ||--o{ TireRecap : recapped
+    Tire ||--o{ TireInspection : inspected
+    Tire ||--o{ TireEvent : events
+
+    TireAssignment }o--|| Equipment : mounted_on
+    TireRotation }o--o{ Equipment : between
+
+    TireSize ||--o{ Tire : sized
+    TireSize ||--o{ TireSizeAlias : aliases
+
+    Brand ||--o{ Tire : branded
+```
+
+##### Modelos Principales
+
+| Elemento           | Descripción                                                    |
+| ------------------ | -------------------------------------------------------------- |
+| **TireSize**       | Define la medida técnica base del neumático (normalizada)      |
+| **TireSizeAlias**  | Permite múltiples denominaciones (ej. "380/90R46" ≡ "14.9R46") |
+| **Tire**           | Neumático físico individual, con marca, medida y estado        |
+| **TireAssignment** | Historial de montaje/desmontaje en equipos y posiciones        |
+| **TireRotation**   | Registra cambios de posición o de vehículo (rotaciones)        |
+| **TireRecap**      | Historial de recapados con proveedor y costo                   |
+| **TireInspection** | Control técnico: presión, profundidad, observaciones           |
+| **TirePosition**   | Enum estandariza posiciones posibles en chasis o acoplado      |
+| **TireStatus**     | Enum controla stock/vida útil                                  |
+| **TireEvent**      | Timeline de eventos para auditoría                             |
+
+##### Enums del Sistema
+
+- **TireStatus**: IN_STOCK, IN_USE, UNDER_REPAIR, RECAP, DISCARDED
+- **TirePosition**: DI, DD, E1I, E1D, E2I, E2D, etc. (delanteros, ejes traseros, duales)
+- **TireEventType**: ASSIGNMENT, UNASSIGNMENT, ROTATION, INSPECTION, RECAP, DISCARD, OTHER
+
+#### 🏗️ Submódulos y Funcionalidades
+
+##### 1. **TiresModule** - Gestión Básica
+
+- CRUD completo de neumáticos
+- Validación de serial numbers únicos
+- Relaciones con marcas y medidas
+- Estados y posiciones dinámicas
+
+##### 2. **TireAssignmentsModule** - Ciclo de Montaje
+
+🧩 **Propósito**: Registrar dónde y cuándo se monta un neumático y cuándo se desmonta. Permite conocer el estado actual y los kilómetros recorridos entre montajes.
+
+🧱 **Acciones principales:**
+
+- `POST /api/tires/assignments/mount` → montar neumático en equipo
+- `PUT /api/tires/assignments/unmount/:id` → desmontar neumático
+- `GET /api/tires/assignments/:tireId` → historial completo de asignaciones
+- `GET /api/tires/assignments/open` → asignaciones activas
+
+💡 **Lógica recomendada:**
+
+- Cada montaje inicia con `startDate` y `kmAtStart`
+- Al desmontar, se completa `endDate` y `kmAtEnd`
+- Se calcula `deltaKm = kmAtEnd - kmAtStart`
+- Actualiza automáticamente el campo `totalKm` del neumático
+
+##### 3. **TireRotationsModule** - Sistema de Rotaciones
+
+🧩 **Propósito**: Llevar registro de rotaciones internas (cambio de posición o vehículo).
+
+🧱 **Acciones:**
+
+- `POST /api/tires/rotations` → registrar una rotación
+- `GET /api/tires/rotations/:tireId` → historial del neumático
+- `GET /api/tires/rotations` → todas las rotaciones
+- `PUT /api/tires/rotations/:id` → actualizar rotación
+- `DELETE /api/tires/rotations/:id` → eliminar rotación
+
+💡 **Lógica recomendada:**
+
+- Cada rotación se guarda con `fromEquipmentId`, `toEquipmentId`, `fromPosition`, `toPosition`, y `kmAtRotation`
+- También puede actualizar la posición actual del neumático
+
+##### 4. **TireRecapsModule** - Gestión de Recapados
+
+🧩 **Propósito**: Gestionar los recapados (reconstrucción de banda) — vital en costos y control de vida útil.
+
+🧱 **Acciones:**
+
+- `POST /api/tires/recaps` → registrar recapado
+- `GET /api/tires/recaps/:tireId` → ver historial
+- `PUT /api/tires/recaps/:id` → actualizar información
+- `DELETE /api/tires/recaps/:id` → eliminar registro
+
+💡 **Campos relevantes:**
+
+- `recapDate`
+- `provider`
+- `cost`
+- `recapNumber` (número de recapados acumulados)
+- `observation`
+
+🧠 **Buenas prácticas:**
+
+- Incrementar `recapCount` automáticamente
+- Cambiar `status` del neumático a `RECAP` durante el proceso
+- Registrar evento en `HistoryLog` (si querés auditoría global)
+
+##### 5. **TireInspectionsModule** - Control Técnico
+
+🧩 **Propósito**: Control periódico del estado físico y técnico del neumático.
+
+🧱 **Acciones:**
+
+- `POST /api/tires/inspections` → nueva revisión
+- `GET /api/tires/inspections/:tireId` → historial de inspecciones
+- `GET /api/tires/inspections/:id` → obtener inspección específica
+- `PUT /api/tires/inspections/:id` → actualizar inspección
+- `DELETE /api/tires/inspections/:id` → eliminar inspección
+
+💡 **Campos clave:**
+
+- `pressure` (presión)
+- `treadDepth` (profundidad de banda)
+- `observation` (cortes, desgaste irregular)
+- `inspectionDate`
+
+🧠 **Uso sugerido:**
+
+- Generar alertas o reportes si la profundidad < cierto umbral
+- Vincular con `Employee` (quién realizó la inspección)
+
+##### 6. **TireReportsModule** - Analítica y Reportes
+
+Una capa para analítica e informes, ideal si más adelante querés estadísticas.
+
+**Reportes Disponibles:**
+
+- `GET /api/tires/reports/average-life` → promedio de vida útil (km)
+- `GET /api/tires/reports/cost-per-km` → costo total por km recorrido
+- `GET /api/tires/reports/over-recap?threshold=2` → neumáticos recapados más de N veces
+- `GET /api/tires/reports/brand-ranking` → ranking de marcas por duración promedio
+- `GET /api/tires/reports/yearly-recaps?year=2024` → reporte anual de recapados por marca
+
+**Exportaciones Excel:**
+
+- Todos los reportes tienen versión Excel con `GET /api/tires/reports/export/*`
+
+#### 🌐 Endpoints Principales
+
+##### CRUD Básico de Neumáticos (`/tires`)
+
+- `POST /tires` - Crear neumático
+- `GET /tires` - Listar neumáticos con detalles
+- `GET /tires/:id` - Obtener neumático específico
+- `PUT /tires/:id` - Actualizar neumático
+- `DELETE /tires/:id` - Eliminar neumático
+
+##### Tamaños de Neumáticos (`/tires/sizes`)
+
+- `GET /tires/sizes` - Listar medidas disponibles
+- `GET /tires/sizes/:id` - Obtener medida específica
+
+#### 📋 Ejemplos de Uso
+
+##### Montar Neumático
+
+```bash
+POST /api/tires/assignments/mount
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "tireId": 12,
+  "equipmentId": 3,
+  "position": "E2I",
+  "kmAtStart": 120000,
+  "note": "Montaje inicial campaña"
+}
+```
+
+##### Desmontar Neumático
+
+```bash
+PUT /api/tires/assignments/unmount
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "assignmentId": 45,
+  "kmAtEnd": 121250,
+  "note": "Rotación"
+}
+```
+
+##### Registrar Recapado
+
+```bash
+POST /api/tires/recaps
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "tireId": 12,
+  "provider": "Vulcanizadora RCM",
+  "cost": 85000.50,
+  "notes": "Recap inicial después de 60.000 km"
+}
+```
+
+##### Nueva Inspección
+
+```bash
+POST /api/tires/inspections
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "tireId": 12,
+  "pressure": 32.5,
+  "treadDepth": 8.5,
+  "observation": "Buen estado general"
+}
+```
+
+##### Registrar Rotación
+
+```bash
+POST /api/tires/rotations
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "tireId": 12,
+  "fromEquipmentId": 3,
+  "toEquipmentId": 5,
+  "fromPosition": "E2I",
+  "toPosition": "E1D",
+  "kmAtRotation": 121250,
+  "notes": "Rotación preventiva"
+}
+```
+
+#### 🔄 Flujos de Trabajo
+
+##### Flujo al Registrar un Recapado
+
+1. Se crea el registro en `TireRecap`
+2. Se calcula `recapNumber` automáticamente (incremental por neumático)
+3. Se actualiza el estado del neumático a `RECAP`
+4. Se registra un evento en `TireEvent` con datos del proveedor, costo y número
+5. Se puede luego volver a `IN_USE` con otro proceso (ej. montaje)
+
+##### Ciclo de Vida Completo
+
+```
+IN_STOCK → IN_USE (montaje) → UNDER_REPAIR (si mantenimiento) → RECAP (recapado) → DISCARDED (descartado)
+     ↑                                                                                      ↓
+     └───────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+##### Gestión de Kilómetros
+
+- **Al montar**: Se registra `kmAtStart`
+- **Al desmontar**: Se registra `kmAtEnd` y calcula `deltaKm = kmAtEnd - kmAtStart`
+- **Acumulación**: Se suma `deltaKm` al `totalKm` del neumático
+- **Rotaciones**: Se registra `kmAtRotation` para tracking
+
+#### 📊 Reportes y Analítica
+
+##### Vida Útil Promedio
+
+```json
+{
+  "count": 150,
+  "averageKm": 45230
+}
+```
+
+##### Costo por Kilómetro
+
+```json
+[
+  {
+    "tireId": 12,
+    "brand": 5,
+    "totalCost": 125000,
+    "km": 60000,
+    "costPerKm": 2.08
+  }
+]
+```
+
+##### Ranking de Marcas
+
+```json
+[
+  {
+    "brand": "Michelin",
+    "avgKm": 52140
+  },
+  {
+    "brand": "Bridgestone",
+    "avgKm": 48920
+  }
+]
+```
+
+#### 🔧 Consideraciones Técnicas
+
+##### Transacciones
+
+- Operaciones críticas usan `$transaction` para atomicidad
+- Rollback automático en caso de error
+- Eventos se registran dentro de la transacción
+
+##### Eventos y Auditoría
+
+- Sistema de `TireEvent` para timeline completo
+- Metadata JSON para detalles específicos
+- Relación con usuarios para accountability
+
+##### Validaciones
+
+- Serial numbers únicos por neumático
+- Existencia de equipos y neumáticos antes de operaciones
+- Estados consistentes en el ciclo de vida
+
+##### Optimizaciones
+
+- Índices en campos de búsqueda frecuente
+- Includes selectivos para performance
+- Paginación en listados grandes
+
 ### 📋 Inspecciones (`/inspections`)
 
 - `GET /inspections` - Listar inspecciones (paginado)
@@ -694,6 +1051,7 @@ erDiagram
     Equipment ||--o{ Inspection : undergoes
     Equipment ||--o{ EquipmentMaintenance : receives
     Equipment ||--o{ Document : has
+    Equipment ||--o{ TireAssignment : has_tires
 
     Country ||--|{ Province : contains
     Province ||--|{ City : contains
@@ -702,6 +1060,14 @@ erDiagram
     BusinessCategory ||--|{ BusinessSubCategory : categorizes
     EquipmentCategory ||--|{ EquipmentType : groups
     EquipmentType ||--|{ EquipmentModel : defines
+
+    Brand ||--o{ Tire : brands
+    TireSize ||--o{ Tire : sizes
+    Tire ||--o{ TireAssignment : assigned
+    Tire ||--o{ TireRotation : rotated
+    Tire ||--o{ TireRecap : recapped
+    Tire ||--o{ TireInspection : inspected
+    Tire ||--o{ TireEvent : events
 ```
 
 #### Enums del Sistema
@@ -716,6 +1082,9 @@ erDiagram
 - **VacationType**: ASSIGNED, TAKEN
 - **HistoryType**: EMPLOYEE_ILLNESS, EQUIPMENT_MAINTENANCE, etc.
 - **SeverityLevel**: INFO, WARNING, CRITICAL, SUCCESS
+- **TireStatus**: IN_STOCK, IN_USE, UNDER_REPAIR, RECAP, DISCARDED
+- **TirePosition**: DI, DD, E1I, E1D, E2I, E2D, etc. (posiciones en chasis)
+- **TireEventType**: ASSIGNMENT, UNASSIGNMENT, ROTATION, INSPECTION, RECAP, DISCARD, OTHER
 
 ### Optimización de Performance
 

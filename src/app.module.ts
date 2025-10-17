@@ -1,4 +1,5 @@
 // filepath: sae-backend/src/app.module.ts
+import { join } from "path";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
@@ -17,8 +18,8 @@ import { HealthModule } from "./health/health.module";
 import { CatalogsModule } from "./catalogs/catalogs.module";
 import { PersonsModule } from "./persons/persons.module";
 import { DocumentsModule } from "./documents/documents.module";
-import { join } from "path";
 import { HistoryModule } from "./history/history.module";
+import { TiresModule } from "./tires/tires.module";
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { HistoryModule } from "./history/history.module";
     PersonsModule,
     DocumentsModule,
     HistoryModule,
+    TiresModule,
   ],
   controllers: [],
   providers: [],

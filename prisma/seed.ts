@@ -109,6 +109,11 @@ async function main() {
   if (documents.length)
     await prisma.document.createMany({ data: documents, skipDuplicates: true });
 
+  // Parts system (brands needed for equipmentModels)
+  const brands = loadJson("brands.json");
+  if (brands.length)
+    await prisma.brand.createMany({ data: brands, skipDuplicates: true });
+
   // Equipment hierarchy
   const equipmentCategories = loadJson("equipmentCategories.json");
   if (equipmentCategories.length)
@@ -132,11 +137,33 @@ async function main() {
     });
 
   const equipment = loadJson("equipment.json");
-  if (equipment.length)
-    await prisma.equipment.createMany({
-      data: equipment,
-      skipDuplicates: true,
-    });
+  if (equipment.length) {
+    console.log(`Loading ${equipment.length} equipment items...`);
+    try {
+      await prisma.equipment.createMany({
+        data: equipment,
+        //skipDuplicates: true,
+      });
+      console.log("Equipment loaded successfully");
+    } catch (error) {
+      console.error("Error loading equipment:", error);
+      // Try to insert one by one to find the problematic record
+      for (let i = 0; i < equipment.length; i++) {
+        try {
+          await prisma.equipment.create({
+            data: equipment[i],
+          });
+          console.log(`Inserted equipment id: ${equipment[i].id}`);
+        } catch (err) {
+          console.error(
+            `Error inserting equipment id ${equipment[i].id}:`,
+            err
+          );
+          break;
+        }
+      }
+    }
+  }
 
   const equipmentMaintenance = loadJson("equipmentMaintenance.json");
   if (equipmentMaintenance.length)
@@ -159,11 +186,6 @@ async function main() {
       data: inspections,
       skipDuplicates: true,
     });
-
-  // Parts system
-  const brands = loadJson("brands.json");
-  if (brands.length)
-    await prisma.brand.createMany({ data: brands, skipDuplicates: true });
 
   const partCategories = loadJson("partCategories.json");
   if (partCategories.length)
