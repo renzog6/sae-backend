@@ -11,11 +11,13 @@ export class TireReportsService {
   async getAverageLifeKm(filter: TireReportFilterDto) {
     const tires = await this.prisma.tire.findMany({
       where: {
-        brand: filter.brand ? { name: { contains: filter.brand } } : undefined,
+        model: filter.brand
+          ? { brand: { name: { contains: filter.brand } } }
+          : undefined,
       },
       include: {
         assignments: { include: { equipment: true } },
-        TireEvent: true,
+        events: true,
       },
     });
 
@@ -39,7 +41,7 @@ export class TireReportsService {
   // 💰 2. Costo total por km (compra + recapados)
   async getCostPerKm(filter: TireReportFilterDto) {
     const tires = await this.prisma.tire.findMany({
-      include: { recaps: true },
+      include: { recaps: true, model: { include: { brand: true } } },
     });
 
     return tires.map((t) => {
@@ -52,7 +54,7 @@ export class TireReportsService {
 
       return {
         tireId: t.id,
-        brand: t.brandId,
+        brand: t.model.brand.name,
         totalCost,
         km,
         costPerKm: km > 0 ? totalCost / km : null,
@@ -77,14 +79,14 @@ export class TireReportsService {
   // 🏆 4. Ranking de marcas por duración promedio
   async getBrandRanking() {
     const tires = await this.prisma.tire.findMany({
-      include: { TireEvent: true, brand: true },
+      include: { events: true, model: { include: { brand: true } } },
     });
 
     const grouped = new Map<string, { totalKm: number; count: number }>();
 
     for (const t of tires) {
       const km = t.totalKm ?? 0;
-      const brand = t.brand?.name ?? "Desconocida";
+      const brand = t.model.brand?.name ?? "Desconocida";
 
       if (!grouped.has(brand)) grouped.set(brand, { totalKm: 0, count: 0 });
       const data = grouped.get(brand)!;
@@ -109,14 +111,14 @@ export class TireReportsService {
           lt: new Date(`${year + 1}-01-01`),
         },
       },
-      include: { tire: { include: { brand: true } } },
+      include: { tire: { include: { model: { include: { brand: true } } } } },
     });
 
     const totalCost = recaps.reduce((sum, r) => sum + Number(r.cost ?? 0), 0);
     const byBrand = new Map<string, number>();
 
     for (const r of recaps) {
-      const brand = r.tire?.brand?.name ?? "Desconocida";
+      const brand = r.tire?.model?.brand?.name ?? "Desconocida";
       byBrand.set(brand, (byBrand.get(brand) ?? 0) + Number(r.cost ?? 0));
     }
 

@@ -13,26 +13,10 @@ export class CreateTireDto {
 
   @ApiProperty({
     example: 1,
-    description: "Brand ID (foreign key)",
-    required: false,
+    description: "Tire model ID (foreign key)",
   })
-  @IsOptional()
   @IsInt()
-  brandId?: number;
-
-  @ApiProperty({ example: 2, description: "Tire size ID", required: false })
-  @IsOptional()
-  @IsInt()
-  sizeId?: number;
-
-  @ApiProperty({
-    example: "AGRIMAX RT 855",
-    description: "Model or commercial name",
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  model?: string;
+  modelId: number;
 
   @ApiProperty({ enum: TirePosition, required: false })
   @IsOptional()

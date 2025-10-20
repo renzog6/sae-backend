@@ -15,12 +15,17 @@ export class TiresService {
   async findAll() {
     return this.prisma.tire.findMany({
       include: {
-        brand: true,
-        size: { include: { aliases: true } },
+        model: {
+          include: {
+            brand: true,
+            size: { include: { aliases: true } },
+          },
+        },
         assignments: { include: { equipment: true } },
         rotations: true,
         recaps: true,
         inspections: true,
+        events: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -30,12 +35,17 @@ export class TiresService {
     const tire = await this.prisma.tire.findUnique({
       where: { id },
       include: {
-        brand: true,
-        size: { include: { aliases: true } },
+        model: {
+          include: {
+            brand: true,
+            size: { include: { aliases: true } },
+          },
+        },
         assignments: { include: { equipment: true } },
         rotations: true,
         recaps: true,
         inspections: true,
+        events: true,
       },
     });
     if (!tire) throw new NotFoundException("Tire not found");

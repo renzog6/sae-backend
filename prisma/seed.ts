@@ -142,7 +142,7 @@ async function main() {
     try {
       await prisma.equipment.createMany({
         data: equipment,
-        //skipDuplicates: true,
+        skipDuplicates: true,
       });
       console.log("Equipment loaded successfully");
     } catch (error) {
@@ -238,11 +238,65 @@ async function main() {
       skipDuplicates: true,
     });
 
-  // Additional data
+  // Tire system (depends on brands)
+  const tireSizes = loadJson("tireSizes.json");
+  if (tireSizes.length)
+    await prisma.tireSize.createMany({ data: tireSizes, skipDuplicates: true });
+
+  const tireSizeAliases = loadJson("tireSizeAliases.json");
+  if (tireSizeAliases.length)
+    await prisma.tireSizeAlias.createMany({
+      data: tireSizeAliases,
+      skipDuplicates: true,
+    });
+
+  const tireModels = loadJson("tireModels.json");
+  if (tireModels.length)
+    await prisma.tireModel.createMany({
+      data: tireModels,
+      skipDuplicates: true,
+    });
+
   const tires = loadJson("tires.json");
   if (tires.length)
     await prisma.tire.createMany({ data: tires, skipDuplicates: true });
 
+  const tireAssignments = loadJson("tireAssignments.json");
+  if (tireAssignments.length)
+    await prisma.tireAssignment.createMany({
+      data: tireAssignments,
+      skipDuplicates: true,
+    });
+
+  const tireRotations = loadJson("tireRotations.json");
+  if (tireRotations.length)
+    await prisma.tireRotation.createMany({
+      data: tireRotations,
+      skipDuplicates: true,
+    });
+
+  const tireRecaps = loadJson("tireRecaps.json");
+  if (tireRecaps.length)
+    await prisma.tireRecap.createMany({
+      data: tireRecaps,
+      skipDuplicates: true,
+    });
+
+  const tireInspections = loadJson("tireInspections.json");
+  if (tireInspections.length)
+    await prisma.tireInspection.createMany({
+      data: tireInspections,
+      skipDuplicates: true,
+    });
+
+  const tireEvents = loadJson("tireEvents.json");
+  if (tireEvents.length)
+    await prisma.tireEvent.createMany({
+      data: tireEvents,
+      skipDuplicates: true,
+    });
+
+  // Additional data
   const units = loadJson("units.json");
   if (units.length)
     await prisma.unit.createMany({ data: units, skipDuplicates: true });

@@ -452,7 +452,7 @@ model Brand {
   Part           Part[]
   Product        Product[]
   EquipmentModel EquipmentModel[]
-  Tire           Tire[]
+  TireModel      TireModel[]
 
   @@index([name])
   @@map("brands")
@@ -841,8 +841,8 @@ enum TirePosition {
   DD // Delantero Derecho
 
   //# Ejes traseros (camión o acoplado)
-  E1I // Eje 1 Izquierdo
-  E1D // Eje 1 Derecho
+  E1I
+  E1D
   E2I
   E2D
   E3I
@@ -861,26 +861,34 @@ enum TirePosition {
   UNKNOWN // Sin posición definida
 }
 
+enum TireEventType {
+  ASSIGNMENT
+  UNASSIGNMENT
+  ROTATION
+  INSPECTION
+  RECAP
+  DISCARD
+  OTHER
+}
+
 // --- MODELOS PRINCIPALES ---
 
+// 📏 MEDIDA genérica del neumático
 model TireSize {
-  id           Int      @id @default(autoincrement())
-  mainCode     String   @unique @db.VarChar(25) // Ej: "380/90R46"
-  width        Int? // 380
-  aspectRatio  Int? // 90
-  rimDiameter  Decimal? @db.Decimal(4, 1) // 46
-  construction String? // "R" (Radial), "D" (Diagonal)
-  loadIndex    Int?
-  speedSymbol  String? // Ej: "A8", "B", "L"
-  information  String?
+  id          Int      @id @default(autoincrement())
+  mainCode    String   @unique @db.VarChar(25) // Ej: "380/90R46"
+  width       Int? // 380
+  aspectRatio Int? // 90
+  rimDiameter Decimal? @db.Decimal(4, 1) // 46
+  information String? // Notas técnicas, 
 
-  // Relaciones
   aliases TireSizeAlias[]
-  tires   Tire[]
+  models  TireModel[]
 
   @@map("tire_sizes")
 }
 
+// 🔄 Alias alternativos para la misma medida
 model TireSizeAlias {
   id         Int      @id @default(autoincrement())
   aliasCode  String   @unique @db.VarChar(25) // Ej: "14.9R46"
@@ -891,32 +899,52 @@ model TireSizeAlias {
   @@map("tire_size_aliases")
 }
 
+// 🧩 MODELO comercial de neumático (marca + características técnicas)
+model TireModel {
+  id           Int     @id @default(autoincrement())
+  brandId      Int
+  sizeId       Int
+  name         String  @db.VarChar(50) // Ej: "Agribib"
+  construction String? // "R" (Radial), "D" (Diagonal)
+  loadIndex    Int?
+  speedSymbol  String? // Ej: "A8", "B", "L"
+  plyRating    String? // Ej: "8PR"
+  treadPattern String? // Ej: "R-1W", "LSW", etc.
+  information  String? // Notas técnicas, presión recomendada, etc.
+
+  brand Brand    @relation(fields: [brandId], references: [id])
+  size  TireSize @relation(fields: [sizeId], references: [id])
+  tires Tire[]
+
+  @@index([brandId])
+  @@index([sizeId])
+  @@map("tire_models")
+}
+
+// 🔹 NEUMÁTICO físico individual
 model Tire {
   id           Int           @id @default(autoincrement())
-  serialNumber String        @unique // Identificador único del neumático
-  brandId      Int?
-  sizeId       Int?
-  model        String?       @db.VarChar(50)
+  serialNumber String        @unique
+  modelId      Int
   position     TirePosition?
   status       TireStatus    @default(IN_STOCK)
   totalKm      Int?          @default(0)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  brand Brand?    @relation(fields: [brandId], references: [id])
-  size  TireSize? @relation(fields: [sizeId], references: [id])
+  model TireModel @relation(fields: [modelId], references: [id])
 
   assignments TireAssignment[]
   rotations   TireRotation[]
   recaps      TireRecap[]
   inspections TireInspection[]
-  TireEvent   TireEvent[]
+  events      TireEvent[]
 
-  @@index([brandId])
-  @@index([sizeId])
+  @@index([modelId])
   @@map("tires")
 }
 
+// 📍 Asignación del neumático a un equipo
 model TireAssignment {
   id          Int          @id @default(autoincrement())
   tireId      Int
@@ -935,6 +963,7 @@ model TireAssignment {
   @@map("tire_assignments")
 }
 
+// 🔁 Rotaciones entre posiciones o equipos
 model TireRotation {
   id              Int           @id @default(autoincrement())
   tireId          Int
@@ -951,6 +980,7 @@ model TireRotation {
   @@map("tire_rotations")
 }
 
+// 🔧 Registro de recapados
 model TireRecap {
   id          Int      @id @default(autoincrement())
   tireId      Int
@@ -968,12 +998,13 @@ model TireRecap {
   @@map("tire_recaps")
 }
 
+// 🔍 Inspecciones periódicas
 model TireInspection {
   id             Int      @id @default(autoincrement())
   tireId         Int
   inspectionDate DateTime @default(now())
   pressure       Decimal? @db.Decimal(5, 2)
-  treadDepth     Decimal? @db.Decimal(5, 2) // Profundidad de banda
+  treadDepth     Decimal? @db.Decimal(5, 2)
   observation    String?
 
   tire Tire @relation(fields: [tireId], references: [id])
@@ -982,28 +1013,15 @@ model TireInspection {
   @@map("tire_inspections")
 }
 
-// ----------------------
-// Timeline / Events for tires
-// ----------------------
-
-enum TireEventType {
-  ASSIGNMENT
-  UNASSIGNMENT
-  ROTATION
-  INSPECTION
-  RECAP
-  DISCARD
-  OTHER
-}
-
+// 🕓 Historial de eventos (timeline)
 model TireEvent {
   id          Int           @id @default(autoincrement())
   tireId      Int
   eventType   TireEventType
   eventDate   DateTime      @default(now())
-  userId      Int? // opcional: para auditar qué usuario realizó la acción
+  userId      Int?
   description String?
-  metadata    String? // JSON como string con detalles (p.ej. {kmDelta:100})
+  metadata    String? // JSON string con detalles extra
   createdAt   DateTime      @default(now())
 
   tire Tire @relation(fields: [tireId], references: [id])
