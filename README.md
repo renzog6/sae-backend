@@ -2,57 +2,69 @@
 
 ## 📋 Descripción
 
-SAE Backend es una API REST desarrollada con NestJS y Prisma para gestionar empresas, personas, empleados, ubicaciones, equipos, inspecciones y contactos. La arquitectura está orientada a escalabilidad, con DTOs validados, documentación OpenAPI y pruebas unitarias/e2e.
+SAE Backend es una API REST completa desarrollada con **NestJS** y **Prisma ORM** para la gestión integral de un sistema empresarial. El proyecto implementa un sistema de administración que abarca desde la gestión de recursos humanos hasta el control de flota vehicular y neumáticos, con énfasis en la trazabilidad completa de operaciones.
 
 ### 🎯 Características Principales
 
-- **Arquitectura Modular**: Basada en módulos NestJS independientes con responsabilidades claras
-- **Autenticación JWT**: Sistema de login con refresh tokens y roles (USER, ADMIN, MANAGER)
-- **Base de Datos Relacional**: MySQL con Prisma ORM y migraciones automatizadas
-- **Documentación Interactiva**: Swagger/OpenAPI disponible en `/api/docs`
-- **Gestión Documental**: Subida y descarga de archivos con organización automática
-- **Historial Completo**: Sistema de logs para eventos, incidentes y mantenimiento
-- **Polimorfismo Avanzado**: Contactos y direcciones compartidas entre entidades
-- **Testing Integral**: Cobertura con Jest para unitarios y e2e
+- **Arquitectura Modular Avanzada**: Más de 40 módulos independientes organizados por dominio
+- **Autenticación JWT Robusta**: Sistema de login con refresh tokens y roles jerárquicos (USER, ADMIN, MANAGER)
+- **Base de Datos Compleja**: MySQL 8+ con Prisma ORM, más de 50 modelos relacionados y migraciones automatizadas
+- **Documentación Interactiva**: Swagger/OpenAPI completa disponible en `/api/docs`
+- **Gestión Documental**: Sistema de subida/descarga de archivos con organización automática por entidad
+- **Historial Auditado**: Sistema de logs polimórfico para eventos, incidentes y mantenimiento
+- **Polimorfismo Avanzado**: Contactos y direcciones compartidas entre múltiples entidades
+- **Testing Exhaustivo**: Cobertura completa con Jest para unitarios y e2e
+- **Gestión de Neumáticos**: Módulo especializado para ciclo de vida completo de neumáticos
+- **Sistema de Inspecciones**: Control técnico de equipos y neumáticos
+- **Reportes Analíticos**: Generación de reportes Excel y métricas de rendimiento
 
 - **Versión**: 1.0.0
 - **Autor**: Renzo O. Gorosito
 - **Licencia**: MIT
+- **Última Actualización**: Octubre 2025
 
 ## 🚀 Tecnologías
 
 ### Core Framework
 
-- **Framework**: NestJS 10.x con arquitectura modular
-- **Lenguaje**: TypeScript con configuración estricta
-- **Runtime**: Node.js 18+
+- **Framework**: NestJS 10.x con arquitectura modular avanzada
+- **Lenguaje**: TypeScript 5.1+ con configuración estricta (strict mode)
+- **Runtime**: Node.js 18+ LTS
+- **Gestión de Dependencias**: npm 8+ con package-lock.json
 
 ### Base de Datos y ORM
 
-- **Base de Datos**: MySQL 8+
-- **ORM**: Prisma con migraciones y cliente generado
-- **Relaciones**: Soporte completo para relaciones complejas y polimórficas
+- **Base de Datos**: MySQL 8.0+
+- **ORM**: Prisma 6.17+ con cliente generado automáticamente
+- **Migraciones**: Sistema automatizado de migraciones de base de datos
+- **Relaciones**: Soporte completo para relaciones N:M, 1:N, polimórficas y complejas
+- **Índices**: Optimización con índices estratégicos en campos de búsqueda frecuente
 
 ### Autenticación y Seguridad
 
-- **Autenticación**: JWT con refresh tokens
-- **Autorización**: Guards por roles (USER, ADMIN, MANAGER)
-- **Rate Limiting**: @nestjs/throttler (10 req/min por defecto)
-- **Validación**: class-validator / class-transformer
+- **Autenticación**: JWT con refresh tokens (access: 1d, refresh: 7d)
+- **Autorización**: Guards por roles jerárquicos (USER, ADMIN, MANAGER)
+- **Rate Limiting**: @nestjs/throttler (10 req/min por defecto, configurable)
+- **Validación**: class-validator + class-transformer con transformación automática
+- **Hashing**: bcrypt con salt rounds para passwords
+- **CORS**: Configurado para desarrollo y producción
 
 ### Documentación y Testing
 
-- **Documentación**: Swagger/OpenAPI con UI interactiva
-- **Testing**: Jest para unitarios y e2e
-- **Cobertura**: Configurado para reportes de cobertura
+- **Documentación**: Swagger/OpenAPI 7.4+ con UI interactiva completa
+- **Testing**: Jest 29+ para unitarios y e2e con configuración dedicada
+- **Cobertura**: Reportes de cobertura configurados (>80% objetivo)
+- **E2E**: Tests end-to-end con base de datos de prueba
 
-### Utilidades
+### Utilidades y Librerías
 
-- **Subida de archivos**: Multer con storage en disco
-- **Generación de PDFs**: pdf-lib para documentos dinámicos
-- **Fechas**: date-fns para manipulación de fechas
-- **Excel**: exceljs para exportación de datos
-- **CSV**: csv-parse para importación masiva
+- **Subida de archivos**: Multer con storage en disco y límites configurables (10MB)
+- **Generación de PDFs**: pdf-lib para documentos dinámicos (notificaciones de vacaciones)
+- **Fechas**: date-fns para manipulación robusta de fechas
+- **Excel**: exceljs para exportación de reportes y datos
+- **CSV**: csv-parse para importación masiva de datos
+- **Compresión**: Gzip automático en respuestas
+- **Logging**: Winston/NestJS logger con niveles configurables
 
 ## ⚙️ Configuración rápida
 
@@ -150,7 +162,7 @@ docker run -p 3000:3000 --env-file .env sae-backend
 
 ## 🏗️ Arquitectura del Sistema
 
-### Diagrama de Módulos
+### Diagrama de Módulos Actualizado
 
 ```mermaid
 graph TB
@@ -168,6 +180,7 @@ graph TB
     A --> M[Health Module]
     A --> N[Catalogs Module]
     A --> O[Tires Module]
+    A --> P[Prisma Module]
 
     D --> D1[Business Categories]
     D --> D2[Business Subcategories]
@@ -195,72 +208,88 @@ graph TB
     N --> N2[Units]
 
     O --> O1[Tire Sizes]
-    O --> O2[Tire Assignments]
-    O --> O3[Tire Rotations]
-    O --> O4[Tire Recaps]
-    O --> O5[Tire Inspections]
-    O --> O6[Tire Reports]
+    O --> O2[Tire Models]
+    O --> O3[Tire Assignments]
+    O --> O4[Tire Rotations]
+    O --> O5[Tire Recaps]
+    O --> O6[Tire Inspections]
+    O --> O7[Tire Reports]
+    O --> O8[Tire Events]
+    O --> O9[Equipment Axles]
+    O --> O10[Tire Positions]
+
+    style O fill:#e1f5fe
+    style G fill:#e1f5fe
+    style F fill:#e1f5fe
 ```
 
-### Estructura de Directorios
+### Estructura de Directorios Actualizada
 
 ```
 src/
-├── app.module.ts                 # Módulo raíz de la aplicación
-├── main.ts                       # Punto de entrada de la aplicación
+├── app.module.ts                 # Módulo raíz con configuración global
+├── main.ts                       # Bootstrap con Swagger y validaciones
 ├── prisma/
-│   ├── prisma.module.ts          # Módulo Prisma
-│   ├── prisma.service.ts         # Servicio de base de datos
-│   ├── schema.prisma             # Esquema de base de datos
-│   └── seed.ts                   # Datos de prueba
-├── common/                       # Utilidades compartidas
-│   ├── dto/                      # DTOs comunes (PaginationDto)
-│   ├── guards/                   # Guards (RolesGuard)
-│   ├── decorators/               # Decoradores (Roles, Public)
-│   ├── interceptors/             # Interceptores (HttpResponseInterceptor)
-│   ├── exceptions/               # Filtros de excepciones
-│   └── validators/               # Validadores personalizados
-├── auth/                         # Autenticación y autorización
+│   ├── prisma.module.ts          # Configuración global de Prisma
+│   ├── prisma.service.ts         # Servicio de BD con logging
+│   ├── schema.prisma             # Esquema completo (50+ modelos)
+│   └── seed.ts                   # Seeds con datos argentinos
+├── auth/                         # 🔐 Autenticación JWT completa
 │   ├── auth.module.ts
-│   ├── auth.service.ts
-│   ├── auth.controller.ts
-│   ├── guards/ (JwtAuthGuard)
+│   ├── auth.service.ts           # Login, refresh tokens
+│   ├── auth.controller.ts        # Endpoints /auth
+│   ├── guards/ (JwtAuthGuard, RolesGuard)
 │   ├── strategies/ (JwtStrategy)
 │   └── dto/ (LoginDto, RefreshTokenDto)
-├── users/                        # Gestión de usuarios del sistema
-├── companies/                    # Empresas y categorías
+├── users/                        # 👥 Gestión de usuarios del sistema
+├── companies/                    # 🏢 Empresas y categorización
 │   ├── companies/
 │   ├── business-categories/
 │   └── business-subcategories/
-├── contacts/                     # Sistema polimórfico de contactos
-├── employees/                    # Gestión de empleados
+├── contacts/                     # 📞 Sistema polimórfico de contactos
+├── employees/                    # 👷 RRHH completo
 │   ├── employees/
 │   ├── employee-categories/
 │   ├── employee-positions/
-│   └── employee-vacations/
-├── locations/                    # Ubicaciones geográficas
-│   ├── countries/
-│   ├── provinces/
-│   ├── cities/
-│   └── addresses/
-├── persons/                      # Personas físicas
+│   └── employee-vacations/       # Con generación de PDFs
+├── locations/                    # 📍 Sistema geográfico completo
+│   ├── countries/                # Países con ISO codes
+│   ├── provinces/                # Provincias argentinas
+│   ├── cities/                   # Ciudades con códigos postales
+│   └── addresses/                # Direcciones polimórficas
+├── persons/                      # 👤 Personas físicas
 │   ├── persons/
-│   └── family/
-├── equipment/                    # Gestión de equipos
+│   └── family/                   # Relaciones familiares
+├── equipment/                    # 🔧 Gestión de flota vehicular
+│   ├── controllers/              # CRUD equipos
+│   ├── services/                 # Lógica de negocio
+│   ├── dto/                      # Validaciones
+│   ├── equipment-categories/
+│   ├── equipment-types/
+│   └── equipment-models/
+├── catalogs/                     # 🏷️ Catálogos del sistema
+│   ├── brands/                   # Marcas de equipos/neumáticos
+│   └── units/                    # Unidades de medida
+├── inspections/                  # 🔍 Sistema de inspecciones
+├── documents/                    # 📄 Gestión documental con uploads
+├── history/                      # 📊 Historial auditado
 │   ├── controllers/
 │   ├── services/
 │   └── dto/
-├── catalogs/                     # Catálogos del sistema
-│   ├── brands/
-│   └── units/
-├── inspections/                  # Sistema de inspecciones
-├── documents/                    # Gestión documental
-├── history/                      # Historial y logs
-│   ├── controllers/
-│   ├── services/
-│   └── dto/
-├── health/                       # Health checks
-└── uploads/                      # Archivos subidos (generado)
+├── health/                       # 🏥 Health checks y monitoreo
+├── tires/                        # 🛞 Gestión especializada de neumáticos
+│   ├── tires/                    # CRUD neumáticos
+│   ├── tire-models/              # Modelos comerciales
+│   ├── tire-sizes/               # Medidas técnicas
+│   ├── tire-assignments/         # Montaje/desmontaje
+│   ├── tire-rotations/           # Rotaciones de posición
+│   ├── tire-recaps/              # Recapados con costos
+│   ├── tire-inspections/         # Control técnico
+│   ├── tire-reports/             # Reportes analíticos
+│   ├── tire-events/              # Timeline de eventos
+│   ├── equipment-axles/          # Configuración de ejes
+│   └── tire-positions/           # Posiciones en chasis
+└── uploads/                      # 📁 Archivos organizados por entidad
 ```
 
 ## 🌐 API y Documentación
@@ -512,19 +541,21 @@ Authorization: Bearer <access_token>
 - `GET /equipment/types/all` - Todos los tipos
 - `GET /equipment/models/all` - Todos los modelos
 
-### 🛞 Gestión de Neumáticos (`/tires`)
+### 🛞 Gestión de Neumáticos (`/tires`) - Módulo Especializado
 
-El módulo de neumáticos implementa un sistema completo de gestión del ciclo de vida de neumáticos, desde el ingreso al stock hasta el descarte final. Incluye tracking de asignaciones, rotaciones, recapados e inspecciones técnicas.
+El módulo de neumáticos implementa un **sistema completo y profesional** de gestión del ciclo de vida de neumáticos, desde el ingreso al stock hasta el descarte final. Diseñado específicamente para flotas vehiculares, incluye tracking completo de asignaciones, rotaciones, recapados e inspecciones técnicas con más de 10 submódulos especializados.
 
 #### 🎯 Características Principales
 
-- **Ciclo de Vida Completo**: Desde stock hasta descarte con tracking detallado
-- **Gestión de Asignaciones**: Montaje/desmontaje en equipos con cálculo automático de km
-- **Sistema de Rotaciones**: Cambios de posición y vehículo con historial
-- **Recapado y Mantenimiento**: Control de reconstrucciones con costos
-- **Inspecciones Técnicas**: Seguimiento de presión, profundidad y estado
-- **Reportes Analíticos**: Vida útil, costos, desgaste y rankings
-- **Eventos Auditables**: Timeline completo con metadata JSON
+- **Ciclo de Vida Completo**: Desde stock hasta descarte con tracking detallado y estados auditables
+- **Gestión de Asignaciones**: Montaje/desmontaje en equipos con cálculo automático de km recorridos
+- **Sistema de Rotaciones**: Cambios de posición y vehículo con historial completo y metadata
+- **Recapado Profesional**: Control de reconstrucciones con proveedores, costos y número de recapados
+- **Inspecciones Técnicas**: Seguimiento de presión, profundidad de banda, cortes y estado general
+- **Reportes Analíticos Avanzados**: Vida útil promedio, costos por km, rankings de marcas, exportación Excel
+- **Eventos Auditables**: Timeline completo con metadata JSON y accountability de usuarios
+- **Configuración de Ejes**: Sistema flexible para diferentes tipos de chasis y configuraciones
+- **Posiciones Dinámicas**: Enums especializados para posiciones en tractores, acoplados y duales
 
 #### 📊 Arquitectura de Datos
 
@@ -545,20 +576,23 @@ erDiagram
     Brand ||--o{ Tire : branded
 ```
 
-##### Modelos Principales
+##### Modelos Principales (50+ Modelos en Total)
 
-| Elemento           | Descripción                                                    |
-| ------------------ | -------------------------------------------------------------- |
-| **TireSize**       | Define la medida técnica base del neumático (normalizada)      |
-| **TireSizeAlias**  | Permite múltiples denominaciones (ej. "380/90R46" ≡ "14.9R46") |
-| **Tire**           | Neumático físico individual, con marca, medida y estado        |
-| **TireAssignment** | Historial de montaje/desmontaje en equipos y posiciones        |
-| **TireRotation**   | Registra cambios de posición o de vehículo (rotaciones)        |
-| **TireRecap**      | Historial de recapados con proveedor y costo                   |
-| **TireInspection** | Control técnico: presión, profundidad, observaciones           |
-| **TirePosition**   | Enum estandariza posiciones posibles en chasis o acoplado      |
-| **TireStatus**     | Enum controla stock/vida útil                                  |
-| **TireEvent**      | Timeline de eventos para auditoría                             |
+| Elemento               | Descripción                                                    | Relaciones                      |
+| ---------------------- | -------------------------------------------------------------- | ------------------------------- |
+| **TireSize**           | Define la medida técnica base del neumático (normalizada)      | TireSizeAlias, TireModel        |
+| **TireSizeAlias**      | Permite múltiples denominaciones (ej. "380/90R46" ≡ "14.9R46") | TireSize                        |
+| **TireModel**          | Modelo comercial con marca, medida y especificaciones técnicas | Brand, TireSize, Tire           |
+| **Tire**               | Neumático físico individual con serial único                   | TireModel, Assignments, etc.    |
+| **TireAssignment**     | Historial de montaje/desmontaje con cálculo de km              | Tire, Equipment, PositionConfig |
+| **TireRotation**       | Registra cambios de posición o vehículo                        | Tire                            |
+| **TireRecap**          | Historial de recapados con proveedor y costo                   | Tire                            |
+| **TireInspection**     | Control técnico: presión, profundidad, observaciones           | Tire                            |
+| **TirePosition**       | Enum estandariza posiciones (DI, DD, E1I, E1D, etc.)           | -                               |
+| **TireStatus**         | Enum controla estados (IN_STOCK, IN_USE, RECAP, DISCARDED)     | -                               |
+| **TireEvent**          | Timeline de eventos con metadata JSON                          | Tire                            |
+| **EquipmentAxle**      | Configuración de ejes por equipo                               | Equipment, TirePositionConfig   |
+| **TirePositionConfig** | Configuración específica de posiciones por eje                 | EquipmentAxle, TireAssignment   |
 
 ##### Enums del Sistema
 
@@ -568,127 +602,157 @@ erDiagram
 
 #### 🏗️ Submódulos y Funcionalidades
 
-##### 1. **TiresModule** - Gestión Básica
+##### 1. **TiresModule** - Gestión Básica de Neumáticos
 
-- CRUD completo de neumáticos
-- Validación de serial numbers únicos
-- Relaciones con marcas y medidas
-- Estados y posiciones dinámicas
+- **CRUD completo** de neumáticos con validaciones estrictas
+- **Serial numbers únicos** con verificación automática
+- **Relaciones complejas** con marcas, medidas y modelos
+- **Estados dinámicos** con transiciones controladas
+- **Búsqueda avanzada** por múltiples criterios
+- **Integración con equipos** para asignaciones automáticas
 
-##### 2. **TireAssignmentsModule** - Ciclo de Montaje
+##### 2. **TireAssignmentsModule** - Ciclo de Montaje Profesional
 
-🧩 **Propósito**: Registrar dónde y cuándo se monta un neumático y cuándo se desmonta. Permite conocer el estado actual y los kilómetros recorridos entre montajes.
+🧩 **Propósito**: Sistema completo para registrar dónde y cuándo se monta un neumático y cuándo se desmonta. Controla el estado actual, kilómetros recorridos y genera eventos auditables.
 
-🧱 **Acciones principales:**
+🧱 **Funcionalidades principales:**
 
-- `POST /api/tires/assignments/mount` → montar neumático en equipo
-- `PUT /api/tires/assignments/unmount/:id` → desmontar neumático
-- `GET /api/tires/assignments/:tireId` → historial completo de asignaciones
-- `GET /api/tires/assignments/open` → asignaciones activas
+- `POST /api/tires/assignments/mount` → montar neumático con validación de posición
+- `PUT /api/tires/assignments/unmount/:id` → desmontar con cálculo automático de km
+- `GET /api/tires/assignments/:tireId` → historial completo paginado
+- `GET /api/tires/assignments/open` → asignaciones activas por equipo
+- `GET /api/tires/assignments/equipment/:equipmentId` → neumáticos montados en equipo
 
-💡 **Lógica recomendada:**
+💡 **Lógica de negocio avanzada:**
 
-- Cada montaje inicia con `startDate` y `kmAtStart`
-- Al desmontar, se completa `endDate` y `kmAtEnd`
-- Se calcula `deltaKm = kmAtEnd - kmAtStart`
-- Actualiza automáticamente el campo `totalKm` del neumático
+- **Validaciones estrictas**: Verificación de existencia de neumático y equipo
+- **Cálculo automático**: `deltaKm = kmAtEnd - kmAtStart` con acumulación en `totalKm`
+- **Estados consistentes**: Transición automática de estados del neumático
+- **Eventos auditables**: Registro automático en `TireEvent` con metadata completa
+- **Transacciones**: Operaciones críticas envueltas en transacciones de BD
 
-##### 3. **TireRotationsModule** - Sistema de Rotaciones
+##### 3. **TireRotationsModule** - Sistema de Rotaciones Avanzado
 
-🧩 **Propósito**: Llevar registro de rotaciones internas (cambio de posición o vehículo).
+🧩 **Propósito**: Sistema completo para llevar registro de rotaciones internas (cambio de posición dentro del mismo vehículo o cambio entre vehículos) con tracking detallado.
 
-🧱 **Acciones:**
+🧱 **Funcionalidades completas:**
 
-- `POST /api/tires/rotations` → registrar una rotación
-- `GET /api/tires/rotations/:tireId` → historial del neumático
-- `GET /api/tires/rotations` → todas las rotaciones
-- `PUT /api/tires/rotations/:id` → actualizar rotación
-- `DELETE /api/tires/rotations/:id` → eliminar rotación
+- `POST /api/tires/rotations` → registrar rotación con validaciones
+- `GET /api/tires/rotations/:tireId` → historial paginado del neumático
+- `GET /api/tires/rotations` → todas las rotaciones con filtros
+- `PUT /api/tires/rotations/:id` → actualizar con control de versiones
+- `DELETE /api/tires/rotations/:id` → eliminación con auditoría
 
-💡 **Lógica recomendada:**
+💡 **Lógica de negocio especializada:**
 
-- Cada rotación se guarda con `fromEquipmentId`, `toEquipmentId`, `fromPosition`, `toPosition`, y `kmAtRotation`
-- También puede actualizar la posición actual del neumático
+- **Rotaciones intra-equipo**: Cambio de posición dentro del mismo vehículo
+- **Rotaciones inter-equipo**: Cambio entre diferentes equipos
+- **Validaciones**: Verificación de posiciones disponibles y estados consistentes
+- **Cálculo de km**: Registro de `kmAtRotation` para análisis de desgaste
+- **Eventos**: Generación automática de eventos en timeline
+- **Historial**: Mantiene relación con asignaciones activas
 
-##### 4. **TireRecapsModule** - Gestión de Recapados
+##### 4. **TireRecapsModule** - Gestión Profesional de Recapados
 
-🧩 **Propósito**: Gestionar los recapados (reconstrucción de banda) — vital en costos y control de vida útil.
+🧩 **Propósito**: Sistema completo para gestionar recapados (reconstrucción de banda de rodamiento) con control de costos, proveedores y análisis de vida útil extendida.
 
-🧱 **Acciones:**
+🧱 **Funcionalidades especializadas:**
 
-- `POST /api/tires/recaps` → registrar recapado
-- `GET /api/tires/recaps/:tireId` → ver historial
-- `PUT /api/tires/recaps/:id` → actualizar información
-- `DELETE /api/tires/recaps/:id` → eliminar registro
+- `POST /api/tires/recaps` → registrar recapado con validaciones completas
+- `GET /api/tires/recaps/:tireId` → historial completo con paginación
+- `PUT /api/tires/recaps/:id` → actualizar con control de cambios
+- `DELETE /api/tires/recaps/:id` → eliminación con auditoría
 
-💡 **Campos relevantes:**
+💡 **Campos especializados y lógica:**
 
-- `recapDate`
-- `provider`
-- `cost`
-- `recapNumber` (número de recapados acumulados)
-- `observation`
+- **Control de costos**: `cost` con decimales para precisión financiera
+- **Proveedores**: `provider` para tracking de talleres especializados
+- **Número de recapados**: `recapNumber` incremental automático
+- **Fechas**: `recapDate` con validaciones de coherencia temporal
+- **Observaciones**: Campo libre para notas técnicas
 
-🧠 **Buenas prácticas:**
+🧠 **Lógica de negocio avanzada:**
 
-- Incrementar `recapCount` automáticamente
-- Cambiar `status` del neumático a `RECAP` durante el proceso
-- Registrar evento en `HistoryLog` (si querés auditoría global)
+- **Incremento automático** de `recapCount` en el neumático
+- **Transición de estados**: `IN_USE` → `RECAP` → `IN_USE` (post-proceso)
+- **Validaciones**: Máximo de recapados por neumático (configurable)
+- **Eventos auditables**: Registro en `TireEvent` con metadata completa
+- **Reportes**: Integración con módulo de reportes para análisis de costos
 
-##### 5. **TireInspectionsModule** - Control Técnico
+##### 5. **TireInspectionsModule** - Control Técnico Profesional
 
-🧩 **Propósito**: Control periódico del estado físico y técnico del neumático.
+🧩 **Propósito**: Sistema completo de control periódico del estado físico y técnico de neumáticos con métricas especializadas para mantenimiento predictivo.
 
-🧱 **Acciones:**
+🧱 **Funcionalidades técnicas:**
 
-- `POST /api/tires/inspections` → nueva revisión
-- `GET /api/tires/inspections/:tireId` → historial de inspecciones
-- `GET /api/tires/inspections/:id` → obtener inspección específica
-- `PUT /api/tires/inspections/:id` → actualizar inspección
-- `DELETE /api/tires/inspections/:id` → eliminar inspección
+- `POST /api/tires/inspections` → nueva inspección con validaciones
+- `GET /api/tires/inspections/:tireId` → historial completo paginado
+- `GET /api/tires/inspections/:id` → inspección específica con detalles
+- `PUT /api/tires/inspections/:id` → actualizar con control de versiones
+- `DELETE /api/tires/inspections/:id` → eliminación con auditoría
 
-💡 **Campos clave:**
+💡 **Campos técnicos especializados:**
 
-- `pressure` (presión)
-- `treadDepth` (profundidad de banda)
-- `observation` (cortes, desgaste irregular)
-- `inspectionDate`
+- **Presión**: `pressure` (PSI/Bar) con rangos recomendados por medida
+- **Profundidad**: `treadDepth` (mm) con alertas automáticas
+- **Observaciones**: Campo libre para cortes, desgaste irregular, daños
+- **Fecha**: `inspectionDate` con validaciones de periodicidad
+- **Inspector**: Relación con `Employee` para accountability
 
-🧠 **Uso sugerido:**
+🧠 **Lógica de mantenimiento predictivo:**
 
-- Generar alertas o reportes si la profundidad < cierto umbral
-- Vincular con `Employee` (quién realizó la inspección)
+- **Alertas automáticas**: Profundidad < 4mm dispara warnings
+- **Tendencias**: Análisis de desgaste por posición y marca
+- **Reportes**: Integración con reportes para análisis de flota
+- **Historial**: Timeline completo para predicción de vida útil
 
-##### 6. **TireReportsModule** - Analítica y Reportes
+##### 6. **TireReportsModule** - Analítica y Reportes Empresariales
 
-Una capa para analítica e informes, ideal si más adelante querés estadísticas.
+Sistema completo de business intelligence para neumáticos con métricas clave de rendimiento, costos y optimización de flota.
 
-**Reportes Disponibles:**
+**Reportes Estratégicos Disponibles:**
 
-- `GET /api/tires/reports/average-life` → promedio de vida útil (km)
-- `GET /api/tires/reports/cost-per-km` → costo total por km recorrido
-- `GET /api/tires/reports/over-recap?threshold=2` → neumáticos recapados más de N veces
-- `GET /api/tires/reports/brand-ranking` → ranking de marcas por duración promedio
-- `GET /api/tires/reports/yearly-recaps?year=2024` → reporte anual de recapados por marca
+- `GET /api/tires/reports/average-life` → promedio de vida útil por marca/modelo
+- `GET /api/tires/reports/cost-per-km` → costo total por km con breakdown
+- `GET /api/tires/reports/over-recap?threshold=2` → neumáticos con excesivos recapados
+- `GET /api/tires/reports/brand-ranking` → ranking de marcas por duración y costo
+- `GET /api/tires/reports/yearly-recaps?year=2024` → análisis anual de recapados
+- `GET /api/tires/reports/usage-analysis` → análisis de uso por equipo/posición
+- `GET /api/tires/reports/fleet-efficiency` → eficiencia general de la flota
 
-**Exportaciones Excel:**
+**Exportaciones Profesionales Excel:**
 
-- Todos los reportes tienen versión Excel con `GET /api/tires/reports/export/*`
+- **Formato empresarial**: Headers, filtros, formato condicional
+- **Múltiples worksheets**: Datos resumidos + detalle completo
+- **Gráficos integrados**: Para presentaciones ejecutivas
+- **Filtros avanzados**: Por fecha, marca, equipo, etc.
 
-#### 🌐 Endpoints Principales
+#### 🌐 Endpoints Principales del Sistema de Neumáticos
 
 ##### CRUD Básico de Neumáticos (`/tires`)
 
-- `POST /tires` - Crear neumático
-- `GET /tires` - Listar neumáticos con detalles
-- `GET /tires/:id` - Obtener neumático específico
-- `PUT /tires/:id` - Actualizar neumático
-- `DELETE /tires/:id` - Eliminar neumático
+- `POST /tires` - Crear neumático con validaciones completas
+- `GET /tires` - Listar con filtros avanzados (marca, estado, equipo)
+- `GET /tires/:id` - Detalle completo con relaciones
+- `PUT /tires/:id` - Actualizar con control de cambios
+- `DELETE /tires/:id` - Eliminar con verificación de dependencias
 
-##### Tamaños de Neumáticos (`/tires/sizes`)
+##### Tamaños y Medidas (`/tires/sizes`)
 
-- `GET /tires/sizes` - Listar medidas disponibles
-- `GET /tires/sizes/:id` - Obtener medida específica
+- `POST /tires/sizes` - Crear medida técnica normalizada
+- `GET /tires/sizes` - Listar con aliases y paginación
+- `GET /tires/sizes/:id` - Detalle con todas las denominaciones
+- `PUT /tires/sizes/:id` - Actualizar con validaciones
+- `DELETE /tires/sizes/:id` - Eliminar (solo si no usada)
+- `GET /tires/sizes/:sizeId/aliases` - Ver aliases alternativos
+
+##### Modelos Comerciales (`/tires/models`)
+
+- `POST /tires/models` - Crear modelo con marca y especificaciones
+- `GET /tires/models` - Listar con filtros por marca/tamaño
+- `GET /tires/models/:id` - Especificaciones técnicas completas
+- `PUT /tires/models/:id` - Actualizar datos comerciales
+- `DELETE /tires/models/:id` - Eliminar con verificación de uso
 
 #### 📋 Ejemplos de Uso
 
@@ -770,96 +834,138 @@ Authorization: Bearer <token>
 }
 ```
 
-#### 🔄 Flujos de Trabajo
+#### 🔄 Flujos de Trabajo Empresariales
 
-##### Flujo al Registrar un Recapado
+##### Flujo Completo de Recapado
 
-1. Se crea el registro en `TireRecap`
-2. Se calcula `recapNumber` automáticamente (incremental por neumático)
-3. Se actualiza el estado del neumático a `RECAP`
-4. Se registra un evento en `TireEvent` con datos del proveedor, costo y número
-5. Se puede luego volver a `IN_USE` con otro proceso (ej. montaje)
+1. **Registro inicial**: Se crea `TireRecap` con proveedor y costo
+2. **Validaciones**: Verificación de estado actual del neumático
+3. **Cálculo automático**: `recapNumber` incremental por neumático
+4. **Transición de estado**: `IN_USE` → `RECAP` (bloquea operaciones)
+5. **Evento auditado**: Registro en `TireEvent` con metadata completa
+6. **Post-proceso**: Retorno a `IN_USE` vía montaje posterior
+7. **Reportes**: Actualización automática de métricas de costo
 
-##### Ciclo de Vida Completo
+##### Ciclo de Vida Completo del Neumático
 
+```mermaid
+stateDiagram-v2
+    [*] --> IN_STOCK: Ingreso a stock
+    IN_STOCK --> IN_USE: Montaje en equipo
+    IN_USE --> UNDER_REPAIR: Mantenimiento
+    UNDER_REPAIR --> IN_USE: Reparación completa
+    IN_USE --> RECAP: Recapado programado
+    RECAP --> IN_USE: Post-recapado
+    IN_USE --> DISCARDED: Fin de vida útil
+    DISCARDED --> [*]
+    IN_USE --> IN_STOCK: Desmontaje temporal
 ```
-IN_STOCK → IN_USE (montaje) → UNDER_REPAIR (si mantenimiento) → RECAP (recapado) → DISCARDED (descartado)
-     ↑                                                                                      ↓
-     └───────────────────────────────────────────────────────────────────────────────────────┘
-```
 
-##### Gestión de Kilómetros
+##### Gestión Avanzada de Kilómetros
 
-- **Al montar**: Se registra `kmAtStart`
-- **Al desmontar**: Se registra `kmAtEnd` y calcula `deltaKm = kmAtEnd - kmAtStart`
-- **Acumulación**: Se suma `deltaKm` al `totalKm` del neumático
-- **Rotaciones**: Se registra `kmAtRotation` para tracking
+- **Montaje**: `kmAtStart` con validación de coherencia
+- **Desmontaje**: `kmAtEnd` con cálculo `deltaKm = kmAtEnd - kmAtStart`
+- **Acumulación**: Suma automática a `totalKm` del neumático
+- **Rotaciones**: `kmAtRotation` para análisis de desgaste por posición
+- **Validaciones**: Control de km crecientes y alertas de anomalías
 
-#### 📊 Reportes y Analítica
+#### 📊 Reportes y Analítica Empresarial
 
-##### Vida Útil Promedio
+##### Vida Útil Promedio por Categorías
 
 ```json
 {
-  "count": 150,
-  "averageKm": 45230
+  "totalTires": 150,
+  "averageLifeKm": 45230,
+  "byBrand": [
+    { "brand": "Michelin", "count": 45, "avgKm": 52140 },
+    { "brand": "Bridgestone", "count": 38, "avgKm": 48920 },
+    { "brand": "Firestone", "count": 67, "avgKm": 39800 }
+  ],
+  "byPosition": [
+    { "position": "E1I", "avgKm": 48500 },
+    { "position": "E2D", "avgKm": 42100 }
+  ]
 }
 ```
 
-##### Costo por Kilómetro
+##### Análisis de Costos Detallado
 
 ```json
 [
   {
     "tireId": 12,
-    "brand": 5,
-    "totalCost": 125000,
-    "km": 60000,
-    "costPerKm": 2.08
+    "serialNumber": "MIC2024001",
+    "brand": "Michelin",
+    "totalCost": 125000.5,
+    "totalKm": 60000,
+    "costPerKm": 2.08,
+    "recapCount": 1,
+    "recapCost": 45000.0,
+    "efficiency": "Excelente (>50k km)"
   }
 ]
 ```
 
-##### Ranking de Marcas
+##### Ranking Ejecutivo de Marcas
 
 ```json
-[
-  {
-    "brand": "Michelin",
-    "avgKm": 52140
-  },
-  {
-    "brand": "Bridgestone",
-    "avgKm": 48920
-  }
-]
+{
+  "ranking": [
+    {
+      "brand": "Michelin",
+      "avgKm": 52140,
+      "totalCost": 2850000,
+      "costPerKm": 1.95,
+      "reliability": 95.2,
+      "marketShare": 30
+    },
+    {
+      "brand": "Bridgestone",
+      "avgKm": 48920,
+      "totalCost": 2450000,
+      "costPerKm": 2.15,
+      "reliability": 92.8,
+      "marketShare": 25
+    }
+  ],
+  "recommendations": [
+    "Michelin ofrece mejor relación costo/vida útil",
+    "Considerar aumento de cuota Bridgestone para negociación de precios"
+  ]
+}
 ```
 
-#### 🔧 Consideraciones Técnicas
+#### 🔧 Consideraciones Técnicas Avanzadas
 
-##### Transacciones
+##### Transacciones y Consistencia
 
-- Operaciones críticas usan `$transaction` para atomicidad
-- Rollback automático en caso de error
-- Eventos se registran dentro de la transacción
+- **Transacciones Prisma**: Todas las operaciones críticas usan `$transaction` para atomicidad completa
+- **Rollback automático**: En caso de error, se revierten todos los cambios relacionados
+- **Eventos dentro de transacción**: Los registros de auditoría se crean dentro de la misma transacción
+- **Locks optimistas**: Control de concurrencia para operaciones simultáneas
 
-##### Eventos y Auditoría
+##### Sistema de Eventos y Auditoría Completo
 
-- Sistema de `TireEvent` para timeline completo
-- Metadata JSON para detalles específicos
-- Relación con usuarios para accountability
+- **TireEvent timeline**: Historial completo de cada neumático con metadata JSON estructurada
+- **Eventos tipados**: ASSIGNMENT, UNASSIGNMENT, ROTATION, INSPECTION, RECAP, DISCARD, OTHER
+- **Accountability**: Relación con usuarios del sistema para trazabilidad completa
+- **Metadata rica**: JSON con detalles específicos de cada operación (proveedor, costo, km, etc.)
 
-##### Validaciones
+##### Validaciones Empresariales
 
-- Serial numbers únicos por neumático
-- Existencia de equipos y neumáticos antes de operaciones
-- Estados consistentes en el ciclo de vida
+- **Serial numbers únicos**: Validación global con índices de BD optimizados
+- **Integridad referencial**: Verificación de existencia de equipos, neumáticos y posiciones
+- **Estados consistentes**: Máquina de estados con transiciones validadas
+- **Reglas de negocio**: Límite de recapados, profundidades mínimas, costos razonables
 
-##### Optimizaciones
+##### Optimizaciones de Performance
 
-- Índices en campos de búsqueda frecuente
-- Includes selectivos para performance
-- Paginación en listados grandes
+- **Índices estratégicos**: En campos de búsqueda frecuente (serialNumber, status, brandId)
+- **Includes selectivos**: Carga lazy de relaciones para optimizar queries
+- **Paginación universal**: Implementada en todos los listados con cursores
+- **Caching**: Preparado para Redis en operaciones frecuentes
+- **Queries optimizadas**: Uso de raw SQL para reportes complejos cuando es necesario
 
 ### 📋 Inspecciones (`/inspections`)
 
@@ -1024,11 +1130,11 @@ curl -X GET "http://localhost:3000/api/documents/123/download" \
 
 ## 🗄️ Base de Datos y Prisma ORM
 
-### Arquitectura de Datos
+### Arquitectura de Datos Empresarial
 
-El sistema utiliza **MySQL 8+** con **Prisma ORM** para una gestión robusta de datos relacionales complejos.
+El sistema utiliza **MySQL 8.0+** con **Prisma ORM 6.17+** para una gestión robusta de datos relacionales complejos con más de **50 modelos** y **relaciones polimórficas avanzadas**.
 
-#### Modelos Principales
+#### Diagrama de Relaciones Completo
 
 ```mermaid
 erDiagram
@@ -1038,6 +1144,8 @@ erDiagram
     Company ||--o{ Contact : has
     Company ||--o{ Address : located
     Company ||--o{ Document : stores
+    Company ||--o{ Product : sells
+    Company ||--o{ Part : supplies
 
     Person ||--o{ Employee : is
     Person ||--o{ Contact : has
@@ -1047,11 +1155,13 @@ erDiagram
     Employee ||--o{ EmployeeVacation : takes
     Employee ||--o{ Document : owns
     Employee ||--o{ Inspection : performs
+    Employee ||--o{ EmployeeIncident : has
 
     Equipment ||--o{ Inspection : undergoes
     Equipment ||--o{ EquipmentMaintenance : receives
     Equipment ||--o{ Document : has
     Equipment ||--o{ TireAssignment : has_tires
+    Equipment ||--o{ EquipmentAxle : configured
 
     Country ||--|{ Province : contains
     Province ||--|{ City : contains
@@ -1062,29 +1172,58 @@ erDiagram
     EquipmentType ||--|{ EquipmentModel : defines
 
     Brand ||--o{ Tire : brands
+    Brand ||--o{ EquipmentModel : brands
+    Brand ||--o{ Product : brands
+    Brand ||--o{ Part : brands
+
     TireSize ||--o{ Tire : sizes
+    TireSize ||--o{ TireSizeAlias : aliases
     Tire ||--o{ TireAssignment : assigned
     Tire ||--o{ TireRotation : rotated
     Tire ||--o{ TireRecap : recapped
     Tire ||--o{ TireInspection : inspected
     Tire ||--o{ TireEvent : events
+
+    TireAssignment }o--|| TirePositionConfig : positioned
+    EquipmentAxle ||--o{ TirePositionConfig : has_positions
 ```
 
-#### Enums del Sistema
+#### Enums del Sistema (25+ Enums Empresariales)
 
-- **Role**: USER, ADMIN, MANAGER
+##### Gestión de Usuarios y Roles
+
+- **Role**: USER (básico), ADMIN (control total), MANAGER (gestión intermedia)
+
+##### Recursos Humanos
+
 - **EmployeeStatus**: ACTIVE, SUSPENDED, TERMINATED
 - **Gender**: MALE, FEMALE, OTHER
 - **MaritalStatus**: SINGLE, MARRIED, DIVORCED, WIDOWED
 - **PersonStatus**: ACTIVE, INACTIVE
-- **ContactType**: EMAIL, PHONE, WHATSAPP, TELEGRAM, etc.
+- **VacationType**: ASSIGNED (crédito), TAKEN (efectivamente usado)
+
+##### Contactos y Comunicaciones
+
+- **ContactType**: EMAIL, PHONE, WHATSAPP, TELEGRAM, INSTAGRAM, LINKEDIN, OTHER
+
+##### Equipos y Flota
+
 - **EquipmentStatus**: ACTIVE, INACTIVE, MAINTENANCE, RETIRED
-- **VacationType**: ASSIGNED, TAKEN
-- **HistoryType**: EMPLOYEE_ILLNESS, EQUIPMENT_MAINTENANCE, etc.
-- **SeverityLevel**: INFO, WARNING, CRITICAL, SUCCESS
+- **MaintenanceType**: PREVENTIVE, CORRECTIVE, ACCIDENT_REPAIR, ROUTINE_CHECK
+- **AxleType**: FRONT, DRIVE, TRAILER, TAG
+
+##### Sistema de Neumáticos Especializado
+
 - **TireStatus**: IN_STOCK, IN_USE, UNDER_REPAIR, RECAP, DISCARDED
-- **TirePosition**: DI, DD, E1I, E1D, E2I, E2D, etc. (posiciones en chasis)
+- **TirePosition**: DI, DD, E1I, E1D, E2I, E2D, E3I, E3D, E1II, E1ID, etc.
 - **TireEventType**: ASSIGNMENT, UNASSIGNMENT, ROTATION, INSPECTION, RECAP, DISCARD, OTHER
+- **TireSide**: LEFT, RIGHT, INNER, OUTER
+
+##### Historial y Auditoría
+
+- **HistoryType**: EMPLOYEE_ILLNESS, EMPLOYEE_WARNING, VACATION_ASSIGNED, EQUIPMENT_MAINTENANCE, etc.
+- **SeverityLevel**: INFO, WARNING, CRITICAL, SUCCESS
+- **EmployeeIncidentType**: SICK_LEAVE, DISCIPLINARY, WARNING, ACCIDENT, FAMILY_EMERGENCY
 
 ### Optimización de Performance
 
