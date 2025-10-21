@@ -7,27 +7,30 @@ import {
 import { PrismaService } from "../../prisma/prisma.service";
 import { MountTireDto } from "./dto/mount-tire.dto";
 import { UnmountTireDto } from "./dto/unmount-tire.dto";
-import { TireEventsService } from "./tire-events.service";
+import { TireAssignmentEventsService } from "./tire-events.service";
 
 @Injectable()
 export class TireAssignmentsService {
   constructor(
     private prisma: PrismaService,
-    private events: TireEventsService
+    private events: TireAssignmentEventsService
   ) {}
 
   // montar: crea assignment, marca tire IN_USE, etc
   async mount(dto: MountTireDto, userId?: number) {
-    // validar existencia de tire y equipo
+    // validar existencia de tire
     const tire = await this.prisma.tire.findUnique({
       where: { id: dto.tireId },
     });
     if (!tire) throw new NotFoundException("Tire not found");
 
-    const equipment = await this.prisma.equipment.findUnique({
-      where: { id: dto.equipmentId },
+    // validar positionConfigId
+    const positionConfig = await this.prisma.tirePositionConfig.findUnique({
+      where: { id: dto.positionConfigId },
+      include: { axle: { include: { equipment: true } } },
     });
-    if (!equipment) throw new NotFoundException("Equipment not found");
+    if (!positionConfig)
+      throw new NotFoundException("Position config not found");
 
     // prevenir que el neumático ya esté montado sin finalizar (opcional: buscar assignment abierto)
     const openAssignment = await this.prisma.tireAssignment.findFirst({
@@ -43,8 +46,7 @@ export class TireAssignmentsService {
       const assignment = await tx.tireAssignment.create({
         data: {
           tireId: dto.tireId,
-          equipmentId: dto.equipmentId,
-          position: dto.position as any,
+          positionConfigId: dto.positionConfigId,
           startDate: new Date(),
           kmAtStart: dto.kmAtStart ?? null,
         },
@@ -52,7 +54,7 @@ export class TireAssignmentsService {
 
       await tx.tire.update({
         where: { id: dto.tireId },
-        data: { status: "IN_USE", position: dto.position as any },
+        data: { status: "IN_USE", position: positionConfig.positionKey as any },
       });
 
       // registrar evento
@@ -62,10 +64,13 @@ export class TireAssignmentsService {
           eventType: "ASSIGNMENT",
           description:
             dto.note ??
-            `Mounted on equipment ${dto.equipmentId} pos ${dto.position}`,
+            `Mounted on equipment ${positionConfig.axle.equipment.name} pos ${positionConfig.positionKey}`,
           metadata: dto.kmAtStart
-            ? JSON.stringify({ kmAtStart: dto.kmAtStart })
-            : null,
+            ? JSON.stringify({
+                kmAtStart: dto.kmAtStart,
+                positionConfigId: dto.positionConfigId,
+              })
+            : JSON.stringify({ positionConfigId: dto.positionConfigId }),
         },
       });
 
@@ -79,8 +84,7 @@ export class TireAssignmentsService {
       userId,
       description: dto.note,
       metadata: {
-        equipmentId: dto.equipmentId,
-        position: dto.position,
+        positionConfigId: dto.positionConfigId,
         kmAtStart: dto.kmAtStart ?? null,
       },
     });
@@ -92,6 +96,9 @@ export class TireAssignmentsService {
   async unmount(dto: UnmountTireDto, userId?: number) {
     const assignment = await this.prisma.tireAssignment.findUnique({
       where: { id: dto.assignmentId },
+      include: {
+        positionConfig: { include: { axle: { include: { equipment: true } } } },
+      },
     });
     if (!assignment) throw new NotFoundException("Assignment not found");
     if (assignment.endDate)
@@ -142,8 +149,14 @@ export class TireAssignmentsService {
           tireId: assignment.tireId,
           eventType: "UNASSIGNMENT",
           description:
-            dto.note ?? `Unmounted from equipment ${assignment.equipmentId}`,
-          metadata: JSON.stringify({ kmAtStart, kmAtEnd, deltaKm }),
+            dto.note ??
+            `Unmounted from equipment ${assignment.positionConfig.axle.equipment.name}`,
+          metadata: JSON.stringify({
+            kmAtStart,
+            kmAtEnd,
+            deltaKm,
+            positionConfigId: assignment.positionConfigId,
+          }),
         },
       });
 
@@ -166,7 +179,9 @@ export class TireAssignmentsService {
   async findByTire(tireId: number) {
     return this.prisma.tireAssignment.findMany({
       where: { tireId },
-      include: { equipment: true },
+      include: {
+        positionConfig: { include: { axle: { include: { equipment: true } } } },
+      },
       orderBy: { startDate: "desc" },
     });
   }
@@ -175,7 +190,10 @@ export class TireAssignmentsService {
   async findOpenAssignments() {
     return this.prisma.tireAssignment.findMany({
       where: { endDate: null },
-      include: { tire: true, equipment: true },
+      include: {
+        tire: true,
+        positionConfig: { include: { axle: { include: { equipment: true } } } },
+      },
     });
   }
 }

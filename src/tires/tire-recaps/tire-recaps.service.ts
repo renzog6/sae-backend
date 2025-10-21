@@ -3,13 +3,13 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CreateTireRecapDto } from "./dto/create-tire-recap.dto";
 import { UpdateTireRecapDto } from "./dto/update-tire-recap.dto";
-import { TireEventsService } from "../tire-assignments/tire-events.service";
+import { TireAssignmentEventsService } from "../tire-assignments/tire-events.service";
 
 @Injectable()
 export class TireRecapsService {
   constructor(
     private prisma: PrismaService,
-    private events: TireEventsService
+    private events: TireAssignmentEventsService
   ) {}
 
   async create(dto: CreateTireRecapDto, userId?: number) {

@@ -27,7 +27,11 @@ export class EquipmentService {
           company: true,
           category: true,
           type: true,
-          model: true,
+          model: {
+            include: {
+              brand: true,
+            },
+          },
         },
       }),
       this.prisma.equipment.count({ where }),
@@ -51,7 +55,11 @@ export class EquipmentService {
         company: true,
         category: true,
         type: true,
-        model: true,
+        model: {
+          include: {
+            brand: true,
+          },
+        },
       },
     });
 

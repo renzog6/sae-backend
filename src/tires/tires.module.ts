@@ -17,6 +17,12 @@ import { TireRotationsController } from "./tire-rotations/tire-rotations.control
 import { TireRecapsController } from "./tire-recaps/tire-recaps.controller";
 import { TireReportsController } from "./tire-reports/tire-reports.controller";
 import { TireInspectionsController } from "./tire-inspections/tire-inspections.controller";
+import { TireEventsModule } from "./tire-events/tire-events.module";
+import { TireEventsController } from "./tire-events/tire-events.controller";
+import { TirePositionsModule } from "./tire-positions/tire-positions.module";
+import { TirePositionsController } from "./tire-positions/tire-positions.controller";
+import { EquipmentAxlesModule } from "./equipment-axles/equipment-axles.module";
+import { EquipmentAxlesController } from "./equipment-axles/equipment-axles.controller";
 
 @Module({
   controllers: [
@@ -27,6 +33,9 @@ import { TireInspectionsController } from "./tire-inspections/tire-inspections.c
     TireRecapsController,
     TireInspectionsController,
     TireReportsController,
+    TireEventsController,
+    TirePositionsController,
+    EquipmentAxlesController,
     TiresController,
   ],
   providers: [TiresService, PrismaService],
@@ -39,6 +48,9 @@ import { TireInspectionsController } from "./tire-inspections/tire-inspections.c
     TireReportsModule,
     TireSizesModule,
     TireModelsModule,
+    TireEventsModule,
+    TirePositionsModule,
+    EquipmentAxlesModule,
   ],
 })
 export class TiresModule {}

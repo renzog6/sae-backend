@@ -12,23 +12,92 @@ export class TiresService {
     return this.prisma.tire.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.tire.findMany({
-      include: {
-        model: {
-          include: {
-            brand: true,
-            size: { include: { aliases: true } },
+  async findAll(options?: {
+    page?: number;
+    limit?: number;
+    q?: string;
+    status?: string;
+  }) {
+    const { page = 1, limit = 10, q, status } = options || {};
+
+    const where: any = {};
+
+    // Add status filter
+    if (status) {
+      where.status = status;
+    }
+
+    // Add search filter
+    if (q) {
+      where.OR = [
+        { serialNumber: { contains: q } },
+        {
+          model: {
+            OR: [
+              { name: { contains: q } },
+              {
+                brand: {
+                  name: { contains: q },
+                },
+              },
+              {
+                size: {
+                  OR: [
+                    { mainCode: { contains: q } },
+                    {
+                      aliases: {
+                        some: {
+                          aliasCode: { contains: q },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
           },
         },
-        assignments: { include: { equipment: true } },
-        rotations: true,
-        recaps: true,
-        inspections: true,
-        events: true,
+      ];
+    }
+
+    const [tires, total] = await Promise.all([
+      this.prisma.tire.findMany({
+        where,
+        include: {
+          model: {
+            include: {
+              brand: true,
+              size: { include: { aliases: true } },
+            },
+          },
+          assignments: {
+            include: {
+              positionConfig: {
+                include: { axle: { include: { equipment: true } } },
+              },
+            },
+          },
+          rotations: true,
+          recaps: true,
+          inspections: true,
+          events: true,
+        },
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.tire.count({ where }),
+    ]);
+
+    return {
+      data: tires,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-      orderBy: { createdAt: "desc" },
-    });
+    };
   }
 
   async findOne(id: number) {
@@ -41,7 +110,13 @@ export class TiresService {
             size: { include: { aliases: true } },
           },
         },
-        assignments: { include: { equipment: true } },
+        assignments: {
+          include: {
+            positionConfig: {
+              include: { axle: { include: { equipment: true } } },
+            },
+          },
+        },
         rotations: true,
         recaps: true,
         inspections: true,

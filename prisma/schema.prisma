@@ -625,7 +625,7 @@ model Equipment {
   inspections          Inspection[]
   EquipmentMaintenance EquipmentMaintenance[]
   HistoryLog           HistoryLog[]
-  TireAssignment       TireAssignment[]
+  EquipmentAxle        EquipmentAxle[]
 
   @@index([companyId])
   @@index([categoryId])
@@ -946,20 +946,19 @@ model Tire {
 
 // 📍 Asignación del neumático a un equipo
 model TireAssignment {
-  id          Int          @id @default(autoincrement())
-  tireId      Int
-  equipmentId Int
-  position    TirePosition
-  startDate   DateTime     @default(now())
-  endDate     DateTime?
-  kmAtStart   Int?
-  kmAtEnd     Int?
+  id               Int       @id @default(autoincrement())
+  tireId           Int
+  positionConfigId Int // referencia a TirePositionConfig
+  startDate        DateTime  @default(now())
+  endDate          DateTime?
+  kmAtStart        Int?
+  kmAtEnd          Int?
 
-  tire      Tire      @relation(fields: [tireId], references: [id])
-  equipment Equipment @relation(fields: [equipmentId], references: [id])
+  tire           Tire               @relation(fields: [tireId], references: [id])
+  positionConfig TirePositionConfig @relation(fields: [positionConfigId], references: [id])
 
   @@index([tireId])
-  @@index([equipmentId])
+  @@index([positionConfigId])
   @@map("tire_assignments")
 }
 
@@ -1029,4 +1028,47 @@ model TireEvent {
   @@index([tireId])
   @@index([eventType])
   @@map("tire_events")
+}
+
+model EquipmentAxle {
+  id          Int      @id @default(autoincrement())
+  equipmentId Int
+  order       Int // Eje 1, Eje 2, etc.
+  axleType    AxleType
+  wheelCount  Int
+  description String?
+
+  equipment     Equipment            @relation(fields: [equipmentId], references: [id])
+  tirePositions TirePositionConfig[]
+
+  @@index([equipmentId])
+  @@map("equipment_axles")
+}
+
+model TirePositionConfig {
+  id          Int      @id @default(autoincrement())
+  axleId      Int
+  positionKey String // Ej: "E1I", "E1D", "E2II", etc.
+  side        TireSide
+  isDual      Boolean  @default(false)
+
+  axle        EquipmentAxle    @relation(fields: [axleId], references: [id])
+  assignments TireAssignment[]
+
+  @@index([axleId])
+  @@map("tire_position_configs")
+}
+
+enum AxleType {
+  FRONT
+  DRIVE
+  TRAILER
+  TAG
+}
+
+enum TireSide {
+  LEFT
+  RIGHT
+  INNER
+  OUTER
 }

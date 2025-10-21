@@ -165,6 +165,13 @@ async function main() {
     }
   }
 
+  const equipmentAxles = loadJson("equipmentAxles.json");
+  if (equipmentAxles.length)
+    await prisma.equipmentAxle.createMany({
+      data: equipmentAxles,
+      skipDuplicates: true,
+    });
+
   const equipmentMaintenance = loadJson("equipmentMaintenance.json");
   if (equipmentMaintenance.length)
     await prisma.equipmentMaintenance.createMany({
@@ -293,6 +300,13 @@ async function main() {
   if (tireEvents.length)
     await prisma.tireEvent.createMany({
       data: tireEvents,
+      skipDuplicates: true,
+    });
+
+  const tirePositionConfigs = loadJson("tirePositionConfigs.json");
+  if (tirePositionConfigs.length)
+    await prisma.tirePositionConfig.createMany({
+      data: tirePositionConfigs,
       skipDuplicates: true,
     });
 

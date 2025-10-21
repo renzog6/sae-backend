@@ -1,15 +1,30 @@
 //filepath: sae-backend/src/tires/tire-reports/tire-reports.controller.ts
-import { Controller, Get, Query, Res } from "@nestjs/common";
+import { Controller, Get, Post, Body, Query, Res } from "@nestjs/common";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
 import { TireReportsService } from "./tire-reports.service";
 import { TireReportFilterDto } from "./dto/tire-report-filter.dto";
 import { Response } from "express";
 import { TireReportsExcelExporter } from "./exports/excel/tire-reports.exporter";
+import { TireUsageReportService } from "./services/tire-usage-report.service";
+import { TireUsageReportDto } from "./dto/tire-usage-report.dto";
 
 @ApiTags("tire-reports")
 @Controller("tires/reports")
 export class TireReportsController {
-  constructor(private readonly service: TireReportsService) {}
+  constructor(
+    private readonly service: TireReportsService,
+    private readonly usageReportService: TireUsageReportService
+  ) {}
+  
+  @Post("usage")
+  @ApiOperation({ summary: "Reporte de uso de neumáticos" })
+  async generateUsageReport(@Body() dto: TireUsageReportDto) {
+    return this.usageReportService.generateUsageReport(
+      dto.startDate,
+      dto.endDate,
+      dto.equipmentId
+    );
+  }
 
   // --- JSON REPORTS ---
 

@@ -16,7 +16,13 @@ export class TireReportsService {
           : undefined,
       },
       include: {
-        assignments: { include: { equipment: true } },
+        assignments: {
+          include: {
+            positionConfig: {
+              include: { axle: { include: { equipment: true } } },
+            },
+          },
+        },
         events: true,
       },
     });
@@ -41,7 +47,16 @@ export class TireReportsService {
   // 💰 2. Costo total por km (compra + recapados)
   async getCostPerKm(filter: TireReportFilterDto) {
     const tires = await this.prisma.tire.findMany({
-      include: { recaps: true, model: { include: { brand: true } } },
+      where: {
+        model: filter.brand
+          ? { brand: { name: { contains: filter.brand } } }
+          : undefined,
+      },
+      include: {
+        recaps: true,
+        assignments: true, // Para calcular km desde assignments
+        model: { include: { brand: true } },
+      },
     });
 
     return tires.map((t) => {
@@ -50,11 +65,17 @@ export class TireReportsService {
         0
       );
       const totalCost = recapCost; // Sin purchaseCost por ahora
-      const km = t.totalKm ?? 0;
+
+      // Calcular km totales desde assignments
+      const km = t.assignments.reduce((sum, a) => {
+        const kmStart = a.kmAtStart ?? 0;
+        const kmEnd = a.kmAtEnd ?? kmStart;
+        return sum + (kmEnd - kmStart);
+      }, 0);
 
       return {
         tireId: t.id,
-        brand: t.model.brand.name,
+        brand: t.model?.brand?.name || "Sin marca",
         totalCost,
         km,
         costPerKm: km > 0 ? totalCost / km : null,
@@ -79,18 +100,27 @@ export class TireReportsService {
   // 🏆 4. Ranking de marcas por duración promedio
   async getBrandRanking() {
     const tires = await this.prisma.tire.findMany({
-      include: { events: true, model: { include: { brand: true } } },
+      include: {
+        assignments: true, // Para calcular km desde assignments
+        model: { include: { brand: true } },
+      },
     });
 
     const grouped = new Map<string, { totalKm: number; count: number }>();
 
     for (const t of tires) {
-      const km = t.totalKm ?? 0;
-      const brand = t.model.brand?.name ?? "Desconocida";
+      // Calcular km totales desde assignments en lugar de totalKm
+      const totalKm = t.assignments.reduce((sum, a) => {
+        const kmStart = a.kmAtStart ?? 0;
+        const kmEnd = a.kmAtEnd ?? kmStart;
+        return sum + (kmEnd - kmStart);
+      }, 0);
+
+      const brand = t.model?.brand?.name ?? "Desconocida";
 
       if (!grouped.has(brand)) grouped.set(brand, { totalKm: 0, count: 0 });
       const data = grouped.get(brand)!;
-      data.totalKm += km;
+      data.totalKm += totalKm;
       data.count += 1;
     }
 

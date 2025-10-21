@@ -8,15 +8,11 @@ export class MountTireDto {
   tireId: number;
 
   @ApiProperty({
-    example: 123,
-    description: "Equipment id where mount will happen",
+    example: 1,
+    description: "Position configuration ID (references TirePositionConfig)",
   })
   @IsInt()
-  equipmentId: number;
-
-  @ApiProperty({ example: "E2I", description: "Position (enum TirePosition)" })
-  @IsString()
-  position: string;
+  positionConfigId: number;
 
   @ApiProperty({
     example: 150000,
@@ -31,4 +27,23 @@ export class MountTireDto {
   @IsOptional()
   @IsString()
   note?: string;
+  
+  // Campos para compatibilidad con implementación anterior (deprecated)
+  @ApiProperty({
+    example: 123,
+    description: "Equipment id where mount will happen (deprecated, use positionConfigId instead)",
+    required: false
+  })
+  @IsOptional()
+  @IsInt()
+  equipmentId?: number;
+
+  @ApiProperty({ 
+    example: "E2I", 
+    description: "Position (enum TirePosition) (deprecated, use positionConfigId instead)",
+    required: false
+  })
+  @IsOptional()
+  @IsString()
+  position?: string;
 }

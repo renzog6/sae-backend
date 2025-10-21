@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Put,
+  Query,
 } from "@nestjs/common";
 import { TiresService } from "./tires.service";
 import { CreateTireDto } from "./dto/create-tire.dto";
@@ -26,9 +27,19 @@ export class TiresController {
   }
 
   @Get()
-  @ApiOperation({ summary: "Get all tires with details" })
-  findAll() {
-    return this.tiresService.findAll();
+  @ApiOperation({ summary: "Get all tires with pagination and filters" })
+  findAll(
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("q") q?: string,
+    @Query("status") status?: string
+  ) {
+    return this.tiresService.findAll({
+      page: page ? parseInt(page) : undefined,
+      limit: limit ? parseInt(limit) : undefined,
+      q: q || undefined,
+      status: status || undefined,
+    });
   }
 
   @Get(":id")
