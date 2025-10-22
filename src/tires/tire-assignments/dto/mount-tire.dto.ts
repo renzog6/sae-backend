@@ -23,25 +23,36 @@ export class MountTireDto {
   @IsInt()
   kmAtStart?: number;
 
+  @ApiProperty({
+    example: "2025-01-15",
+    description: "Date when the tire was mounted",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  mountDate?: string;
+
   @ApiProperty({ example: "Mount for seasonal campaign", required: false })
   @IsOptional()
   @IsString()
   note?: string;
-  
+
   // Campos para compatibilidad con implementación anterior (deprecated)
   @ApiProperty({
     example: 123,
-    description: "Equipment id where mount will happen (deprecated, use positionConfigId instead)",
-    required: false
+    description:
+      "Equipment id where mount will happen (deprecated, use positionConfigId instead)",
+    required: false,
   })
   @IsOptional()
   @IsInt()
   equipmentId?: number;
 
-  @ApiProperty({ 
-    example: "E2I", 
-    description: "Position (enum TirePosition) (deprecated, use positionConfigId instead)",
-    required: false
+  @ApiProperty({
+    example: "E2I",
+    description:
+      "Position (enum TirePosition) (deprecated, use positionConfigId instead)",
+    required: false,
   })
   @IsOptional()
   @IsString()

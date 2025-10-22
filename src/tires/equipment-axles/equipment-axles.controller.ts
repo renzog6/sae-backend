@@ -1,7 +1,19 @@
 // filepath: sae-backend/src/tires/equipment-axles/equipment-axles.controller.ts
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Query,
+} from "@nestjs/common";
 import { EquipmentAxlesService } from "./equipment-axles.service";
-import { CreateEquipmentAxleDto } from "./dto/create-equipment-axle.dto";
+import {
+  CreateEquipmentAxleDto,
+  CreateEquipmentAxleWithPositionsDto,
+} from "./dto/create-equipment-axle.dto";
 import { UpdateEquipmentAxleDto } from "./dto/update-equipment-axle.dto";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
 
@@ -18,6 +30,17 @@ export class EquipmentAxlesController {
   @Get()
   findAll(@Query("equipmentId") equipmentId?: string) {
     return this.service.findAll(equipmentId ? +equipmentId : undefined);
+  }
+
+  @Get("positions/equipment/:equipmentId")
+  findPositionsByEquipment(@Param("equipmentId") equipmentId: string) {
+    return this.service.findPositionsByEquipment(+equipmentId);
+  }
+
+  @Post("with-positions")
+  @ApiOperation({ summary: "Create axle with positions" })
+  createWithPositions(@Body() dto: CreateEquipmentAxleWithPositionsDto) {
+    return this.service.createWithPositions(dto);
   }
 
   @Get(":id")

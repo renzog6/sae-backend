@@ -41,13 +41,16 @@ export class TireAssignmentsService {
         "Tire already mounted (open assignment exists)"
       );
 
+    // usar fecha proporcionada o fecha actual
+    const mountDate = dto.mountDate ? new Date(dto.mountDate) : new Date();
+
     // transacción: crear assignment y actualizar tire
     const result = await this.prisma.$transaction(async (tx) => {
       const assignment = await tx.tireAssignment.create({
         data: {
           tireId: dto.tireId,
           positionConfigId: dto.positionConfigId,
-          startDate: new Date(),
+          startDate: mountDate,
           kmAtStart: dto.kmAtStart ?? null,
         },
       });
@@ -62,15 +65,15 @@ export class TireAssignmentsService {
         data: {
           tireId: dto.tireId,
           eventType: "ASSIGNMENT",
+          eventDate: mountDate,
           description:
             dto.note ??
             `Mounted on equipment ${positionConfig.axle.equipment.name} pos ${positionConfig.positionKey}`,
-          metadata: dto.kmAtStart
-            ? JSON.stringify({
-                kmAtStart: dto.kmAtStart,
-                positionConfigId: dto.positionConfigId,
-              })
-            : JSON.stringify({ positionConfigId: dto.positionConfigId }),
+          metadata: JSON.stringify({
+            kmAtStart: dto.kmAtStart ?? null,
+            mountDate: mountDate.toISOString(),
+            positionConfigId: dto.positionConfigId,
+          }),
         },
       });
 
@@ -86,6 +89,7 @@ export class TireAssignmentsService {
       metadata: {
         positionConfigId: dto.positionConfigId,
         kmAtStart: dto.kmAtStart ?? null,
+        mountDate: mountDate.toISOString(),
       },
     });
 
@@ -115,11 +119,19 @@ export class TireAssignmentsService {
     const deltaKm =
       kmAtStart != null && kmAtEnd != null ? kmAtEnd - kmAtStart : null;
 
+    // usar fecha proporcionada o fecha actual
+    const unmountDate = dto.unmountDate
+      ? new Date(dto.unmountDate)
+      : new Date();
+
+    // determinar nuevo status (por defecto IN_STOCK si no se especifica)
+    const newStatus = dto.newStatus || "IN_STOCK";
+
     const result = await this.prisma.$transaction(async (tx) => {
       const updatedAssignment = await tx.tireAssignment.update({
         where: { id: dto.assignmentId },
         data: {
-          endDate: new Date(),
+          endDate: unmountDate,
           kmAtEnd: kmAtEnd,
         },
       });
@@ -131,15 +143,15 @@ export class TireAssignmentsService {
           where: { id: assignment.tireId },
           data: {
             totalKm: { increment: deltaKm },
-            status: "IN_STOCK",
+            status: newStatus,
             position: "UNKNOWN",
           },
         });
       } else {
-        // if no km, just set status to IN_STOCK and clear position
+        // if no km, just set status to specified status and clear position
         updatedTire = await tx.tire.update({
           where: { id: assignment.tireId },
-          data: { status: "IN_STOCK", position: "UNKNOWN" },
+          data: { status: newStatus, position: "UNKNOWN" },
         });
       }
 
@@ -148,6 +160,7 @@ export class TireAssignmentsService {
         data: {
           tireId: assignment.tireId,
           eventType: "UNASSIGNMENT",
+          eventDate: unmountDate,
           description:
             dto.note ??
             `Unmounted from equipment ${assignment.positionConfig.axle.equipment.name}`,
@@ -155,6 +168,8 @@ export class TireAssignmentsService {
             kmAtStart,
             kmAtEnd,
             deltaKm,
+            unmountDate: unmountDate.toISOString(),
+            newStatus,
             positionConfigId: assignment.positionConfigId,
           }),
         },
@@ -169,7 +184,13 @@ export class TireAssignmentsService {
       eventType: "UNASSIGNMENT",
       userId,
       description: dto.note,
-      metadata: { assignmentId: dto.assignmentId, kmAtEnd, deltaKm },
+      metadata: {
+        assignmentId: dto.assignmentId,
+        kmAtEnd,
+        deltaKm,
+        unmountDate: unmountDate.toISOString(),
+        newStatus,
+      },
     });
 
     return result;
@@ -191,7 +212,16 @@ export class TireAssignmentsService {
     return this.prisma.tireAssignment.findMany({
       where: { endDate: null },
       include: {
-        tire: true,
+        tire: {
+          include: {
+            model: {
+              include: {
+                brand: true,
+                size: true,
+              },
+            },
+          },
+        },
         positionConfig: { include: { axle: { include: { equipment: true } } } },
       },
     });

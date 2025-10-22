@@ -19,6 +19,25 @@ export class UnmountTireDto {
   @IsInt()
   kmAtEnd?: number;
 
+  @ApiProperty({
+    example: "2025-01-15",
+    description: "Date when the tire was unmounted",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  unmountDate?: string;
+
+  @ApiProperty({
+    example: "IN_STOCK",
+    description: "New status for the tire after unmounting",
+    enum: ["IN_STOCK", "UNDER_REPAIR", "RECAP", "DISCARDED"],
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  newStatus?: "IN_STOCK" | "UNDER_REPAIR" | "RECAP" | "DISCARDED";
+
   @ApiProperty({ example: "Unmount due to rotation", required: false })
   @IsOptional()
   @IsString()
