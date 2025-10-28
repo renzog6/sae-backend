@@ -1,12 +1,21 @@
 // filepath: sae-backend/src/tires/tire-positions/tire-positions.controller.ts
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Query,
+} from "@nestjs/common";
 import { TirePositionsService } from "./tire-positions.service";
 import { CreateTirePositionDto } from "./dto/create-tire-position.dto";
 import { UpdateTirePositionDto } from "./dto/update-tire-position.dto";
 import { ApiTags } from "@nestjs/swagger";
 
 @ApiTags("tire-positions")
-@Controller("tire-positions")
+@Controller("tires/positions")
 export class TirePositionsController {
   constructor(private readonly service: TirePositionsService) {}
 

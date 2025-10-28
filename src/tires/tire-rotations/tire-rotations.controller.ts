@@ -11,8 +11,10 @@ import {
 import { TireRotationsService } from "./tire-rotations.service";
 import { CreateTireRotationDto } from "./dto/create-tire-rotation.dto";
 import { UpdateTireRotationDto } from "./dto/update-tire-rotation.dto";
+import { ApiTags } from "@nestjs/swagger";
 
-@Controller("tire-rotations")
+@ApiTags("tire-rotations")
+@Controller("tires/rotations")
 export class TireRotationsController {
   constructor(private readonly service: TireRotationsService) {}
 

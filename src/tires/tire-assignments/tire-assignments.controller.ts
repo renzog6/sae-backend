@@ -1,5 +1,5 @@
 //filepath: sae-backend/src/tires/tire-assignments/tire-assignments.controller.ts
-import { Controller, Post, Body, Put, Param, Get } from "@nestjs/common";
+import { Controller, Post, Body, Put, Param, Get, Query } from "@nestjs/common";
 import { TireAssignmentsService } from "./tire-assignments.service";
 import { MountTireDto } from "./dto/mount-tire.dto";
 import { UnmountTireDto } from "./dto/unmount-tire.dto";
@@ -31,7 +31,10 @@ export class TireAssignmentsController {
 
   @Get("open")
   @ApiOperation({ summary: "Get open assignments" })
-  async open() {
+  async open(@Query("equipmentId") equipmentId?: string) {
+    if (equipmentId) {
+      return this.svc.findOpenAssignmentsByEquipment(+equipmentId);
+    }
     return this.svc.findOpenAssignments();
   }
 }

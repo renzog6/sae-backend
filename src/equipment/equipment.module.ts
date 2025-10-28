@@ -9,26 +9,31 @@ import { EquipmentTypeController } from "./controllers/equipment-type.controller
 import { EquipmentModelService } from "./services/equipment-model.service";
 import { EquipmentModelController } from "./controllers/equipment-model.controller";
 import { PrismaModule } from "../prisma/prisma.module";
+import { EquipmentAxlesController } from "./controllers/equipment-axles.controller";
+import { EquipmentAxlesService } from "./services/equipment-axles.service";
 
 @Module({
   imports: [PrismaModule],
   controllers: [
-    EquipmentController,
+    EquipmentAxlesController,
     EquipmentCategoryController,
     EquipmentTypeController,
     EquipmentModelController,
+    EquipmentController,
   ],
   providers: [
-    EquipmentService,
+    EquipmentAxlesService,
     EquipmentCategoryService,
     EquipmentTypeService,
     EquipmentModelService,
+    EquipmentService,
   ],
   exports: [
-    EquipmentService,
+    EquipmentAxlesService,
     EquipmentCategoryService,
     EquipmentTypeService,
     EquipmentModelService,
+    EquipmentService,
   ],
 })
 export class EquipmentModule {}

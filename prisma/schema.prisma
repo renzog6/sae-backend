@@ -840,7 +840,7 @@ enum TirePosition {
   DI // Delantero Izquierdo
   DD // Delantero Derecho
 
-  //# Ejes traseros (camión o acoplado)
+  //# Ejes simples
   E1I
   E1D
   E2I
@@ -850,11 +850,29 @@ enum TirePosition {
   E4I
   E4D
 
-  //# Duales
+  //# Duales - Eje 1
   E1II // Eje 1 Izquierdo Interno
   E1ID // Eje 1 Izquierdo Externo
   E1DI // Eje 1 Derecho Interno
   E1DD // Eje 1 Derecho Externo
+
+  //# Duales - Eje 2
+  E2II // Eje 2 Izquierdo Interno
+  E2ID // Eje 2 Izquierdo Externo
+  E2DI // Eje 2 Derecho Interno
+  E2DD // Eje 2 Derecho Externo
+
+  //# Duales - Eje 3
+  E3II // Eje 3 Izquierdo Interno
+  E3ID // Eje 3 Izquierdo Externo
+  E3DI // Eje 3 Derecho Interno
+  E3DD // Eje 3 Derecho Externo
+
+  //# Duales - Eje 4
+  E4II // Eje 4 Izquierdo Interno
+  E4ID // Eje 4 Izquierdo Externo
+  E4DI // Eje 4 Derecho Interno
+  E4DD // Eje 4 Derecho Externo
 
   //# Otros
   SPARE // Rueda de auxilio

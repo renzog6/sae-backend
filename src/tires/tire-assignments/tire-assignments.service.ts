@@ -226,4 +226,31 @@ export class TireAssignmentsService {
       },
     });
   }
+
+  // obtener assignments abiertos filtrados por equipo
+  async findOpenAssignmentsByEquipment(equipmentId: number) {
+    return this.prisma.tireAssignment.findMany({
+      where: {
+        endDate: null,
+        positionConfig: {
+          axle: {
+            equipmentId: equipmentId,
+          },
+        },
+      },
+      include: {
+        tire: {
+          include: {
+            model: {
+              include: {
+                brand: true,
+                size: true,
+              },
+            },
+          },
+        },
+        positionConfig: { include: { axle: { include: { equipment: true } } } },
+      },
+    });
+  }
 }

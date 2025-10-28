@@ -26,7 +26,7 @@ import { Pagination } from "../../common/decorators/pagination.decorator";
 @ApiTags("equipment-types")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller("equipment-types")
+@Controller("equipments/types")
 export class EquipmentTypeController {
   constructor(private readonly equipmentTypeService: EquipmentTypeService) {}
 

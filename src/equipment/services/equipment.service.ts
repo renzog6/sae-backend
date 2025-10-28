@@ -1,155 +1,259 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+// filepath: src/equipment/services/equipment.service.ts
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CreateEquipmentDto } from "../dto/create-equipment.dto";
 import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
 
 @Injectable()
 export class EquipmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(createEquipmentDto: CreateEquipmentDto) {
+  /**
+   * 🔁 Centraliza todas las relaciones que suelen incluirse
+   * para mantener consistencia entre consultas.
+   */
+  private equipmentIncludes = {
+    type: true,
+    model: {
+      include: { type: true, brand: true },
+    },
+    category: true,
+    EquipmentAxle: {
+      include: {
+        tirePositions: true,
+      },
+    },
+  };
+
+  /**
+   * 🧩 Crea un nuevo equipo con validación de referencias
+   */
+  async create(data: CreateEquipmentDto) {
+    const { modelId, categoryId } = data;
+
+    // ✅ Validación de referencias existentes
+    const [model, category] = await Promise.all([
+      this.prisma.equipmentModel.findUnique({ where: { id: modelId } }),
+      this.prisma.equipmentCategory.findUnique({ where: { id: categoryId } }),
+    ]);
+
+    if (!model)
+      throw new BadRequestException(`Model with id ${modelId} not found`);
+    if (!category)
+      throw new BadRequestException(`Category with id ${categoryId} not found`);
+
     return this.prisma.equipment.create({
-      data: createEquipmentDto,
+      data,
+      include: this.equipmentIncludes,
     });
   }
 
-  async findAll(page = 1, limit = 10, companyId?: number) {
-    const skip = (page - 1) * limit;
+  /**
+   * 🔍 Obtiene lista de equipos con filtros dinámicos + paginación
+   *
+   * Soporta filtros: typeId, modelId, categoryId, year, status
+   */
+  async findAll(query: {
+    typeId?: number;
+    modelId?: number;
+    categoryId?: number;
+    year?: number;
+    status?: string;
+    skip?: number;
+    take?: number;
+    search?: string;
+  }) {
+    const {
+      typeId,
+      modelId,
+      categoryId,
+      year,
+      status,
+      skip = 0,
+      take = 25,
+      search,
+    } = query;
 
-    const where = companyId ? { companyId } : {};
+    const where: any = {};
+
+    if (typeId) where.model = { typeId };
+    if (modelId) where.modelId = modelId;
+    if (categoryId) where.categoryId = categoryId;
+    if (year) where.year = year;
+    if (status) where.status = status;
+    if (search) {
+      where.OR = [
+        { licensePlate: { contains: search, mode: "insensitive" } },
+        { internalCode: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ];
+    }
 
     const [items, total] = await Promise.all([
       this.prisma.equipment.findMany({
         where,
+        include: this.equipmentIncludes,
         skip,
-        take: limit,
-        include: {
-          company: true,
-          category: true,
-          type: true,
-          model: {
-            include: {
-              brand: true,
-            },
-          },
-        },
+        take,
+        orderBy: { id: "desc" },
       }),
       this.prisma.equipment.count({ where }),
     ]);
 
     return {
-      items,
+      data: items,
       meta: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        skip,
+        take,
+        pages: Math.ceil(total / take),
       },
     };
   }
 
+  /**
+   * 🔎 Obtiene un equipo por ID con sus relaciones
+   */
   async findOne(id: number) {
     const equipment = await this.prisma.equipment.findUnique({
       where: { id },
-      include: {
-        company: true,
-        category: true,
-        type: true,
-        model: {
-          include: {
-            brand: true,
-          },
-        },
-      },
+      include: this.equipmentIncludes,
     });
-
-    if (!equipment) {
-      throw new NotFoundException(`Equipment with ID ${id} not found`);
-    }
-
+    if (!equipment)
+      throw new NotFoundException(`Equipment with id ${id} not found`);
     return equipment;
   }
 
-  async update(id: number, updateEquipmentDto: UpdateEquipmentDto) {
-    try {
-      return await this.prisma.equipment.update({
-        where: { id },
-        data: updateEquipmentDto,
+  /**
+   * ✏️ Actualiza un equipo con validación de referencias
+   */
+  async update(id: number, data: UpdateEquipmentDto) {
+    const equipment = await this.prisma.equipment.findUnique({ where: { id } });
+    if (!equipment)
+      throw new NotFoundException(`Equipment with id ${id} not found`);
+
+    // Valida referencias solo si fueron provistas
+    if (data.modelId) {
+      const modelExists = await this.prisma.equipmentModel.findUnique({
+        where: { id: data.modelId },
       });
-    } catch (error) {
-      throw new NotFoundException(`Equipment with ID ${id} not found`);
+      if (!modelExists)
+        throw new BadRequestException(
+          `Model with id ${data.modelId} not found`
+        );
     }
+
+    if (data.categoryId) {
+      const categoryExists = await this.prisma.equipmentCategory.findUnique({
+        where: { id: data.categoryId },
+      });
+      if (!categoryExists)
+        throw new BadRequestException(
+          `Category with id ${data.categoryId} not found`
+        );
+    }
+
+    return this.prisma.equipment.update({
+      where: { id },
+      data,
+      include: this.equipmentIncludes,
+    });
   }
 
+  /**
+   * 🗑️ Elimina un equipo por ID
+   */
   async remove(id: number) {
-    try {
-      return await this.prisma.equipment.delete({
-        where: { id },
-      });
-    } catch (error) {
-      throw new NotFoundException(`Equipment with ID ${id} not found`);
-    }
+    const equipment = await this.prisma.equipment.findUnique({ where: { id } });
+    if (!equipment)
+      throw new NotFoundException(`Equipment with id ${id} not found`);
+
+    return this.prisma.equipment.delete({ where: { id } });
   }
 
+  // -------------------------------------------------------------------------
+  // CATEGORY METHODS
+  // -------------------------------------------------------------------------
   async findCategories() {
-    return this.prisma.equipmentCategory.findMany();
-  }
-
-  async findTypes(categoryId?: number) {
-    const where = categoryId ? { categoryId } : {};
-    return this.prisma.equipmentType.findMany({ where });
-  }
-
-  async findModels(typeId?: number) {
-    const where = typeId ? { typeId } : {};
-    return this.prisma.equipmentModel.findMany({
-      where,
+    return this.prisma.equipmentCategory.findMany({
       include: {
-        brand: true,
-        type: true,
+        types: true, // si tu modelo Category tiene relación 1:N con EquipmentType
       },
+      orderBy: { id: "asc" },
     });
   }
 
   async findCategory(id: number) {
     const category = await this.prisma.equipmentCategory.findUnique({
       where: { id },
-      include: { types: true },
+      include: {
+        types: {
+          include: { models: true },
+        },
+      },
     });
-
-    if (!category) {
-      throw new NotFoundException(`Equipment category with ID ${id} not found`);
-    }
-
+    if (!category)
+      throw new NotFoundException(`Category with id ${id} not found`);
     return category;
+  }
+
+  // -------------------------------------------------------------------------
+  // TYPE METHODS
+  // -------------------------------------------------------------------------
+  async findTypes(categoryId?: number) {
+    const where = categoryId ? { categoryId } : {};
+    return this.prisma.equipmentType.findMany({
+      where,
+      include: {
+        category: true,
+        models: true,
+      },
+      orderBy: { id: "asc" },
+    });
   }
 
   async findType(id: number) {
     const type = await this.prisma.equipmentType.findUnique({
       where: { id },
-      include: { category: true },
+      include: {
+        category: true,
+        models: true,
+      },
     });
-
-    if (!type) {
-      throw new NotFoundException(`Equipment type with ID ${id} not found`);
-    }
-
+    if (!type) throw new NotFoundException(`Type with id ${id} not found`);
     return type;
+  }
+
+  // -------------------------------------------------------------------------
+  // MODEL METHODS
+  // -------------------------------------------------------------------------
+  async findModels(typeId?: number) {
+    const where = typeId ? { typeId } : {};
+    return this.prisma.equipmentModel.findMany({
+      where,
+      include: {
+        type: {
+          include: { category: true },
+        },
+      },
+      orderBy: { id: "asc" },
+    });
   }
 
   async findModel(id: number) {
     const model = await this.prisma.equipmentModel.findUnique({
       where: { id },
       include: {
-        brand: true,
-        type: true,
+        type: {
+          include: { category: true },
+        },
       },
     });
-
-    if (!model) {
-      throw new NotFoundException(`Equipment model with ID ${id} not found`);
-    }
-
+    if (!model) throw new NotFoundException(`Model with id ${id} not found`);
     return model;
   }
 }

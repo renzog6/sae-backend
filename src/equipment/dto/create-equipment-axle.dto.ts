@@ -11,7 +11,7 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 import { AxleType } from "@prisma/client";
-import { CreateTirePositionDto } from "../../tire-positions/dto/create-tire-position.dto";
+import { CreateTirePositionDto } from "../../tires/tire-positions/dto/create-tire-position.dto";
 
 export class CreateEquipmentAxleDto {
   @ApiProperty({ example: 1, description: "Equipment ID" })

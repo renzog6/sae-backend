@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/tires/equipment-axles/equipment-axles.controller.ts
+// filepath: sae-backend/src/equipment/controllers/equipment-axles.controller.ts
 import {
   Controller,
   Get,
@@ -9,16 +9,16 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import { EquipmentAxlesService } from "./equipment-axles.service";
+import { EquipmentAxlesService } from "../services/equipment-axles.service";
 import {
   CreateEquipmentAxleDto,
   CreateEquipmentAxleWithPositionsDto,
-} from "./dto/create-equipment-axle.dto";
-import { UpdateEquipmentAxleDto } from "./dto/update-equipment-axle.dto";
+} from "../dto/create-equipment-axle.dto";
+import { UpdateEquipmentAxleDto } from "../dto/update-equipment-axle.dto";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
 
 @ApiTags("equipment-axles")
-@Controller("equipment-axles")
+@Controller("equipments/axles")
 export class EquipmentAxlesController {
   constructor(private readonly service: EquipmentAxlesService) {}
 

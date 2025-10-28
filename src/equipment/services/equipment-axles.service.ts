@@ -1,11 +1,12 @@
-// filepath: sae-backend/src/tires/equipment-axles/equipment-axles.service.ts
+// filepath: sae-backend/src/equipment/services/equipment-axles.service.ts
+
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import {
   CreateEquipmentAxleDto,
   CreateEquipmentAxleWithPositionsDto,
-} from "./dto/create-equipment-axle.dto";
-import { UpdateEquipmentAxleDto } from "./dto/update-equipment-axle.dto";
+} from "../dto/create-equipment-axle.dto";
+import { UpdateEquipmentAxleDto } from "../dto/update-equipment-axle.dto";
 
 @Injectable()
 export class EquipmentAxlesService {
