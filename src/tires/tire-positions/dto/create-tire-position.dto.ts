@@ -12,17 +12,17 @@ export class CreateTirePositionDto {
   @IsString()
   positionKey: string;
 
-  @ApiProperty({ 
-    enum: TireSide, 
-    example: "LEFT", 
-    description: "Side of the tire (LEFT, RIGHT, INNER, OUTER)" 
+  @ApiProperty({
+    enum: TireSide,
+    example: "LEFT",
+    description: "Side of the tire (LEFT, RIGHT, INNER, OUTER)",
   })
   @IsEnum(TireSide)
   side: TireSide;
 
-  @ApiProperty({ 
-    example: false, 
-    description: "Whether this position is for dual tires" 
+  @ApiProperty({
+    example: false,
+    description: "Whether this position is for dual tires",
   })
   @IsBoolean()
   isDual: boolean;

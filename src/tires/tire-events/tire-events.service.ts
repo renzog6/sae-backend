@@ -35,6 +35,87 @@ export class TireEventsService {
     });
   }
 
+  async findAllWithFilters(filters?: {
+    page?: number;
+    limit?: number;
+    q?: string;
+    eventType?: TireEventType;
+    fromDate?: Date;
+    toDate?: Date;
+  }) {
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (filters?.eventType) {
+      where.eventType = filters.eventType;
+    }
+
+    if (filters?.fromDate || filters?.toDate) {
+      where.eventDate = {};
+      if (filters.fromDate) {
+        where.eventDate.gte = filters.fromDate;
+      }
+      if (filters.toDate) {
+        where.eventDate.lte = filters.toDate;
+      }
+    }
+
+    // Search filter for tire serial number or model
+    if (filters?.q) {
+      where.tire = {
+        OR: [
+          { serialNumber: { contains: filters.q } },
+          {
+            model: {
+              OR: [
+                { name: { contains: filters.q } },
+                { brand: { name: { contains: filters.q } } },
+                { size: { mainCode: { contains: filters.q } } },
+              ],
+            },
+          },
+        ],
+      };
+    }
+
+    const [events, total] = await Promise.all([
+      this.prisma.tireEvent.findMany({
+        where,
+        include: {
+          tire: {
+            include: {
+              model: {
+                include: {
+                  brand: true,
+                  size: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          eventDate: "desc",
+        },
+        skip,
+        take: limit,
+      }),
+      this.prisma.tireEvent.count({ where }),
+    ]);
+
+    return {
+      data: events,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
   async findOne(id: number) {
     return this.prisma.tireEvent.findUnique({
       where: { id },

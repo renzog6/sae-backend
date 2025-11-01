@@ -19,9 +19,13 @@ export class TireRecapsController {
   constructor(private readonly service: TireRecapsService) {}
 
   @Post()
-  @ApiOperation({ summary: "Register a new tire recap event" })
+  @ApiOperation({
+    summary: "Register a new tire recap event",
+    description:
+      "Creates a new tire recap record with automatic denormalization updates to the tire (recapCount, lastRecapAt, lastRecapId)",
+  })
   create(@Body() dto: CreateTireRecapDto) {
-    return this.service.create(dto /*, userId */);
+    return this.service.create(dto);
   }
 
   @Get()

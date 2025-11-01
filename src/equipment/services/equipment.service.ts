@@ -99,7 +99,7 @@ export class EquipmentService {
         include: this.equipmentIncludes,
         skip,
         take,
-        orderBy: { id: "desc" },
+        orderBy: { name: "asc" },
       }),
       this.prisma.equipment.count({ where }),
     ]);

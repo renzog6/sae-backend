@@ -7,12 +7,15 @@ import {
   Param,
   Patch,
   Delete,
+  Query,
 } from "@nestjs/common";
 import { TireInspectionsService } from "./tire-inspections.service";
 import { CreateTireInspectionDto } from "./dto/create-tire-inspection.dto";
 import { UpdateTireInspectionDto } from "./dto/update-tire-inspection.dto";
+import { ApiTags } from "@nestjs/swagger";
 
-@Controller("tire-inspections")
+@ApiTags("tire-inspections")
+@Controller("tires/inspections")
 export class TireInspectionsController {
   constructor(private readonly service: TireInspectionsService) {}
 
@@ -22,8 +25,16 @@ export class TireInspectionsController {
   }
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  findAll(
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("q") q?: string
+  ) {
+    return this.service.findAll({
+      page: page ? parseInt(page) : undefined,
+      limit: limit ? parseInt(limit) : undefined,
+      q: q || undefined,
+    });
   }
 
   @Get(":id")

@@ -34,4 +34,22 @@ export class CreateTireRecapDto {
   @IsOptional()
   @IsNumber()
   cost?: number;
+
+  @ApiProperty({
+    example: 60000,
+    description: "Kilómetros acumulados al momento del recapado",
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  kmAtRecap?: number;
+
+  @ApiProperty({
+    example: "full",
+    description: "Tipo de recapado (full, partial, delamination_repair)",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  recapType?: string;
 }

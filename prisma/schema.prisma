@@ -947,6 +947,9 @@ model Tire {
   position     TirePosition?
   status       TireStatus    @default(IN_STOCK)
   totalKm      Int?          @default(0)
+  recapCount   Int           @default(0) // DENORMALIZACIÓN: nº total recapados
+  lastRecapAt  DateTime? // denormalización para consultas rápidas
+  lastRecapId  Int? // FK opcional al último TireRecap
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -1006,6 +1009,9 @@ model TireRecap {
   cost        Decimal? @db.Decimal(10, 2)
   notes       String?
   recapNumber Int      @default(1)
+  kmAtRecap   Int? // Muy importante: kms acumulados al momento del recap
+  recapType   String? // Ej: "full", "partial", "delamination_repair"
+  createdBy   Int? // userId que realizó el registro
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

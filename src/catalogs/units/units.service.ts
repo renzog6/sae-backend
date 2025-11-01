@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUnitDto } from './dto/create-unit.dto';
-import { UpdateUnitDto } from './dto/update-unit.dto';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { CreateUnitDto } from "./dto/create-unit.dto";
+import { UpdateUnitDto } from "./dto/update-unit.dto";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class UnitsService {
@@ -15,7 +15,10 @@ export class UnitsService {
   }
 
   async findAll() {
-    return this.prisma.unit.findMany({ where: { isActive: true } });
+    return this.prisma.unit.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+    });
   }
 
   async findOne(id: number) {
@@ -34,6 +37,9 @@ export class UnitsService {
   async remove(id: number) {
     // Soft delete: set isActive to false
     await this.findOne(id);
-    return this.prisma.unit.update({ where: { id }, data: { isActive: false } });
+    return this.prisma.unit.update({
+      where: { id },
+      data: { isActive: false },
+    });
   }
 }

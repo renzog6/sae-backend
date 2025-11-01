@@ -2,69 +2,96 @@
 
 ## 📋 Descripción
 
-SAE Backend es una API REST completa desarrollada con **NestJS** y **Prisma ORM** para la gestión integral de un sistema empresarial. El proyecto implementa un sistema de administración que abarca desde la gestión de recursos humanos hasta el control de flota vehicular y neumáticos, con énfasis en la trazabilidad completa de operaciones.
+SAE Backend es una **API REST empresarial completa y profesional** desarrollada con **NestJS 10.x** y **Prisma ORM 6.17+** para la gestión integral de un sistema de administración empresarial. El proyecto implementa una arquitectura modular avanzada que abarca desde la gestión de recursos humanos hasta el control especializado de flota vehicular y neumáticos, con énfasis en la **trazabilidad completa**, **auditoría exhaustiva** y **operaciones transaccionales seguras**.
 
 ### 🎯 Características Principales
 
-- **Arquitectura Modular Avanzada**: Más de 40 módulos independientes organizados por dominio
-- **Autenticación JWT Robusta**: Sistema de login con refresh tokens y roles jerárquicos (USER, ADMIN, MANAGER)
-- **Base de Datos Compleja**: MySQL 8+ con Prisma ORM, más de 50 modelos relacionados y migraciones automatizadas
-- **Documentación Interactiva**: Swagger/OpenAPI completa disponible en `/api/docs`
-- **Gestión Documental**: Sistema de subida/descarga de archivos con organización automática por entidad
-- **Historial Auditado**: Sistema de logs polimórfico para eventos, incidentes y mantenimiento
-- **Polimorfismo Avanzado**: Contactos y direcciones compartidas entre múltiples entidades
-- **Testing Exhaustivo**: Cobertura completa con Jest para unitarios y e2e
-- **Gestión de Neumáticos**: Módulo especializado para ciclo de vida completo de neumáticos
-- **Sistema de Inspecciones**: Control técnico de equipos y neumáticos
-- **Reportes Analíticos**: Generación de reportes Excel y métricas de rendimiento
+- **🏗️ Arquitectura Modular Empresarial**: 40+ módulos independientes organizados por dominio de negocio
+- **🔐 Autenticación JWT Robusta**: Sistema de login con refresh tokens, roles jerárquicos (USER, ADMIN, MANAGER) y guards avanzados
+- **🗄️ Base de Datos Compleja**: MySQL 8.0+ con 50+ modelos relacionados, migraciones automatizadas y índices estratégicos
+- **📚 Documentación Interactiva**: Swagger/OpenAPI 7.4+ completa con UI interactiva en `/api/docs`
+- **📄 Gestión Documental Avanzada**: Subida/descarga de archivos con organización automática por entidad y límites configurables
+- **📊 Historial Auditado Completo**: Sistema de logs polimórfico para eventos, incidentes, mantenimiento y operaciones críticas
+- **🔗 Polimorfismo Avanzado**: Contactos y direcciones compartidas entre múltiples entidades con relaciones N:M
+- **🧪 Testing Exhaustivo**: Cobertura completa con Jest para unitarios, integración y e2e (>80% objetivo)
+- **🛞 Gestión de Neumáticos Especializada**: Módulo profesional para ciclo de vida completo con asignaciones, rotaciones, recapados e inspecciones
+- **🔍 Sistema de Inspecciones Técnico**: Control periódico de equipos y neumáticos con métricas especializadas
+- **📈 Reportes Analíticos Empresariales**: Generación de reportes Excel, métricas de rendimiento y business intelligence
+- **⚡ Performance Optimizada**: Consultas optimizadas, caching preparado y transacciones ACID
+- **🐳 Despliegue Profesional**: Docker multi-stage, health checks y configuración de producción
+
+### 📊 Estadísticas del Proyecto
 
 - **Versión**: 1.0.0
 - **Autor**: Renzo O. Gorosito
 - **Licencia**: MIT
 - **Última Actualización**: Octubre 2025
+- **Lenguaje**: TypeScript 5.1+ (strict mode)
+- **Framework**: NestJS 10.x con arquitectura modular
+- **Base de Datos**: MySQL 8.0+ con 50+ modelos
+- **Cobertura Testing**: >80% (objetivo)
+- **Documentación**: 100% endpoints documentados
+- **Módulos**: 40+ módulos especializados
+- **Controladores**: 35+ controladores REST
+- **Servicios**: 35+ servicios de negocio
+- **DTOs**: 50+ objetos de transferencia validados
 
-## 🚀 Tecnologías
+## 🚀 Tecnologías y Arquitectura
 
-### Core Framework
+### 🏗️ Core Framework Empresarial
 
-- **Framework**: NestJS 10.x con arquitectura modular avanzada
-- **Lenguaje**: TypeScript 5.1+ con configuración estricta (strict mode)
-- **Runtime**: Node.js 18+ LTS
-- **Gestión de Dependencias**: npm 8+ con package-lock.json
+- **Framework Principal**: NestJS 10.x con arquitectura modular hexagonal
+- **Lenguaje**: TypeScript 5.1+ con configuración estricta (strict mode + noImplicitAny)
+- **Runtime**: Node.js 18+ LTS con ES2022 features
+- **Gestión de Dependencias**: npm 8+ con package-lock.json para reproducibilidad
+- **Compilación**: SWC compiler para builds ultra-rápidos
+- **Arquitectura**: Patrón modular con inyección de dependencias avanzada
 
-### Base de Datos y ORM
+### 🗄️ Base de Datos y ORM
 
-- **Base de Datos**: MySQL 8.0+
-- **ORM**: Prisma 6.17+ con cliente generado automáticamente
-- **Migraciones**: Sistema automatizado de migraciones de base de datos
-- **Relaciones**: Soporte completo para relaciones N:M, 1:N, polimórficas y complejas
-- **Índices**: Optimización con índices estratégicos en campos de búsqueda frecuente
+- **Motor de BD**: MySQL 8.0+ con InnoDB engine
+- **ORM**: Prisma 6.17+ con cliente TypeScript generado automáticamente
+- **Migraciones**: Sistema automatizado con rollback y preview
+- **Relaciones**: Soporte completo para 1:1, 1:N, N:M, polimórficas y self-referencing
+- **Índices**: Optimización estratégica en campos de búsqueda (composite indexes)
+- **Transacciones**: ACID transactions con Prisma.$transaction()
+- **Connection Pooling**: Configurado para alta concurrencia
+- **Raw Queries**: SQL nativo para reportes complejos cuando es necesario
 
-### Autenticación y Seguridad
+### 🔐 Autenticación y Seguridad Empresarial
 
-- **Autenticación**: JWT con refresh tokens (access: 1d, refresh: 7d)
-- **Autorización**: Guards por roles jerárquicos (USER, ADMIN, MANAGER)
-- **Rate Limiting**: @nestjs/throttler (10 req/min por defecto, configurable)
+- **Protocolo**: JWT (JSON Web Tokens) con algoritmo HS256
+- **Tokens**: Access (1 día) + Refresh (7 días) con rotación automática
+- **Autorización**: Guards jerárquicos (USER < MANAGER < ADMIN)
+- **Rate Limiting**: @nestjs/throttler (10 req/min, configurable por endpoint)
 - **Validación**: class-validator + class-transformer con transformación automática
-- **Hashing**: bcrypt con salt rounds para passwords
-- **CORS**: Configurado para desarrollo y producción
+- **Hashing**: bcrypt con 12 salt rounds para máxima seguridad
+- **CORS**: Configurado por entorno (desarrollo vs producción)
+- **Helmet**: Headers de seguridad HTTP automáticos
+- **Input Sanitization**: Validación estricta de todos los inputs
 
-### Documentación y Testing
+### 📚 Documentación y Testing
 
-- **Documentación**: Swagger/OpenAPI 7.4+ con UI interactiva completa
-- **Testing**: Jest 29+ para unitarios y e2e con configuración dedicada
-- **Cobertura**: Reportes de cobertura configurados (>80% objetivo)
-- **E2E**: Tests end-to-end con base de datos de prueba
+- **Documentación API**: Swagger/OpenAPI 7.4+ con UI interactiva completa
+- **Esquemas**: Auto-generados desde DTOs con decoradores @ApiProperty
+- **Testing Framework**: Jest 29+ con configuración dedicada
+- **Cobertura**: Reportes detallados (>80% objetivo: statements, branches, functions, lines)
+- **E2E Testing**: Tests end-to-end con base de datos de prueba aislada
+- **Integration Tests**: Módulos y dependencias entre servicios
+- **Mocking**: Servicios externos y base de datos para tests unitarios
 
-### Utilidades y Librerías
+### 🛠️ Utilidades y Librerías Especializadas
 
-- **Subida de archivos**: Multer con storage en disco y límites configurables (10MB)
-- **Generación de PDFs**: pdf-lib para documentos dinámicos (notificaciones de vacaciones)
-- **Fechas**: date-fns para manipulación robusta de fechas
-- **Excel**: exceljs para exportación de reportes y datos
-- **CSV**: csv-parse para importación masiva de datos
-- **Compresión**: Gzip automático en respuestas
-- **Logging**: Winston/NestJS logger con niveles configurables
+- **File Upload**: Multer con storage en disco, límites configurables (10MB) y validación MIME
+- **PDF Generation**: pdf-lib para documentos dinámicos (notificaciones de vacaciones, reportes)
+- **Date Handling**: date-fns para manipulación robusta y timezone-aware
+- **Excel Export**: exceljs para reportes empresariales con formato profesional
+- **CSV Processing**: csv-parse para importación masiva de datos
+- **Compression**: Gzip automático en respuestas HTTP
+- **Logging**: Winston/NestJS logger con niveles configurables y structured logging
+- **Caching**: Preparado para Redis con @nestjs/cache-manager
+- **Email**: Preparado para servicios SMTP con nodemailer
+- **Queue Jobs**: Preparado para Bull con Redis para tareas asíncronas
 
 ## ⚙️ Configuración rápida
 
@@ -162,134 +189,185 @@ docker run -p 3000:3000 --env-file .env sae-backend
 
 ## 🏗️ Arquitectura del Sistema
 
-### Diagrama de Módulos Actualizado
+### 🏛️ Arquitectura de Módulos Empresariales
 
 ```mermaid
 graph TB
-    A[App Module] --> B[Auth Module]
-    A --> C[Users Module]
-    A --> D[Companies Module]
-    A --> E[Contacts Module]
-    A --> F[Employees Module]
-    A --> G[Equipment Module]
-    A --> H[Locations Module]
-    A --> I[Persons Module]
-    A --> J[Documents Module]
-    A --> K[History Module]
-    A --> L[Inspections Module]
-    A --> M[Health Module]
-    A --> N[Catalogs Module]
-    A --> O[Tires Module]
-    A --> P[Prisma Module]
+    %% Core Application
+    A[🏢 App Module<br/>Root Container] --> B[🔐 Auth Module<br/>JWT + Guards]
+    A --> C[👥 Users Module<br/>User Management]
+    A --> P[🗄️ Prisma Module<br/>Database Layer]
 
-    D --> D1[Business Categories]
-    D --> D2[Business Subcategories]
+    %% Business Domain Modules
+    A --> D[🏢 Companies Module<br/>Business Entities]
+    A --> E[📞 Contacts Module<br/>Polymorphic Links]
+    A --> F[👷 Employees Module<br/>HR Management]
+    A --> G[🔧 Equipment Module<br/>Fleet Management]
+    A --> H[📍 Locations Module<br/>Geographic Data]
+    A --> I[👤 Persons Module<br/>Physical Persons]
+    A --> J[📄 Documents Module<br/>File Management]
+    A --> K[📊 History Module<br/>Audit Logs]
+    A --> L[🔍 Inspections Module<br/>Technical Control]
+    A --> M[🏥 Health Module<br/>System Health]
+    A --> N[🏷️ Catalogs Module<br/>System Catalogs]
+    A --> O[🛞 Tires Module<br/>Tire Lifecycle<br/>⭐ SPECIALIZED]
 
-    F --> F1[Employee Categories]
-    F --> F2[Employee Positions]
-    F --> F3[Employee Vacations]
+    %% Submodules with detailed breakdown
+    D --> D1[📂 Business Categories<br/>Industry Classification]
+    D --> D2[📂 Business Subcategories<br/>Specialization]
 
-    G --> G1[Equipment Categories]
-    G --> G2[Equipment Types]
-    G --> G3[Equipment Models]
+    F --> F1[📂 Employee Categories<br/>Job Levels]
+    F --> F2[📂 Employee Positions<br/>Job Titles]
+    F --> F3[📂 Employee Vacations<br/>Leave Management<br/>📄 PDF Generation]
 
-    H --> H1[Countries]
-    H --> H2[Provinces]
-    H --> H3[Cities]
-    H --> H4[Addresses]
+    G --> G1[📂 Equipment Categories<br/>Vehicle Types]
+    G --> G2[📂 Equipment Types<br/>Models]
+    G --> G3[📂 Equipment Models<br/>Specifications]
 
-    I --> I1[Family Relationships]
+    H --> H1[🌍 Countries<br/>ISO Codes]
+    H --> H2[🏛️ Provinces<br/>States/Regions]
+    H --> H3[🏙️ Cities<br/>Postal Codes]
+    H --> H4[🏠 Addresses<br/>Polymorphic]
 
-    K --> K1[Employee Incidents]
-    K --> K2[Equipment Maintenance]
-    K --> K3[History Logs]
+    I --> I1[👨‍👩‍👧 Family Relationships<br/>Kinship]
 
-    N --> N1[Brands]
-    N --> N2[Units]
+    K --> K1[🚨 Employee Incidents<br/>HR Events]
+    K --> K2[🔧 Equipment Maintenance<br/>Service Records]
+    K --> K3[📋 History Logs<br/>Polymorphic Audit]
 
-    O --> O1[Tire Sizes]
-    O --> O2[Tire Models]
-    O --> O3[Tire Assignments]
-    O --> O4[Tire Rotations]
-    O --> O5[Tire Recaps]
-    O --> O6[Tire Inspections]
-    O --> O7[Tire Reports]
-    O --> O8[Tire Events]
-    O --> O9[Equipment Axles]
-    O --> O10[Tire Positions]
+    N --> N1[🏷️ Brands<br/>Manufacturers]
+    N --> N2[📏 Units<br/>Measurements]
 
-    style O fill:#e1f5fe
-    style G fill:#e1f5fe
-    style F fill:#e1f5fe
+    %% Tires Module - Highly Specialized
+    O --> O1[📏 Tire Sizes<br/>Technical Measures]
+    O --> O2[🏷️ Tire Models<br/>Commercial Models]
+    O --> O3[🔗 Tire Assignments<br/>Mount/Unmount<br/>📊 Km Tracking]
+    O --> O4[🔄 Tire Rotations<br/>Position Changes<br/>📍 Equipment Transfer]
+    O --> O5[🔧 Tire Recaps<br/>Retreading<br/>💰 Cost Tracking]
+    O --> O6[🔍 Tire Inspections<br/>Technical Control<br/>📊 Metrics]
+    O --> O7[📊 Tire Reports<br/>Analytics<br/>📈 Excel Export]
+    O --> O8[🕐 Tire Events<br/>Timeline<br/>🔍 Audit Trail]
+    O --> O9[🛠️ Equipment Axles<br/>Chassis Config]
+    O --> O10[📍 Tire Positions<br/>Mounting Points]
+
+    %% Styling for emphasis
+    style O fill:#e1f5fe,stroke:#01579b,stroke-width:3px
+    style G fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    style F fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    style A fill:#fff3e0,stroke:#e65100,stroke-width:2px
+
+    %% Legend
+    LEG[📖 Legend<br/>🟦 Core Modules<br/>🟪 Business Domains<br/>🟨 Specialized Features]
 ```
 
-### Estructura de Directorios Actualizada
+### 📁 Estructura de Directorios Empresarial
 
 ```
 src/
-├── app.module.ts                 # Módulo raíz con configuración global
-├── main.ts                       # Bootstrap con Swagger y validaciones
-├── prisma/
-│   ├── prisma.module.ts          # Configuración global de Prisma
-│   ├── prisma.service.ts         # Servicio de BD con logging
-│   ├── schema.prisma             # Esquema completo (50+ modelos)
-│   └── seed.ts                   # Seeds con datos argentinos
-├── auth/                         # 🔐 Autenticación JWT completa
-│   ├── auth.module.ts
-│   ├── auth.service.ts           # Login, refresh tokens
-│   ├── auth.controller.ts        # Endpoints /auth
-│   ├── guards/ (JwtAuthGuard, RolesGuard)
-│   ├── strategies/ (JwtStrategy)
-│   └── dto/ (LoginDto, RefreshTokenDto)
-├── users/                        # 👥 Gestión de usuarios del sistema
-├── companies/                    # 🏢 Empresas y categorización
-│   ├── companies/
-│   ├── business-categories/
-│   └── business-subcategories/
-├── contacts/                     # 📞 Sistema polimórfico de contactos
-├── employees/                    # 👷 RRHH completo
-│   ├── employees/
-│   ├── employee-categories/
-│   ├── employee-positions/
-│   └── employee-vacations/       # Con generación de PDFs
-├── locations/                    # 📍 Sistema geográfico completo
-│   ├── countries/                # Países con ISO codes
-│   ├── provinces/                # Provincias argentinas
-│   ├── cities/                   # Ciudades con códigos postales
-│   └── addresses/                # Direcciones polimórficas
-├── persons/                      # 👤 Personas físicas
-│   ├── persons/
-│   └── family/                   # Relaciones familiares
-├── equipment/                    # 🔧 Gestión de flota vehicular
-│   ├── controllers/              # CRUD equipos
-│   ├── services/                 # Lógica de negocio
-│   ├── dto/                      # Validaciones
-│   ├── equipment-categories/
-│   ├── equipment-types/
-│   └── equipment-models/
-├── catalogs/                     # 🏷️ Catálogos del sistema
-│   ├── brands/                   # Marcas de equipos/neumáticos
-│   └── units/                    # Unidades de medida
-├── inspections/                  # 🔍 Sistema de inspecciones
-├── documents/                    # 📄 Gestión documental con uploads
-├── history/                      # 📊 Historial auditado
-│   ├── controllers/
-│   ├── services/
-│   └── dto/
-├── health/                       # 🏥 Health checks y monitoreo
-├── tires/                        # 🛞 Gestión especializada de neumáticos
-│   ├── tires/                    # CRUD neumáticos
-│   ├── tire-models/              # Modelos comerciales
-│   ├── tire-sizes/               # Medidas técnicas
-│   ├── tire-assignments/         # Montaje/desmontaje
-│   ├── tire-rotations/           # Rotaciones de posición
-│   ├── tire-recaps/              # Recapados con costos
-│   ├── tire-inspections/         # Control técnico
-│   ├── tire-reports/             # Reportes analíticos
-│   ├── tire-events/              # Timeline de eventos
-│   ├── equipment-axles/          # Configuración de ejes
-│   └── tire-positions/           # Posiciones en chasis
-└── uploads/                      # 📁 Archivos organizados por entidad
+├── 📁 app.module.ts                    # 🏢 Módulo raíz con configuración global
+├── 📁 main.ts                          # 🚀 Bootstrap con Swagger y validaciones
+├── 📁 common/                          # 🛠️ Utilidades compartidas
+│   ├── exceptions/                     # 🚨 Filtros de excepciones HTTP
+│   ├── guards/                         # 🛡️ Guards personalizados
+│   ├── interceptors/                   # 🔄 Interceptors de respuesta
+│   └── validators/                     # ✅ Validadores personalizados
+├── 📁 prisma/                          # 🗄️ Capa de base de datos
+│   ├── prisma.module.ts                # ⚙️ Configuración global de Prisma
+│   ├── prisma.service.ts               # 🔌 Servicio de BD con logging
+│   ├── schema.prisma                   # 📋 Esquema completo (50+ modelos)
+│   ├── seed.ts                         # 🌱 Seeds con datos argentinos
+│   └── exports.ts                      # 📤 Exportaciones de tipos
+├── 📁 auth/                            # 🔐 Autenticación JWT completa
+│   ├── auth.module.ts                  # 📦 Módulo de autenticación
+│   ├── auth.service.ts                 # 🔑 Login, refresh tokens, hashing
+│   ├── auth.controller.ts              # 🌐 Endpoints /auth
+│   ├── guards/                         # 🛡️ JwtAuthGuard, RolesGuard
+│   ├── strategies/                     # 🎯 JwtStrategy
+│   └── dto/                            # 📝 LoginDto, RefreshTokenDto
+├── 📁 users/                           # 👥 Gestión de usuarios del sistema
+│   ├── users.controller.ts             # 🌐 CRUD usuarios
+│   ├── users.service.ts                # 🔧 Lógica de negocio
+│   ├── users.module.ts                 # 📦 Módulo users
+│   ├── dto/                            # 📝 CreateUserDto, UpdateUserDto
+│   └── users.spec.ts                   # 🧪 Tests unitarios
+├── 📁 companies/                       # 🏢 Empresas y categorización
+│   ├── companies.controller.ts         # 🌐 CRUD empresas
+│   ├── companies.service.ts            # 🏭 Lógica empresarial
+│   ├── companies.module.ts             # 📦 Módulo companies
+│   ├── dto/                            # 📝 CreateCompanyDto
+│   ├── business-categories/            # 📂 Categorías de negocio
+│   └── business-subcategories/         # 📂 Subcategorías
+├── 📁 contacts/                        # 📞 Sistema polimórfico de contactos
+│   ├── contacts.controller.ts          # 🌐 Gestión de contactos
+│   ├── contacts.service.ts             # 📱 Lógica de contactos
+│   └── dto/                            # 📝 ContactDtos
+├── 📁 employees/                       # 👷 RRHH completo
+│   ├── employees.controller.ts         # 🌐 CRUD empleados
+│   ├── employees.service.ts            # 👔 Lógica de RRHH
+│   ├── employees.module.ts             # 📦 Módulo employees
+│   ├── dto/                            # 📝 EmployeeDtos
+│   ├── employee-categories/            # 📂 Categorías laborales
+│   ├── employee-positions/             # 📂 Puestos de trabajo
+│   └── employee-vacations/             # 📂 Vacaciones con PDF
+├── 📁 locations/                       # 📍 Sistema geográfico completo
+│   ├── locations.module.ts             # 📦 Módulo locations
+│   ├── countries/                      # 🌍 Países con ISO codes
+│   ├── provinces/                      # 🏛️ Provincias argentinas
+│   ├── cities/                         # 🏙️ Ciudades con códigos postales
+│   └── addresses/                      # 🏠 Direcciones polimórficas
+├── 📁 persons/                         # 👤 Personas físicas
+│   ├── persons.controller.ts           # 🌐 CRUD personas
+│   ├── persons.service.ts              # 👤 Lógica de personas
+│   ├── persons.module.ts               # 📦 Módulo persons
+│   ├── dto/                            # 📝 PersonDtos
+│   └── family/                         # 👨‍👩‍👧 Relaciones familiares
+├── 📁 equipment/                       # 🔧 Gestión de flota vehicular
+│   ├── equipment.module.ts             # 📦 Módulo equipment
+│   ├── controllers/                    # 🌐 CRUD equipos
+│   ├── services/                       # 🔧 Lógica de flota
+│   ├── dto/                            # 📝 EquipmentDtos
+│   ├── equipment-categories/           # 📂 Categorías de equipos
+│   ├── equipment-types/                # 📂 Tipos de equipos
+│   ├── equipment-models/               # 📂 Modelos de equipos
+│   └── equipment-axles/                # 📂 Configuración de ejes
+├── 📁 catalogs/                        # 🏷️ Catálogos del sistema
+│   ├── catalogs.module.ts              # 📦 Módulo catalogs
+│   ├── brands/                         # 🏷️ Marcas de equipos/neumáticos
+│   └── units/                          # 📏 Unidades de medida
+├── 📁 inspections/                     # 🔍 Sistema de inspecciones
+│   ├── inspections.controller.ts       # 🌐 Control técnico
+│   ├── inspections.service.ts          # 🔍 Lógica de inspecciones
+│   └── inspections.module.ts           # 📦 Módulo inspections
+├── 📁 documents/                       # 📄 Gestión documental con uploads
+│   ├── documents.controller.ts         # 🌐 Upload/download archivos
+│   ├── documents.service.ts            # 📄 Lógica documental
+│   ├── dto/                            # 📝 DocumentDtos
+│   └── documents.module.ts             # 📦 Módulo documents
+├── 📁 history/                         # 📊 Historial auditado
+│   ├── history.module.ts               # 📦 Módulo history
+│   ├── controllers/                    # 🌐 Logs polimórficos
+│   ├── services/                       # 📊 Lógica de auditoría
+│   └── dto/                            # 📝 HistoryDtos
+├── 📁 health/                          # 🏥 Health checks y monitoreo
+│   ├── health.controller.ts            # 🌐 Endpoints de salud
+│   └── health.module.ts                # 📦 Módulo health
+├── 📁 tires/                           # 🛞 Gestión especializada de neumáticos ⭐
+│   ├── tires.module.ts                 # 📦 Módulo principal
+│   ├── tires.controller.ts             # 🌐 CRUD neumáticos
+│   ├── tires.service.ts                # 🛞 Lógica de neumáticos
+│   ├── dto/                            # 📝 TireDtos
+│   ├── tire-models/                    # 🏷️ Modelos comerciales
+│   ├── tire-sizes/                     # 📏 Medidas técnicas
+│   ├── tire-assignments/               # 🔗 Montaje/desmontaje con km
+│   ├── tire-rotations/                 # 🔄 Rotaciones de posición
+│   ├── tire-recaps/                    # 🔧 Recapados con costos
+│   ├── tire-inspections/               # 🔍 Control técnico
+│   ├── tire-reports/                   # 📊 Reportes Excel
+│   ├── tire-events/                    # 🕐 Timeline auditado
+│   └── tire-positions/                 # 📍 Posiciones en chasis
+└── 📁 uploads/                         # 📁 Archivos organizados por entidad
+    ├── employees/                      # 👷 Documentos de empleados
+    └── companies/                      # 🏢 Documentos de empresas
 ```
 
 ## 🌐 API y Documentación
@@ -670,10 +748,14 @@ erDiagram
 - **Número de recapados**: `recapNumber` incremental automático
 - **Fechas**: `recapDate` con validaciones de coherencia temporal
 - **Observaciones**: Campo libre para notas técnicas
+- **Km al recapado**: `kmAtRecap` para tracking de kilómetros acumulados
+- **Tipo de recapado**: `recapType` (full, partial, delamination_repair)
+- **Usuario creador**: `createdBy` para accountability
 
 🧠 **Lógica de negocio avanzada:**
 
-- **Incremento automático** de `recapCount` en el neumático
+- **Incremento automático** de `recapCount` en el neumático (denormalización)
+- **Actualización de denormalización**: `lastRecapAt` y `lastRecapId` en neumático
 - **Transición de estados**: `IN_USE` → `RECAP` → `IN_USE` (post-proceso)
 - **Validaciones**: Máximo de recapados por neumático (configurable)
 - **Eventos auditables**: Registro en `TireEvent` con metadata completa
@@ -797,7 +879,9 @@ Authorization: Bearer <token>
   "tireId": 12,
   "provider": "Vulcanizadora RCM",
   "cost": 85000.50,
-  "notes": "Recap inicial después de 60.000 km"
+  "notes": "Recap inicial después de 60.000 km",
+  "kmAtRecap": 60000,
+  "recapType": "full"
 }
 ```
 

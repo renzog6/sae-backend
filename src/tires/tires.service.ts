@@ -102,7 +102,7 @@ export class TiresService {
 
   async findOne(id: number) {
     const tire = await this.prisma.tire.findUnique({
-      where: { id },
+      where: { id: id },
       include: {
         model: {
           include: {

@@ -23,7 +23,7 @@ export class EquipmentCategoryService {
         skip: (page - 1) * limit,
         take: limit,
         include: { types: true },
-        orderBy: { id: "desc" },
+        orderBy: { name: "asc" },
       }),
       this.prisma.equipmentCategory.count(),
     ]);

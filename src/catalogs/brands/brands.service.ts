@@ -1,8 +1,8 @@
 // filepath: sae-backend/src/catalogs/brands/brands.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateBrandDto } from './dto/create-brand.dto';
-import { UpdateBrandDto } from './dto/update-brand.dto';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { CreateBrandDto } from "./dto/create-brand.dto";
+import { UpdateBrandDto } from "./dto/update-brand.dto";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class BrandsService {
@@ -21,11 +21,16 @@ export class BrandsService {
 
   async findAll() {
     // Return only active brands by default
-    return this.prisma.brand.findMany({ where: { isActive: true } });
+    return this.prisma.brand.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+    });
   }
 
   async findOne(id: number) {
-    const brand = await this.prisma.brand.findUnique({ where: { id } });
+    const brand = await this.prisma.brand.findUnique({
+      where: { id },
+    });
     if (!brand) {
       throw new NotFoundException(`Brand with id ${id} not found`);
     }
@@ -42,6 +47,9 @@ export class BrandsService {
     // Soft delete: set isActive to false
     // Ensure brand exists
     await this.findOne(id);
-    return this.prisma.brand.update({ where: { id }, data: { isActive: false } });
+    return this.prisma.brand.update({
+      where: { id },
+      data: { isActive: false },
+    });
   }
 }

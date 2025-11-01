@@ -34,13 +34,21 @@ export class TireRecapsService {
           cost: dto.cost ?? null,
           notes: dto.notes ?? null,
           recapNumber: nextRecapNumber,
+          kmAtRecap: dto.kmAtRecap ?? null,
+          recapType: dto.recapType ?? null,
+          createdBy: userId ?? null,
         },
       });
 
-      // actualizar estado y contador del neumático
+      // actualizar estado y contador del neumático con denormalización
       await tx.tire.update({
         where: { id: dto.tireId },
-        data: { status: "RECAP" },
+        data: {
+          status: "RECAP",
+          recapCount: { increment: 1 },
+          lastRecapAt: newRecap.recapDate,
+          lastRecapId: newRecap.id,
+        },
       });
 
       // crear evento
@@ -49,10 +57,13 @@ export class TireRecapsService {
           tireId: dto.tireId,
           eventType: "RECAP",
           description: dto.notes ?? `Recapado N°${nextRecapNumber}`,
+          userId,
           metadata: JSON.stringify({
             provider: dto.provider,
             cost: dto.cost,
             recapNumber: nextRecapNumber,
+            kmAtRecap: dto.kmAtRecap,
+            recapType: dto.recapType,
           }),
         },
       });
@@ -70,6 +81,8 @@ export class TireRecapsService {
         provider: dto.provider,
         cost: dto.cost,
         recapNumber: nextRecapNumber,
+        kmAtRecap: dto.kmAtRecap,
+        recapType: dto.recapType,
       },
     });
 
