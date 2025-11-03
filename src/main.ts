@@ -33,6 +33,10 @@ async function bootstrap() {
     })
   );
 
+  // Configure body parser limits for file uploads
+  app.use(require("express").json({ limit: "50mb" }));
+  app.use(require("express").urlencoded({ limit: "50mb", extended: true }));
+
   // Configure global interceptors
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
