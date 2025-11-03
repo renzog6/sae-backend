@@ -7,6 +7,9 @@ import {
   IsOptional,
   IsString,
   MinLength,
+  IsNumber,
+  IsObject,
+  IsBoolean,
 } from "class-validator";
 import { Role } from "@prisma/client";
 
@@ -54,4 +57,33 @@ export class CreateUserDto {
   @IsEnum(Role, { message: "Invalid role" })
   @IsOptional()
   role?: Role;
+
+  @ApiProperty({
+    description: "User preferences in JSON format",
+    example: { theme: "dark", language: "en" },
+    required: false,
+  })
+  @IsObject()
+  @IsOptional()
+  preferences?: Record<string, any>;
+
+  @ApiProperty({
+    description: "Company ID",
+    example: 1,
+    default: 1,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  companyId?: number;
+
+  @ApiProperty({
+    description: "Whether the user is active",
+    example: true,
+    default: true,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

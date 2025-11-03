@@ -36,6 +36,8 @@ export class UsersService {
       data: {
         ...createUserDto,
         password: hashedPassword,
+        companyId: createUserDto.companyId ?? 1, // Default to 1 if not provided
+        isActive: createUserDto.isActive ?? true, // Default to true if not provided
       },
     });
 
@@ -43,18 +45,33 @@ export class UsersService {
     return result;
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, companyId?: number) {
     const { page, limit, skip } = paginationDto;
+
+    const where: any = {
+      deletedAt: null, // Soft delete filter
+    };
+
+    if (companyId) {
+      where.companyId = companyId;
+    }
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         skip,
         take: limit,
+        where,
         select: {
           id: true,
           email: true,
           name: true,
+          username: true,
           role: true,
+          preferences: true,
+          companyId: true,
+          isActive: true,
+          lastLoginAt: true,
+          deletedAt: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -62,7 +79,7 @@ export class UsersService {
           createdAt: "desc",
         },
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where }),
     ]);
 
     return new PaginatedResponseDto(users, total, page, limit);
@@ -70,7 +87,7 @@ export class UsersService {
 
   async findOne(id: number) {
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: { id, deletedAt: null }, // Soft delete filter
     });
 
     if (!user) {
@@ -83,7 +100,7 @@ export class UsersService {
 
   async findByEmail(email: string) {
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email, deletedAt: null }, // Soft delete filter
     });
 
     if (!user) {
@@ -102,6 +119,7 @@ export class UsersService {
         where: {
           email: updateUserDto.email,
           id: { not: id },
+          deletedAt: null, // Soft delete filter
         },
       });
 
@@ -126,10 +144,20 @@ export class UsersService {
   async remove(id: number) {
     await this.findOne(id);
 
-    await this.prisma.user.delete({
+    // Soft delete instead of hard delete
+    await this.prisma.user.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     return { id };
+  }
+
+  // Add method to update last login
+  async updateLastLogin(userId: number) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { lastLoginAt: new Date() },
+    });
   }
 }

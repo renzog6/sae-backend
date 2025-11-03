@@ -50,8 +50,14 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: "Get all users" })
   @ApiResponse({ status: 200, description: "Users retrieved successfully" })
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.usersService.findAll(paginationDto);
+  findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query("companyId") companyId?: string
+  ) {
+    return this.usersService.findAll(
+      paginationDto,
+      companyId ? +companyId : undefined
+    );
   }
 
   @Get(":id")

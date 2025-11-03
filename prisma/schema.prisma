@@ -8,18 +8,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Base models
+/// BaseModel Convention:
+/// All main entities (Company, Employee, Equipment, Product, Tire, etc.)
+/// must include:
+/// - createdAt: DateTime (auto)
+/// - updatedAt: DateTime (auto)
+/// - isActive: Boolean (default true)
+/// - deletedAt: DateTime? (for soft deletes)
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(25)
-  email     String   @unique
-  username  String?  @unique
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(25)
+  email       String    @unique
+  username    String?   @unique
+  password    String
+  role        Role      @default(USER)
+  preferences Json? // store user UI or system preferences in JSON
+  companyId   Int       @default(1) // required foreign key to companies, defaults to 1
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([email])
+  @@index([username])
+  @@index([companyId])
+  @@index([deletedAt])
   @@map("users")
 }
 
