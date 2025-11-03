@@ -64,10 +64,16 @@ async function main() {
   };
 
   for (const [name, query] of Object.entries(models)) {
-    const data = await query();
-    const filePath = path.join(exportDir, `${name}.json`);
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-    console.log(`✅ Exported ${data.length} rows from ${name} → ${filePath}`);
+    try {
+      const data = await query();
+      const filePath = path.join(exportDir, `${name}.json`);
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      console.log(`✅ Exported ${data.length} rows from ${name} → ${filePath}`);
+    } catch (error) {
+      console.warn(
+        `⚠️  Error exporting ${name}: ${error.message}. Continuing...`
+      );
+    }
   }
 }
 
