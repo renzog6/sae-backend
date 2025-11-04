@@ -24,7 +24,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles, Role } from "../common/decorators/roles.decorator";
-import { PaginationDto } from "../common/dto/pagination.dto";
+import { BaseQueryDto } from "../common/dto/base-query.dto";
 import { AuthService } from "src/auth/auth.service";
 
 @ApiTags("users")
@@ -51,13 +51,10 @@ export class UsersController {
   @ApiOperation({ summary: "Get all users" })
   @ApiResponse({ status: 200, description: "Users retrieved successfully" })
   findAll(
-    @Query() paginationDto: PaginationDto,
+    @Query() query: BaseQueryDto,
     @Query("companyId") companyId?: string
   ) {
-    return this.usersService.findAll(
-      paginationDto,
-      companyId ? +companyId : undefined
-    );
+    return this.usersService.findAll(query, companyId ? +companyId : undefined);
   }
 
   @Get(":id")

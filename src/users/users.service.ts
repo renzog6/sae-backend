@@ -6,20 +6,32 @@ import {
   Logger,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { BaseService } from "../common/services/base.service";
+import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
-import {
-  PaginationDto,
-  PaginatedResponseDto,
-} from "../common/dto/pagination.dto";
 import { Role } from "@prisma/client";
 
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseService<any> {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.user;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { email: { contains: q, mode: "insensitive" } },
+      { name: { contains: q, mode: "insensitive" } },
+      { username: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -45,55 +57,39 @@ export class UsersService {
     return result;
   }
 
-  async findAll(paginationDto: PaginationDto, companyId?: number) {
-    const { page, limit, skip } = paginationDto;
-
-    const where: any = {
-      deletedAt: null, // Soft delete filter
-    };
-
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto(),
+    companyId?: number
+  ): Promise<BaseResponseDto<any>> {
+    const additionalWhere: any = {};
     if (companyId) {
-      where.companyId = companyId;
+      additionalWhere.companyId = companyId;
     }
 
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        skip,
-        take: limit,
-        where,
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          username: true,
-          role: true,
-          preferences: true,
-          companyId: true,
-          isActive: true,
-          lastLoginAt: true,
-          deletedAt: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      }),
-      this.prisma.user.count({ where }),
-    ]);
+    const include = {
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        role: true,
+        preferences: true,
+        companyId: true,
+        isActive: true,
+        lastLoginAt: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    };
 
-    return new PaginatedResponseDto(users, total, page, limit);
+    return super.findAll(query, additionalWhere, include);
   }
 
   async findOne(id: number) {
-    const user = await this.prisma.user.findUnique({
-      where: { id, deletedAt: null }, // Soft delete filter
-    });
+    const user = await super.findOne(id);
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
+    // Exclude sensitive data
     const { password, ...result } = user;
     return result;
   }
@@ -141,16 +137,8 @@ export class UsersService {
     return result;
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
-
-    // Soft delete instead of hard delete
-    await this.prisma.user.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
-
-    return { id };
+  async remove(id: number): Promise<void> {
+    await super.remove(id);
   }
 
   // Add method to update last login
