@@ -1479,6 +1479,81 @@ createUser() { ... }
 - **Hashing de passwords**: bcrypt con salt rounds
 - **Logs de autenticación**: Seguimiento de login/logout fallidos
 
+## 🔄 Standardization of findAll and findOne
+
+### Overview
+
+All service modules must implement standardized `findAll` and `findOne` methods using the shared BaseService class.
+This ensures consistency, predictable responses, and ease of integration across the backend and frontend.
+
+### findAll
+
+- Must support pagination parameters: `page`, `limit`
+- Must support optional search parameter: `q`
+- Must support optional sorting: `sortBy`, `sortOrder`
+- Always return:
+  ```json
+  {
+    "data": [...],
+    "meta": {
+      "total": number,
+      "page": number,
+      "limit": number,
+      "totalPages": number
+    }
+  }
+  ```
+- Excludes soft-deleted records by default (`deletedAt: null`)
+- Default sorting: `createdAt desc`
+- Default pagination: `page=1, limit=10`
+
+### findOne
+
+- Uses centralized BaseService method with `findUniqueOrThrow`
+- Always performs query with `where: { id, deletedAt: null }`
+- Wraps with consistent try/catch block that throws `NotFoundException`
+- Message format: `Entity <EntityName> with ID <id> not found`
+- Should include necessary relations where relevant
+- Must exclude sensitive information (e.g., user passwords, internal tokens)
+
+### BaseService Architecture
+
+```typescript
+export abstract class BaseService<T> {
+  protected abstract getModel(): any;
+  protected abstract buildSearchConditions(q: string): any[];
+
+  async findAll(
+    query: BaseQueryDto,
+    additionalWhere: any = {},
+    include?: any
+  ): Promise<BaseResponseDto<T>>;
+  async findOne(id: number | string, include?: any): Promise<T>;
+  async create(data: Partial<T>): Promise<T>;
+  async update(id: number | string, data: Partial<T>): Promise<T>;
+  async remove(id: number | string): Promise<void>; // Soft delete
+}
+```
+
+### For New Modules
+
+- Always extend BaseService when possible
+- Implement `getModel()` to return the Prisma model
+- Implement `buildSearchConditions(q: string)` for searchable fields
+- Maintain naming conventions and consistent return structure
+- Add both unit and e2e tests for findAll and findOne
+
+### Standardized Services
+
+The following services have been refactored to use BaseService:
+
+- UsersService
+- CompaniesService
+- EquipmentService
+- TiresService
+- EmployeesService
+- PersonsService
+
 ## 🧪 Testing y Calidad de Código
 
 ### Estrategia de Testing
