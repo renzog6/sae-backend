@@ -1,18 +1,30 @@
 // filepath: sae-backend/src/companies/companies.service.ts
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { BaseService } from "../common/services/base.service";
+import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
 import { CreateCompanyDto } from "./dto/create-company.dto";
 import { UpdateCompanyDto } from "./dto/update-company.dto";
-import {
-  PaginationDto,
-  PaginatedResponseDto,
-} from "../common/dto/pagination.dto";
 
 @Injectable()
-export class CompaniesService {
+export class CompaniesService extends BaseService<any> {
   private readonly logger = new Logger(CompaniesService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.company;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { businessName: { contains: q, mode: "insensitive" } },
+      { cuit: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async create(createCompanyDto: CreateCompanyDto) {
     // Create company: only base fields (relations handled separately)
@@ -32,43 +44,26 @@ export class CompaniesService {
     return company;
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { page, limit, skip } = paginationDto;
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const include = {
+      addresses: true,
+      contacts: true,
+      businessCategory: true,
+    };
 
-    const [companies, total] = await Promise.all([
-      this.prisma.company.findMany({
-        skip,
-        take: limit,
-        include: {
-          addresses: true,
-          contacts: true,
-          businessCategory: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      }),
-      this.prisma.company.count(),
-    ]);
-
-    return new PaginatedResponseDto(companies, total, page, limit);
+    return super.findAll(query, {}, include);
   }
 
   async findOne(id: string) {
-    const company = await this.prisma.company.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        addresses: true,
-        contacts: true,
-        businessCategory: true,
-      },
-    });
+    const include = {
+      addresses: true,
+      contacts: true,
+      businessCategory: true,
+    };
 
-    if (!company) {
-      throw new NotFoundException(`Company with ID ${id} not found`);
-    }
-
-    return company;
+    return super.findOne(parseInt(id), include);
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto) {
@@ -93,17 +88,7 @@ export class CompaniesService {
     return company;
   }
 
-  async remove(id: string) {
-    // Check if company exists
-    await this.findOne(id);
-
-    // Delete company (cascade delete will handle address)
-    await this.prisma.company.delete({
-      where: { id: parseInt(id) },
-    });
-
-    return { id };
+  async remove(id: string): Promise<void> {
+    await super.remove(parseInt(id));
   }
-
-  
 }

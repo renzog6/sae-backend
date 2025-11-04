@@ -9,18 +9,23 @@ import {
   Delete,
   UseGuards,
   Query,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { CompaniesService } from './companies.service';
-import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles, Role } from '../common/decorators/roles.decorator';
-import { PaginationDto } from '../common/dto/pagination.dto';
+} from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from "@nestjs/swagger";
+import { CompaniesService } from "./companies.service";
+import { CreateCompanyDto } from "./dto/create-company.dto";
+import { UpdateCompanyDto } from "./dto/update-company.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { RolesGuard } from "../common/guards/roles.guard";
+import { Roles, Role } from "../common/decorators/roles.decorator";
+import { BaseQueryDto } from "../common/dto/base-query.dto";
 
-@ApiTags('companies')
-@Controller('companies')
+@ApiTags("companies")
+@Controller("companies")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
@@ -28,55 +33,51 @@ export class CompaniesController {
   @Post()
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new company' })
-  @ApiResponse({ status: 201, description: 'Company created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({ summary: "Create a new company" })
+  @ApiResponse({ status: 201, description: "Company created successfully" })
+  @ApiResponse({ status: 400, description: "Bad request" })
   create(@Body() createCompanyDto: CreateCompanyDto) {
-    return this.companiesService.create(createCompanyDto).then((data) => ({ data }));
+    return this.companiesService
+      .create(createCompanyDto)
+      .then((data) => ({ data }));
   }
 
   @Get()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all companies' })
-  @ApiResponse({ status: 200, description: 'Companies retrieved successfully' })
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.companiesService.findAll(paginationDto).then((result: any) => {
-      // Support either PaginatedResponseDto or plain array (fallback)
-      if (result && typeof result === 'object' && 'data' in result && 'meta' in result) {
-        const { data, meta } = result as { data: any[]; meta: any };
-        return { data, meta };
-      }
-      return { data: result };
-    });
+  @ApiOperation({ summary: "Get all companies" })
+  @ApiResponse({ status: 200, description: "Companies retrieved successfully" })
+  findAll(@Query() query: BaseQueryDto) {
+    return this.companiesService.findAll(query);
   }
 
-
-  @Get(':id(\\d+)')
+  @Get(":id(\\d+)")
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a company by ID' })
-  @ApiResponse({ status: 200, description: 'Company retrieved successfully' })
-  @ApiResponse({ status: 404, description: 'Company not found' })
-  findOne(@Param('id') id: string) {
+  @ApiOperation({ summary: "Get a company by ID" })
+  @ApiResponse({ status: 200, description: "Company retrieved successfully" })
+  @ApiResponse({ status: 404, description: "Company not found" })
+  findOne(@Param("id") id: string) {
     return this.companiesService.findOne(id).then((data) => ({ data }));
   }
 
-  @Patch(':id(\\d+)')
+  @Patch(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a company' })
-  @ApiResponse({ status: 200, description: 'Company updated successfully' })
-  @ApiResponse({ status: 404, description: 'Company not found' })
-  update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
-    return this.companiesService.update(id, updateCompanyDto).then((data) => ({ data }));
+  @ApiOperation({ summary: "Update a company" })
+  @ApiResponse({ status: 200, description: "Company updated successfully" })
+  @ApiResponse({ status: 404, description: "Company not found" })
+  update(@Param("id") id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
+    return this.companiesService
+      .update(id, updateCompanyDto)
+      .then((data) => ({ data }));
   }
 
-  @Delete(':id(\\d+)')
+  @Delete(":id(\\d+)")
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a company' })
-  @ApiResponse({ status: 200, description: 'Company deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Company not found' })
-  remove(@Param('id') id: string) {
+  @ApiOperation({ summary: "Delete a company" })
+  @ApiResponse({ status: 200, description: "Company deleted successfully" })
+  @ApiResponse({ status: 404, description: "Company not found" })
+  remove(@Param("id") id: string) {
     return this.companiesService.remove(id).then((data) => ({ data }));
   }
 }
