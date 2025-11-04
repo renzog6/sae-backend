@@ -1,130 +1,111 @@
 //filepath: sae-backend/src/tires/tires.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { BaseService } from "../common/services/base.service";
+import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
 import { CreateTireDto } from "./dto/create-tire.dto";
 import { UpdateTireDto } from "./dto/update-tire.dto";
 
 @Injectable()
-export class TiresService {
-  constructor(private readonly prisma: PrismaService) {}
+export class TiresService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.tire;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { serialNumber: { contains: q, mode: "insensitive" } },
+      {
+        model: {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            {
+              brand: {
+                name: { contains: q, mode: "insensitive" },
+              },
+            },
+            {
+              size: {
+                OR: [
+                  { mainCode: { contains: q, mode: "insensitive" } },
+                  {
+                    aliases: {
+                      some: {
+                        aliasCode: { contains: q, mode: "insensitive" },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ];
+  }
 
   async create(data: CreateTireDto) {
     return this.prisma.tire.create({ data });
   }
 
-  async findAll(options?: {
-    page?: number;
-    limit?: number;
-    q?: string;
-    status?: string;
-  }) {
-    const { page = 1, limit = 10, q, status } = options || {};
-
-    const where: any = {};
-
-    // Add status filter
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto(),
+    status?: string
+  ): Promise<BaseResponseDto<any>> {
+    const additionalWhere: any = {};
     if (status) {
-      where.status = status;
+      additionalWhere.status = status;
     }
 
-    // Add search filter
-    if (q) {
-      where.OR = [
-        { serialNumber: { contains: q } },
-        {
-          model: {
-            OR: [
-              { name: { contains: q } },
-              {
-                brand: {
-                  name: { contains: q },
-                },
-              },
-              {
-                size: {
-                  OR: [
-                    { mainCode: { contains: q } },
-                    {
-                      aliases: {
-                        some: {
-                          aliasCode: { contains: q },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        },
-      ];
-    }
-
-    const [tires, total] = await Promise.all([
-      this.prisma.tire.findMany({
-        where,
+    const include = {
+      model: {
         include: {
-          model: {
-            include: {
-              brand: true,
-              size: { include: { aliases: true } },
-            },
-          },
-          assignments: {
-            include: {
-              positionConfig: {
-                include: { axle: { include: { equipment: true } } },
-              },
-            },
-          },
-          rotations: true,
-          recaps: true,
-          inspections: true,
-          events: true,
+          brand: true,
+          size: { include: { aliases: true } },
         },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      this.prisma.tire.count({ where }),
-    ]);
-
-    return {
-      data: tires,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
       },
+      assignments: {
+        include: {
+          positionConfig: {
+            include: { axle: { include: { equipment: true } } },
+          },
+        },
+      },
+      rotations: true,
+      recaps: true,
+      inspections: true,
+      events: true,
     };
+
+    return super.findAll(query, additionalWhere, include);
   }
 
   async findOne(id: number) {
-    const tire = await this.prisma.tire.findUnique({
-      where: { id: id },
-      include: {
-        model: {
-          include: {
-            brand: true,
-            size: { include: { aliases: true } },
-          },
+    const include = {
+      model: {
+        include: {
+          brand: true,
+          size: { include: { aliases: true } },
         },
-        assignments: {
-          include: {
-            positionConfig: {
-              include: { axle: { include: { equipment: true } } },
-            },
-          },
-        },
-        rotations: true,
-        recaps: true,
-        inspections: true,
-        events: true,
       },
-    });
-    if (!tire) throw new NotFoundException("Tire not found");
-    return tire;
+      assignments: {
+        include: {
+          positionConfig: {
+            include: { axle: { include: { equipment: true } } },
+          },
+        },
+      },
+      rotations: true,
+      recaps: true,
+      inspections: true,
+      events: true,
+    };
+
+    return super.findOne(id, include);
   }
 
   async update(id: number, data: UpdateTireDto) {
@@ -134,9 +115,7 @@ export class TiresService {
     });
   }
 
-  async remove(id: number) {
-    return this.prisma.tire.delete({
-      where: { id },
-    });
+  async remove(id: number): Promise<void> {
+    await super.remove(id);
   }
 }

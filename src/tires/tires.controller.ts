@@ -12,6 +12,7 @@ import {
 import { TiresService } from "./tires.service";
 import { CreateTireDto } from "./dto/create-tire.dto";
 import { UpdateTireDto } from "./dto/update-tire.dto";
+import { BaseQueryDto } from "../common/dto/base-query.dto";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 @ApiTags("tires")
@@ -28,18 +29,8 @@ export class TiresController {
 
   @Get()
   @ApiOperation({ summary: "Get all tires with pagination and filters" })
-  findAll(
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("q") q?: string,
-    @Query("status") status?: string
-  ) {
-    return this.tiresService.findAll({
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      q: q || undefined,
-      status: status || undefined,
-    });
+  findAll(@Query() query: BaseQueryDto, @Query("status") status?: string) {
+    return this.tiresService.findAll(query, status);
   }
 
   @Get(":id")
