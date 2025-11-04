@@ -2,18 +2,34 @@
 
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { BaseService } from "../common/services/base.service";
+import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
 import { EmployeeStatus, HistoryType, SeverityLevel } from "@prisma/client";
-import { PaginationDto } from "../common/dto/pagination.dto";
 import { UpdateEmployeeDto } from "./dto/update-employee.dto";
 import { HistoryLogService } from "../history/services/history-log.service";
 
 @Injectable()
-export class EmployeesService {
+export class EmployeesService extends BaseService<any> {
   constructor(
-    private prisma: PrismaService,
+    prisma: PrismaService,
     private historyLogService: HistoryLogService
-  ) {}
+  ) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.employee;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { employeeCode: { contains: q, mode: "insensitive" } },
+      { person: { is: { lastName: { contains: q, mode: "insensitive" } } } },
+      { person: { is: { firstName: { contains: q, mode: "insensitive" } } } },
+      { person: { is: { cuil: { contains: q, mode: "insensitive" } } } },
+    ];
+  }
 
   async create(dto: CreateEmployeeDto) {
     const employee = await this.prisma.employee.create({
@@ -56,62 +72,36 @@ export class EmployeesService {
     return employee;
   }
 
-  async findAll(pagination?: PaginationDto) {
-    const page = pagination?.page ?? 1;
-    const limit = pagination?.limit ?? 100;
-
-    const q = (pagination?.q ?? "").trim();
-    const status = (pagination?.status ?? "").trim();
-
-    const where: any = {};
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto(),
+    status?: string
+  ): Promise<BaseResponseDto<any>> {
+    const additionalWhere: any = {};
     if (status) {
-      where.status = status as any;
-    }
-    if (q) {
-      const qContains = { contains: q } as const;
-      where.OR = [
-        { employeeCode: qContains },
-        { person: { is: { lastName: qContains } } },
-        { person: { is: { firstName: qContains } } },
-        { person: { is: { cuil: qContains } } },
-      ];
+      additionalWhere.status = status as any;
     }
 
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.employee.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        include: {
-          company: true,
-          category: true,
-          position: true,
-          person: true,
-          vacations: true,
-        },
-        orderBy: { person: { lastName: "asc" } },
-      }),
-      this.prisma.employee.count({ where }),
-    ]);
-    return {
-      data,
-      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    const include = {
+      company: true,
+      category: true,
+      position: true,
+      person: true,
+      vacations: true,
     };
+
+    return super.findAll(query, additionalWhere, include);
   }
 
   async findOne(id: number) {
-    const emp = await this.prisma.employee.findUnique({
-      where: { id },
-      include: {
-        company: true,
-        category: true,
-        position: true,
-        person: true,
-        vacations: true,
-      },
-    });
-    if (!emp) throw new NotFoundException(`Employee with ID ${id} not found`);
-    return emp;
+    const include = {
+      company: true,
+      category: true,
+      position: true,
+      person: true,
+      vacations: true,
+    };
+
+    return super.findOne(id, include);
   }
 
   async update(id: number, dto: UpdateEmployeeDto) {
@@ -161,9 +151,7 @@ export class EmployeesService {
     });
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
-    await this.prisma.employee.delete({ where: { id } });
-    return { id };
+  async remove(id: number): Promise<void> {
+    await super.remove(id);
   }
 }
