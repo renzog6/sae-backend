@@ -5,12 +5,29 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
+import { BaseService } from "../../common/services/base.service";
+import { BaseQueryDto, BaseResponseDto } from "../../common/dto/base-query.dto";
 import { CreateEquipmentDto } from "../dto/create-equipment.dto";
 import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
 
 @Injectable()
-export class EquipmentService {
-  constructor(private readonly prisma: PrismaService) {}
+export class EquipmentService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.equipment;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { licensePlate: { contains: q, mode: "insensitive" } },
+      { internalCode: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+      { name: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   /**
    * 🔁 Centraliza todas las relaciones que suelen incluirse
@@ -57,75 +74,30 @@ export class EquipmentService {
    *
    * Soporta filtros: typeId, modelId, categoryId, year, status
    */
-  async findAll(query: {
-    typeId?: number;
-    modelId?: number;
-    categoryId?: number;
-    year?: number;
-    status?: string;
-    skip?: number;
-    take?: number;
-    search?: string;
-  }) {
-    const {
-      typeId,
-      modelId,
-      categoryId,
-      year,
-      status,
-      skip = 0,
-      take = 25,
-      search,
-    } = query;
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto(),
+    typeId?: number,
+    modelId?: number,
+    categoryId?: number,
+    year?: number,
+    status?: string
+  ): Promise<BaseResponseDto<any>> {
+    const additionalWhere: any = {};
 
-    const where: any = {};
+    if (typeId) additionalWhere.model = { typeId };
+    if (modelId) additionalWhere.modelId = modelId;
+    if (categoryId) additionalWhere.categoryId = categoryId;
+    if (year) additionalWhere.year = year;
+    if (status) additionalWhere.status = status;
 
-    if (typeId) where.model = { typeId };
-    if (modelId) where.modelId = modelId;
-    if (categoryId) where.categoryId = categoryId;
-    if (year) where.year = year;
-    if (status) where.status = status;
-    if (search) {
-      where.OR = [
-        { licensePlate: { contains: search, mode: "insensitive" } },
-        { internalCode: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
-    }
-
-    const [items, total] = await Promise.all([
-      this.prisma.equipment.findMany({
-        where,
-        include: this.equipmentIncludes,
-        skip,
-        take,
-        orderBy: { name: "asc" },
-      }),
-      this.prisma.equipment.count({ where }),
-    ]);
-
-    return {
-      data: items,
-      meta: {
-        total,
-        skip,
-        take,
-        pages: Math.ceil(total / take),
-      },
-    };
+    return super.findAll(query, additionalWhere, this.equipmentIncludes);
   }
 
   /**
    * 🔎 Obtiene un equipo por ID con sus relaciones
    */
   async findOne(id: number) {
-    const equipment = await this.prisma.equipment.findUnique({
-      where: { id },
-      include: this.equipmentIncludes,
-    });
-    if (!equipment)
-      throw new NotFoundException(`Equipment with id ${id} not found`);
-    return equipment;
+    return super.findOne(id, this.equipmentIncludes);
   }
 
   /**
@@ -167,12 +139,8 @@ export class EquipmentService {
   /**
    * 🗑️ Elimina un equipo por ID
    */
-  async remove(id: number) {
-    const equipment = await this.prisma.equipment.findUnique({ where: { id } });
-    if (!equipment)
-      throw new NotFoundException(`Equipment with id ${id} not found`);
-
-    return this.prisma.equipment.delete({ where: { id } });
+  async remove(id: number): Promise<void> {
+    await super.remove(id);
   }
 
   // -------------------------------------------------------------------------
