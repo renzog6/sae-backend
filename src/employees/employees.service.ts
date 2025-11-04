@@ -3,7 +3,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { BaseService } from "../common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
+import { BaseResponseDto } from "../common/dto/base-query.dto";
 import { EmployeeQueryDto } from "./dto/employee-query.dto";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
 import { EmployeeStatus, HistoryType, SeverityLevel } from "@prisma/client";

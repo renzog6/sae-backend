@@ -27,6 +27,9 @@ export class BaseQueryDto {
   @Max(100)
   limit?: number = 10;
 
+  private _skip?: number;
+  private _take?: number;
+
   @ApiPropertyOptional({
     description: "Search query",
     example: "search term",
@@ -53,11 +56,17 @@ export class BaseQueryDto {
   sortOrder?: "asc" | "desc" = "desc";
 
   get skip(): number {
-    return ((this.page || 1) - 1) * (this.limit || 10);
+    if (this._skip === undefined) {
+      this._skip = ((this.page || 1) - 1) * (this.limit || 10);
+    }
+    return this._skip;
   }
 
   get take(): number {
-    return this.limit || 10;
+    if (this._take === undefined) {
+      this._take = this.limit || 10;
+    }
+    return this._take;
   }
 }
 

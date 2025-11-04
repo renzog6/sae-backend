@@ -23,7 +23,7 @@ describe("TireRecaps (e2e)", () => {
     const loginResponse = await request(app.getHttpServer())
       .post("/api/auth/login")
       .send({
-        email: "admin@example.com",
+        email: "admin@rcmsa.ar",
         password: "password123",
       });
 
