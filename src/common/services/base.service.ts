@@ -26,8 +26,16 @@ export abstract class BaseService<T extends { id: number | string }> {
   ): Promise<BaseResponseDto<T>> {
     const { skip, take, q, sortBy, sortOrder } = query;
 
+    // Check if model supports soft deletes
+    const modelFields = this.getModel().fields || {};
+    const hasDeletedAt = "deletedAt" in modelFields;
+
+    console.log(
+      `[BaseService] Model ${this.constructor.name} has deletedAt field: ${hasDeletedAt}`
+    );
+
     const where: any = {
-      deletedAt: null, // Soft delete filter by default
+      ...(hasDeletedAt ? { deletedAt: null } : {}), // Soft delete filter only if field exists
       ...additionalWhere,
     };
 
@@ -46,8 +54,13 @@ export abstract class BaseService<T extends { id: number | string }> {
       orderBy,
     };
 
+    // Handle include/select properly - if include contains select, it's actually a select
     if (include) {
-      findManyOptions.include = include;
+      if (include.select) {
+        findManyOptions.select = include.select;
+      } else {
+        findManyOptions.include = include;
+      }
     }
 
     const [data, total] = await this.prisma.$transaction([
@@ -70,8 +83,19 @@ export abstract class BaseService<T extends { id: number | string }> {
    * Standard findOne implementation with error handling and optional includes
    */
   async findOne(id: number | string, include?: any): Promise<T> {
+    // Check if model supports soft deletes
+    const modelFields = this.getModel().fields || {};
+    const hasDeletedAt = "deletedAt" in modelFields;
+
+    console.log(
+      `[BaseService] Model ${this.constructor.name} has deletedAt field: ${hasDeletedAt}`
+    );
+
     const findOptions: any = {
-      where: { id, deletedAt: null }, // Soft delete filter
+      where: {
+        id,
+        ...(hasDeletedAt ? { deletedAt: null } : {}), // Soft delete filter only if field exists
+      },
     };
 
     if (include) {
@@ -111,9 +135,25 @@ export abstract class BaseService<T extends { id: number | string }> {
    */
   async remove(id: number | string): Promise<void> {
     await this.findOne(id); // Ensure exists
-    await this.getModel().update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+
+    // Check if model supports soft deletes
+    const modelFields = this.getModel().fields || {};
+    const hasDeletedAt = "deletedAt" in modelFields;
+
+    console.log(
+      `[BaseService] Model ${this.constructor.name} has deletedAt field: ${hasDeletedAt}`
+    );
+
+    if (hasDeletedAt) {
+      await this.getModel().update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
+    } else {
+      // Hard delete if no soft delete support
+      await this.getModel().delete({
+        where: { id },
+      });
+    }
   }
 }

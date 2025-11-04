@@ -42,6 +42,7 @@ enum Role {
   ADMIN
 }
 
+/// Soft delete enabled: added isActive + deletedAt
 // Company related models
 model Company {
   id           Int     @id @default(autoincrement())
@@ -50,8 +51,10 @@ model Company {
   businessName String? @db.VarChar(255)
   information  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   // Relations
   businessCategoryId Int?
@@ -63,9 +66,10 @@ model Company {
   equipment          Equipment[]
   products           ProductCompany[]
   parts              PartOrderCompany[]
-  HistoryLog         HistoryLog[]
+  historyLog         HistoryLog[]
 
   @@index([businessName])
+  @@index([deletedAt])
   @@map("companies")
 }
 
@@ -245,6 +249,7 @@ enum PersonStatus {
   INACTIVE
 }
 
+/// Soft delete enabled: added isActive + deletedAt
 model Employee {
   id           Int            @id @default(autoincrement())
   employeeCode String?        @default("00000") // Número de legajo interno de la empresa
@@ -252,6 +257,8 @@ model Employee {
   status       EmployeeStatus @default(ACTIVE)
   hireDate     DateTime
   endDate      DateTime?
+  isActive     Boolean        @default(true)
+  deletedAt    DateTime?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
@@ -272,13 +279,14 @@ model Employee {
   documents        Document[]
   inspections      Inspection[]
   EmployeeIncident EmployeeIncident[]
-  HistoryLog       HistoryLog[]
+  historyLog       HistoryLog[]
 
   @@index([companyId])
   @@index([categoryId])
   @@index([positionId])
   @@index([companyId, categoryId])
   @@index([companyId, status])
+  @@index([deletedAt])
   @@map("employees")
 }
 
@@ -346,6 +354,7 @@ enum VacationType {
   TAKEN // Días efectivamente tomados  
 }
 
+/// Soft delete enabled: added isActive + deletedAt
 model Person {
   id            Int            @id @default(autoincrement())
   firstName     String         @db.VarChar(25)
@@ -358,6 +367,8 @@ model Person {
   information   String?
   status        PersonStatus?  @default(ACTIVE)
   address       Address?
+  isActive      Boolean        @default(true)
+  deletedAt     DateTime?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -366,10 +377,11 @@ model Person {
   employee     Employee?
   relatives    Family[]      @relation("Person_Family")
   isRelativeOf Family[]      @relation("Relative_Person")
-  HistoryLog   HistoryLog[]
+  historyLog   HistoryLog[]
 
   @@index([lastName])
   @@index([firstName])
+  @@index([deletedAt])
   @@map("persons")
 }
 
@@ -389,14 +401,17 @@ model Family {
   @@map("family_relationships")
 }
 
+/// Soft delete enabled: added isActive + deletedAt
 model Document {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   filename    String // Nombre original del archivo
   mimetype    String // Tipo MIME (ej: application/pdf, image/png)
   size        Int // Tamaño en bytes
   path        String // Ruta donde se guarda el archivo (o URL en S3/MinIO)
   description String? // Descripción opcional
-  uploadedAt  DateTime @default(now())
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
+  uploadedAt  DateTime  @default(now())
 
   // Relaciones opcionales
   employeeId Int?
@@ -405,17 +420,21 @@ model Document {
   employee Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   company  Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
+  @@index([deletedAt])
   @@map("documents")
 }
 
 // Inspection related models
+/// Soft delete enabled: added isActive + deletedAt
 model Inspection {
-  id          Int      @id @default(autoincrement())
-  date        DateTime @default(now())
-  description String?  @db.Text
-  observation String?  @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          Int       @id @default(autoincrement())
+  date        DateTime  @default(now())
+  description String?   @db.Text
+  observation String?   @db.Text
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations
   equipmentId Int       @map("equipment_id")
@@ -430,6 +449,7 @@ model Inspection {
   @@index([equipmentId])
   @@index([employeeId])
   @@index([inspectionTypeId])
+  @@index([deletedAt])
   @@map("inspections")
 }
 
@@ -483,6 +503,7 @@ model Unit {
 }
 
 // Modelo general para eventos diversos
+/// Soft delete enabled: added isActive + deletedAt
 model HistoryLog {
   id          Int           @id @default(autoincrement())
   title       String // Título del evento
@@ -490,6 +511,8 @@ model HistoryLog {
   type        HistoryType // Tipo de evento
   severity    SeverityLevel @default(INFO)
   eventDate   DateTime      @default(now()) // Cuándo ocurrió el evento
+  isActive    Boolean       @default(true)
+  deletedAt   DateTime?
   createdAt   DateTime      @default(now())
 
   // Relaciones polimórficas - puede pertenecer a múltiples entidades
@@ -513,6 +536,7 @@ model HistoryLog {
   @@index([personId])
   @@index([type])
   @@index([eventDate])
+  @@index([deletedAt])
   @@map("history_logs")
 }
 
@@ -606,6 +630,7 @@ enum MaintenanceType {
 // 🔧 EQUIPOS
 // ====================
 
+/// Soft delete enabled: added isActive + deletedAt
 model Equipment {
   id           Int             @id @default(autoincrement())
   internalCode String?         @unique // Código interno (ej: EQ-00123)
@@ -619,6 +644,8 @@ model Equipment {
   color        String?
   diesel       Boolean?
   status       EquipmentStatus @default(ACTIVE)
+  isActive     Boolean         @default(true)
+  deletedAt    DateTime?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
@@ -638,7 +665,7 @@ model Equipment {
   parts                EquipmentPart[]
   inspections          Inspection[]
   EquipmentMaintenance EquipmentMaintenance[]
-  HistoryLog           HistoryLog[]
+  historyLog           HistoryLog[]
   EquipmentAxle        EquipmentAxle[]
 
   @@index([companyId])
@@ -646,6 +673,7 @@ model Equipment {
   @@index([typeId])
   @@index([modelId])
   @@index([year])
+  @@index([deletedAt])
   @@map("equipment")
 }
 
@@ -689,14 +717,17 @@ model EquipmentType {
   @@map("equipment_types")
 }
 
+/// Soft delete enabled: added isActive + deletedAt
 model EquipmentModel {
-  id          Int     @id @default(autoincrement())
-  code        String? @unique
-  name        String  @db.VarChar(25)
+  id          Int       @id @default(autoincrement())
+  code        String?   @unique
+  name        String    @db.VarChar(25)
   year        Int?
   description String?
-  typeId      Int?    @map("type_id")
-  brandId     Int?    @map("brand_id")
+  typeId      Int?      @map("type_id")
+  brandId     Int?      @map("brand_id")
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
 
   // Relaciones
   brand     Brand?               @relation(fields: [brandId], references: [id])
@@ -706,6 +737,7 @@ model EquipmentModel {
 
   @@index([typeId])
   @@index([brandId])
+  @@index([deletedAt])
   @@map("equipment_models")
 }
 
@@ -713,14 +745,17 @@ model EquipmentModel {
 // 🧱 PARTES
 // ====================
 
+/// Soft delete enabled: added isActive + deletedAt
 model Part {
-  id          Int      @id @default(autoincrement())
-  code        String?  @unique
-  name        String?  @db.VarChar(25)
+  id          Int       @id @default(autoincrement())
+  code        String?   @unique
+  name        String?   @db.VarChar(25)
   description String?
   information String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relaciones
   brandId Int?
@@ -736,6 +771,7 @@ model Part {
   @@index([code])
   @@index([name])
   @@index([brandId])
+  @@index([deletedAt])
   @@map("parts")
 }
 
@@ -796,15 +832,18 @@ model EquipmentPart {
 // 📦 PRODUCTOS
 // ====================
 
+/// Soft delete enabled: added isActive + deletedAt
 model Product {
-  id            Int      @id @default(autoincrement())
-  name          String   @db.VarChar(25)
-  code          String?  @unique
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar(25)
+  code          String?   @unique
   information   String?
-  stockQuantity Int?     @default(0)
-  unitPrice     Decimal? @db.Decimal(10, 2)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  stockQuantity Int?      @default(0)
+  unitPrice     Decimal?  @db.Decimal(10, 2)
+  isActive      Boolean   @default(true)
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relaciones
   brandId Int?
@@ -817,6 +856,7 @@ model Product {
 
   @@index([name])
   @@index([brandId])
+  @@index([deletedAt])
   @@map("products")
 }
 
@@ -954,6 +994,7 @@ model TireModel {
 }
 
 // 🔹 NEUMÁTICO físico individual
+/// Soft delete enabled: added isActive + deletedAt
 model Tire {
   id           Int           @id @default(autoincrement())
   serialNumber String        @unique
@@ -964,6 +1005,8 @@ model Tire {
   recapCount   Int           @default(0) // DENORMALIZACIÓN: nº total recapados
   lastRecapAt  DateTime? // denormalización para consultas rápidas
   lastRecapId  Int? // FK opcional al último TireRecap
+  isActive     Boolean       @default(true)
+  deletedAt    DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
@@ -976,6 +1019,7 @@ model Tire {
   events      TireEvent[]
 
   @@index([modelId])
+  @@index([deletedAt])
   @@map("tires")
 }
 

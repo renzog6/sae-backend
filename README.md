@@ -19,6 +19,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 - **📈 Reportes Analíticos Empresariales**: Generación de reportes Excel, métricas de rendimiento y business intelligence
 - **⚡ Performance Optimizada**: Consultas optimizadas, caching preparado y transacciones ACID
 - **🐳 Despliegue Profesional**: Docker multi-stage, health checks y configuración de producción
+- **🗑️ Soft Delete Implementado**: Eliminación lógica en todas las entidades principales con campos `isActive` y `deletedAt`
 
 ### 📊 Estadísticas del Proyecto
 
@@ -2006,6 +2007,30 @@ Desarrollado con ❤️ usando **NestJS** + **Prisma** + **TypeScript**
 - [Prisma](https://prisma.io/) - ORM de nueva generación
 - [MySQL](https://mysql.com/) - Base de datos relacional
 - [JWT](https://jwt.io/) - Autenticación segura
+
+### 🧹 Soft Delete Implementation (Guided Refactor)
+
+- Added `isActive` and `deletedAt` fields to all main entities, following BaseModel convention.
+- Allows logical deletion and consistent entity visibility across the system.
+- Each affected model includes `@@index([deletedAt])` for efficient filtering.
+- Run `npx prisma generate` after merging these changes.
+
+### 🗑️ Soft Delete Fields Summary
+
+| Model          | Soft Delete Added | DeletedAt Indexed | Notes                     |
+| -------------- | ----------------- | ----------------- | ------------------------- |
+| Company        | ✅                | ✅                | Main business entity      |
+| Employee       | ✅                | ✅                | HR management             |
+| Equipment      | ✅                | ✅                | Fleet management          |
+| Product        | ✅                | ✅                | Product catalog           |
+| Tire           | ✅                | ✅                | Tire lifecycle management |
+| Person         | ✅                | ✅                | Physical persons          |
+| Document       | ✅                | ✅                | File management           |
+| Inspection     | ✅                | ✅                | Technical control         |
+| HistoryLog     | ✅                | ✅                | Audit logs                |
+| Part           | ✅                | ✅                | Parts catalog             |
+| EquipmentModel | ✅                | ✅                | Equipment specifications  |
+
 - [Swagger](https://swagger.io/) - Documentación API
 
 **Contribuciones bienvenidas** 🚀
