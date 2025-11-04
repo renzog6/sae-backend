@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { BaseService } from "../../common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "../../common/dto/base-query.dto";
+import { BaseResponseDto } from "../../common/dto/base-query.dto";
 import { EquipmentQueryDto } from "../dto/equipment-query.dto";
 import { CreateEquipmentDto } from "../dto/create-equipment.dto";
 import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
@@ -23,10 +23,10 @@ export class EquipmentService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { licensePlate: { contains: q, mode: "insensitive" } },
-      { internalCode: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-      { name: { contains: q, mode: "insensitive" } },
+      { licensePlate: { contains: q } },
+      { internalCode: { contains: q } },
+      { description: { contains: q } },
+      { name: { contains: q } },
     ];
   }
 

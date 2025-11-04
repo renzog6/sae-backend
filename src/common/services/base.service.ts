@@ -42,7 +42,10 @@ export abstract class BaseService<T extends { id: number | string }> {
     // Add search filter if provided
     if (q) {
       // Default search implementation - can be overridden by services
-      where.OR = this.buildSearchConditions(q);
+      const searchConditions = this.buildSearchConditions(q);
+      if (searchConditions && searchConditions.length > 0) {
+        where.OR = searchConditions;
+      }
     }
 
     const orderBy = sortBy ? { [sortBy]: sortOrder } : { createdAt: "desc" };

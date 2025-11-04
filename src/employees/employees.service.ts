@@ -25,10 +25,10 @@ export class EmployeesService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { employeeCode: { contains: q, mode: "insensitive" } },
-      { person: { is: { lastName: { contains: q, mode: "insensitive" } } } },
-      { person: { is: { firstName: { contains: q, mode: "insensitive" } } } },
-      { person: { is: { cuil: { contains: q, mode: "insensitive" } } } },
+      { employeeCode: { contains: q } },
+      { person: { is: { lastName: { contains: q } } } },
+      { person: { is: { firstName: { contains: q } } } },
+      { person: { is: { cuil: { contains: q } } } },
     ];
   }
 
