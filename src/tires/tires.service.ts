@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { BaseService } from "../common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
+import { TireQueryDto } from "./dto/tire-query.dto";
 import { CreateTireDto } from "./dto/create-tire.dto";
 import { UpdateTireDto } from "./dto/update-tire.dto";
 
@@ -18,24 +19,24 @@ export class TiresService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { serialNumber: { contains: q, mode: "insensitive" } },
+      { serialNumber: { contains: q } },
       {
         model: {
           OR: [
-            { name: { contains: q, mode: "insensitive" } },
+            { name: { contains: q } },
             {
               brand: {
-                name: { contains: q, mode: "insensitive" },
+                name: { contains: q },
               },
             },
             {
               size: {
                 OR: [
-                  { mainCode: { contains: q, mode: "insensitive" } },
+                  { mainCode: { contains: q } },
                   {
                     aliases: {
                       some: {
-                        aliasCode: { contains: q, mode: "insensitive" },
+                        aliasCode: { contains: q },
                       },
                     },
                   },
@@ -53,12 +54,11 @@ export class TiresService extends BaseService<any> {
   }
 
   async findAll(
-    query: BaseQueryDto = new BaseQueryDto(),
-    status?: string
+    query: TireQueryDto = new TireQueryDto()
   ): Promise<BaseResponseDto<any>> {
     const additionalWhere: any = {};
-    if (status) {
-      additionalWhere.status = status;
+    if (query.status) {
+      additionalWhere.status = query.status;
     }
 
     const include = {
