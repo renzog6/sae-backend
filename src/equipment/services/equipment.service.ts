@@ -7,6 +7,7 @@ import {
 import { PrismaService } from "../../prisma/prisma.service";
 import { BaseService } from "../../common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "../../common/dto/base-query.dto";
+import { EquipmentQueryDto } from "../dto/equipment-query.dto";
 import { CreateEquipmentDto } from "../dto/create-equipment.dto";
 import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
 
@@ -75,12 +76,11 @@ export class EquipmentService extends BaseService<any> {
    * Soporta filtros: typeId, modelId, categoryId, year, status
    */
   async findAll(
-    query: BaseQueryDto = new BaseQueryDto(),
+    query: EquipmentQueryDto = new EquipmentQueryDto(),
     typeId?: number,
     modelId?: number,
     categoryId?: number,
-    year?: number,
-    status?: string
+    year?: number
   ): Promise<BaseResponseDto<any>> {
     const additionalWhere: any = {};
 
@@ -88,7 +88,7 @@ export class EquipmentService extends BaseService<any> {
     if (modelId) additionalWhere.modelId = modelId;
     if (categoryId) additionalWhere.categoryId = categoryId;
     if (year) additionalWhere.year = year;
-    if (status) additionalWhere.status = status;
+    if (query.status) additionalWhere.status = query.status;
 
     return super.findAll(query, additionalWhere, this.equipmentIncludes);
   }

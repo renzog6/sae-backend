@@ -4,6 +4,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { BaseService } from "../common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
+import { EmployeeQueryDto } from "./dto/employee-query.dto";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
 import { EmployeeStatus, HistoryType, SeverityLevel } from "@prisma/client";
 import { UpdateEmployeeDto } from "./dto/update-employee.dto";
@@ -73,12 +74,11 @@ export class EmployeesService extends BaseService<any> {
   }
 
   async findAll(
-    query: BaseQueryDto = new BaseQueryDto(),
-    status?: string
+    query: EmployeeQueryDto = new EmployeeQueryDto()
   ): Promise<BaseResponseDto<any>> {
     const additionalWhere: any = {};
-    if (status) {
-      additionalWhere.status = status as any;
+    if (query.status) {
+      additionalWhere.status = query.status;
     }
 
     const include = {

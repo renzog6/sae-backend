@@ -27,6 +27,7 @@ import {
   ApiBody,
 } from "@nestjs/swagger";
 import { BaseQueryDto } from "../../common/dto/base-query.dto";
+import { EquipmentQueryDto } from "../dto/equipment-query.dto";
 
 @ApiTags("Equipment")
 @ApiBearerAuth()
@@ -116,20 +117,18 @@ export class EquipmentController {
   @ApiResponse({ status: 200, description: "List of equipment with metadata." })
   @ApiResponse({ status: 500, description: "Internal server error." })
   findAll(
-    @Query() query: BaseQueryDto,
+    @Query() query: EquipmentQueryDto,
     @Query("typeId") typeId?: number,
     @Query("modelId") modelId?: number,
     @Query("categoryId") categoryId?: number,
-    @Query("year") year?: number,
-    @Query("status") status?: string
+    @Query("year") year?: number
   ) {
     return this.equipmentService.findAll(
       query,
       typeId,
       modelId,
       categoryId,
-      year,
-      status
+      year
     );
   }
   // -------------------------------------------------------------------------

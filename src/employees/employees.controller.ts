@@ -13,6 +13,7 @@ import { EmployeesService } from "./employees.service";
 import { CreateEmployeeDto } from "./dto/create-employee.dto";
 import { UpdateEmployeeDto } from "./dto/update-employee.dto";
 import { BaseQueryDto } from "../common/dto/base-query.dto";
+import { EmployeeQueryDto } from "./dto/employee-query.dto";
 
 @ApiTags("employees")
 @Controller("employees")
@@ -22,8 +23,8 @@ export class EmployeesController {
   @Get()
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
-  findAll(@Query() query: BaseQueryDto, @Query("status") status?: string) {
-    return this.employeesService.findAll(query, status);
+  findAll(@Query() query: EmployeeQueryDto) {
+    return this.employeesService.findAll(query);
   }
 
   @Get(":id")
