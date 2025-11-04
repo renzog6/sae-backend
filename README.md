@@ -22,7 +22,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 
 ### 📊 Estadísticas del Proyecto
 
-- **Versión**: 1.0.0
+- **Versión**: 1.1.0
 - **Autor**: Renzo O. Gorosito
 - **Licencia**: MIT
 - **Última Actualización**: Octubre 2025
@@ -1553,6 +1553,58 @@ The following services have been refactored to use BaseService:
 - TiresService
 - EmployeesService
 - PersonsService
+
+## 🔄 Standardization of findAll and findOne
+
+### Overview
+
+All service modules must implement standardized `findAll` and `findOne` methods using the shared BaseService class.
+This ensures consistency, predictable responses, and ease of integration across the backend and frontend.
+
+### findAll
+
+- Must support pagination with `page` and `limit` parameters
+- Supports optional search with `q` parameter
+- Supports optional sorting with `sortBy` and `sortOrder` parameters
+- Automatically excludes soft-deleted records (`deletedAt: null`)
+- Returns standardized response structure:
+  ```json
+  {
+    "data": [...],
+    "meta": {
+      "total": number,
+      "page": number,
+      "limit": number,
+      "totalPages": number
+    }
+  }
+  ```
+- Default sorting: `createdAt desc`
+- Default pagination: `page=1, limit=10`
+
+### findOne
+
+- Uses centralized BaseService method with consistent error handling
+- Always performs query using `findUniqueOrThrow({ where: { id }, include })`
+- Wraps with consistent try/catch block that throws `NotFoundException`
+- Message format: `Entity <EntityName> with ID <id> not found`
+- Excludes sensitive data (e.g., user passwords, internal tokens)
+- Includes related entities where relevant
+
+### BaseService Architecture
+
+- Abstract class in `/src/common/services/base.service.ts`
+- Provides `findAll()` and `findOne()` with standardized logic
+- Services extend BaseService and implement `getModel()` and `buildSearchConditions()`
+- Reduces code duplication and ensures consistency
+
+### For New Modules
+
+- Always extend BaseService when possible
+- Implement `getModel()` to return the Prisma model
+- Override `buildSearchConditions(q: string)` for custom search logic
+- Maintain naming conventions and consistent return structure
+- Add both unit and e2e tests for findAll and findOne
 
 ## 🧪 Testing y Calidad de Código
 
