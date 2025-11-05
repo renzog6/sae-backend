@@ -177,12 +177,12 @@ export class EmployeeVacationsService {
       vacation.employee.person.firstName;
     const dias = vacation.days ?? 0;
     const anio = vacation.year ?? new Date().getFullYear();
-    const desde = vacation.startDate.toLocaleDateString("es-AR");
+    const desde = this.formatDateOnly(vacation.startDate);
 
-    // Sumamos los días a la fecha de inicio
+    // Sumamos los días a la fecha de inicio (usando solo partes de fecha)
     const hastaDate = new Date(vacation.startDate);
     hastaDate.setDate(hastaDate.getDate() + dias - 1);
-    const hasta = hastaDate.toLocaleDateString("es-AR");
+    const hasta = this.formatDateOnly(hastaDate);
 
     // 🔹 Completar los campos del formulario (tolerante a campos faltantes)
     const safeSet = (fieldName: string, value: string) => {
@@ -193,16 +193,16 @@ export class EmployeeVacationsService {
       }
     };
 
-    // 🔹 Fecha de liquidación en formato extendido
-    const fechaLiquidacion = vacation.settlementDate.toLocaleDateString(
-      "es-AR",
-      {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    );
+    // 🔹 Fecha de liquidación en formato extendido (usando UTC para evitar timezone shifts)
+    const fechaLiquidacion = new Date(
+      vacation.settlementDate
+    ).toLocaleDateString("es-AR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    });
     safeSet("fecha", `Villa Minetti, ${fechaLiquidacion}`);
 
     safeSet("nombreEmpleado", nombreEmpleado);
@@ -463,6 +463,16 @@ export class EmployeeVacationsService {
       month: "2-digit",
       year: "numeric",
     });
+  }
+
+  /**
+   * Formatea una fecha sin considerar timezone ni hora, solo fecha
+   */
+  private formatDateOnly(date: Date): string {
+    const day = date.getUTCDate().toString().padStart(2, "0");
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+    const year = date.getUTCFullYear();
+    return `${day}/${month}/${year}`;
   }
 
   /**
