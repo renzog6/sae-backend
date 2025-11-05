@@ -2,7 +2,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { BaseService } from "../common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "../common/dto/base-query.dto";
+import { BaseResponseDto } from "../common/dto/base-query.dto";
 import { TireQueryDto } from "./dto/tire-query.dto";
 import { CreateTireDto } from "./dto/create-tire.dto";
 import { UpdateTireDto } from "./dto/update-tire.dto";

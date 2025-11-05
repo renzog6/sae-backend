@@ -150,7 +150,7 @@ export abstract class BaseService<T extends { id: number | string }> {
     if (hasDeletedAt) {
       await this.getModel().update({
         where: { id },
-        data: { deletedAt: new Date() },
+        data: { deletedAt: new Date(), isActive: false },
       });
     } else {
       // Hard delete if no soft delete support
