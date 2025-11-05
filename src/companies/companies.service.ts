@@ -88,7 +88,7 @@ export class CompaniesService extends BaseService<any> {
     return company;
   }
 
-  async remove(id: string): Promise<void> {
-    await super.remove(parseInt(id));
+  async remove(id: string): Promise<{ message: string }> {
+    return await super.remove(parseInt(id));
   }
 }

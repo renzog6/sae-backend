@@ -136,7 +136,7 @@ export abstract class BaseService<T extends { id: number | string }> {
   /**
    * Standard remove implementation (soft delete)
    */
-  async remove(id: number | string): Promise<void> {
+  async remove(id: number | string): Promise<{ message: string }> {
     await this.findOne(id); // Ensure exists
 
     // Check if model supports soft deletes
@@ -152,11 +152,13 @@ export abstract class BaseService<T extends { id: number | string }> {
         where: { id },
         data: { deletedAt: new Date(), isActive: false },
       });
+      return { message: "Record deleted successfully" };
     } else {
       // Hard delete if no soft delete support
       await this.getModel().delete({
         where: { id },
       });
+      return { message: "Record deleted successfully" };
     }
   }
 }

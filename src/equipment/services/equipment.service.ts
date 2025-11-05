@@ -139,8 +139,8 @@ export class EquipmentService extends BaseService<any> {
   /**
    * 🗑️ Elimina un equipo por ID
    */
-  async remove(id: number): Promise<void> {
-    await super.remove(id);
+  async remove(id: number): Promise<{ message: string }> {
+    return await super.remove(id);
   }
 
   // -------------------------------------------------------------------------

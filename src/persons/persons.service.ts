@@ -89,7 +89,7 @@ export class PersonsService extends BaseService<any> {
     });
   }
 
-  async remove(id: number): Promise<void> {
-    await super.remove(id);
+  async remove(id: number): Promise<{ message: string }> {
+    return await super.remove(id);
   }
 }
