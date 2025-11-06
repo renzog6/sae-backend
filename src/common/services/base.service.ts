@@ -48,7 +48,7 @@ export abstract class BaseService<T extends { id: number | string }> {
       }
     }
 
-    const orderBy = sortBy ? { [sortBy]: sortOrder } : { createdAt: "desc" };
+    const orderBy = sortBy ? { [sortBy]: sortOrder } : { id: "desc" };
 
     const findManyOptions: any = {
       where,
