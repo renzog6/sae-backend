@@ -475,11 +475,12 @@ model Presentation {
 }
 
 model Brand {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique @db.VarChar(25)
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(25)
   information String?
-  code        String  @unique
-  isActive    Boolean @default(true)
+  code        String    @unique
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
 
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
@@ -489,6 +490,7 @@ model Brand {
   TireModel      TireModel[]
 
   @@index([name])
+  @@index([deletedAt])
   @@map("brands")
 }
 
