@@ -1,10 +1,10 @@
-// filepath: sae-backend/src/modules/catalogs/brands/brands.controller.spec.ts
+// filepath: sae-backend/src/modules/catalogs/test/brands.controller.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { BrandsController } from "./brands.controller";
-import { BrandsService } from "./brands.service";
+import { BrandsController } from "../brands/brands.controller";
+import { BrandsService } from "../brands/brands.service";
 import { BaseQueryDto } from "@common/dto/base-query.dto";
-import { CreateBrandDto } from "./dto/create-brand.dto";
-import { UpdateBrandDto } from "./dto/update-brand.dto";
+import { CreateBrandDto } from "../brands/dto/create-brand.dto";
+import { UpdateBrandDto } from "../brands/dto/update-brand.dto";
 
 describe("BrandsController", () => {
   let controller: BrandsController;
