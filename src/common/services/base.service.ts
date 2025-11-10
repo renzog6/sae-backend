@@ -1,5 +1,6 @@
+// filepath: sae-backend/src/common/services/base.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import { PrismaService } from "@prisma/prisma.service";
 import { BaseQueryDto, BaseResponseDto } from "../dto/base-query.dto";
 
 @Injectable()

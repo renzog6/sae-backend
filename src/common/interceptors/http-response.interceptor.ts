@@ -1,11 +1,12 @@
+// filepath: sae-backend/src/common/interceptors/http-response.interceptor.ts
 import {
   Injectable,
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+} from "@nestjs/common";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 export interface Response<T> {
   statusCode: number;
@@ -14,10 +15,12 @@ export interface Response<T> {
 }
 
 @Injectable()
-export class HttpResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
+export class HttpResponseInterceptor<T>
+  implements NestInterceptor<T, Response<T>>
+{
   intercept(
     context: ExecutionContext,
-    next: CallHandler,
+    next: CallHandler
   ): Observable<Response<T>> {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse();
@@ -33,10 +36,10 @@ export class HttpResponseInterceptor<T> implements NestInterceptor<T, Response<T
         // Default response structure
         return {
           statusCode,
-          message: 'Success',
+          message: "Success",
           data,
         };
-      }),
+      })
     );
   }
 }

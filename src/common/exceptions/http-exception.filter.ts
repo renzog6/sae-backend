@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/common/exceptions/http-exception.filter.ts
 import {
   ExceptionFilter,
   Catch,
@@ -5,8 +6,8 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
+} from "@nestjs/common";
+import { Request, Response } from "express";
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -31,12 +32,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.logger.error(
         `${request.method} ${request.url}`,
         exception.stack,
-        'HttpExceptionFilter',
+        "HttpExceptionFilter"
       );
     } else {
       this.logger.warn(
         `${request.method} ${request.url} - Status ${status}`,
-        JSON.stringify(errorResponse),
+        JSON.stringify(errorResponse)
       );
     }
 

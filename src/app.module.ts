@@ -5,21 +5,21 @@ import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
-import { UsersModule } from "./users/users.module";
-import { CompaniesModule } from "./companies/companies.module";
-import { BusinessCategoriesModule } from "./companies/business-categories/business-categories.module";
-import { BusinessSubcategoriesModule } from "./companies/business-subcategories/business-subcategories.module";
-import { ContactsModule } from "./contacts/contacts.module";
-import { EquipmentModule } from "./equipment/equipment.module";
-import { EmployeesModule } from "./employees/employees.module";
-import { LocationsModule } from "./locations/locations.module";
-import { InspectionsModule } from "./inspections/inspections.module";
-import { HealthModule } from "./health/health.module";
-import { CatalogsModule } from "./catalogs/catalogs.module";
-import { PersonsModule } from "./persons/persons.module";
-import { DocumentsModule } from "./documents/documents.module";
-import { HistoryModule } from "./history/history.module";
-import { TiresModule } from "./tires/tires.module";
+import { UsersModule } from "./modules/users/users.module";
+import { CompaniesModule } from "./modules/companies/companies.module";
+import { BusinessCategoriesModule } from "./modules/companies/business-categories/business-categories.module";
+import { BusinessSubcategoriesModule } from "./modules/companies/business-subcategories/business-subcategories.module";
+import { ContactsModule } from "./modules/contacts/contacts.module";
+import { EquipmentModule } from "./modules/equipment/equipment.module";
+import { EmployeesModule } from "./modules/employees/employees.module";
+import { LocationsModule } from "./modules/locations/locations.module";
+import { InspectionsModule } from "./modules/inspections/inspections.module";
+import { HealthModule } from "./modules/health/health.module";
+import { CatalogsModule } from "./modules/catalogs/catalogs.module";
+import { PersonsModule } from "./modules/persons/persons.module";
+import { DocumentsModule } from "./modules/documents/documents.module";
+import { HistoryModule } from "./modules/history/history.module";
+import { TiresModule } from "./modules/tires/tires.module";
 
 @Module({
   imports: [

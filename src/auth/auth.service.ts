@@ -1,4 +1,4 @@
-// file: sae-backend/src/auth/auth.service.ts
+// filepath: sae-backend/src/auth/auth.service.ts
 import { Injectable, UnauthorizedException, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";

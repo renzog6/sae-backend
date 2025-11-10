@@ -1,4 +1,5 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+// filepath: sae-backend/src/common/decorators/pagination.decorator.ts
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 
 export interface PaginationParams {
   page: number;
@@ -14,5 +15,5 @@ export const Pagination = createParamDecorator(
     const skip = (page - 1) * limit;
 
     return { page, limit, skip };
-  },
+  }
 );

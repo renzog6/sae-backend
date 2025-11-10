@@ -1,10 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+// filepath: sae-backend/src/common/dto/pagination.dto.ts
+import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import { IsInt, IsOptional, IsString, Min } from "class-validator";
 
 export class PaginationDto {
   @ApiProperty({
-    description: 'Page number (starts from 1)',
+    description: "Page number (starts from 1)",
     default: 1,
     required: false,
   })
@@ -15,7 +16,7 @@ export class PaginationDto {
   page?: number = 1;
 
   @ApiProperty({
-    description: 'Number of items per page',
+    description: "Number of items per page",
     default: 10,
     required: false,
   })
@@ -25,12 +26,12 @@ export class PaginationDto {
   @Min(1)
   limit?: number = 10;
 
-  @ApiProperty({ description: 'Free text search', required: false })
+  @ApiProperty({ description: "Free text search", required: false })
   @IsOptional()
   @IsString()
   q?: string;
 
-  @ApiProperty({ description: 'Employee status filter', required: false })
+  @ApiProperty({ description: "Employee status filter", required: false })
   @IsOptional()
   @IsString()
   status?: string;
