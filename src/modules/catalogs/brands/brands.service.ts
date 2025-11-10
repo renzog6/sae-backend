@@ -23,7 +23,9 @@ export class BrandsService {
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+    // For compatibility with client-side filtering, get all brands (no pagination)
+    // This matches the pattern used in other modules like equipment
+    const q = query.q;
 
     // Build search conditions
     const where: any = {
@@ -38,25 +40,16 @@ export class BrandsService {
       ];
     }
 
-    // Get total count for pagination
-    const total = await this.prisma.brand.count({ where });
-
-    // Get brands with pagination and sorting
+    // Get all brands without pagination for client-side filtering
     const brands = await this.prisma.brand.findMany({
       where,
-      skip,
-      take,
       orderBy: {
-        [sortBy]: sortOrder,
+        name: "asc", // Always sort by name ascending
       },
     });
 
-    return new BaseResponseDto(
-      brands,
-      total,
-      query.page || 1,
-      query.limit || 10
-    );
+    // Return in a compatible format
+    return new BaseResponseDto(brands, brands.length, 1, brands.length);
   }
 
   async findOne(id: number) {

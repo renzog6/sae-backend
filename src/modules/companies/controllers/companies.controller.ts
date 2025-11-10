@@ -31,7 +31,7 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Create a new company" })
   @ApiResponse({ status: 201, description: "Company created successfully" })
