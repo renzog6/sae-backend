@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/catalogs/test/brands.controller.spec.ts
+// filepath: sae-backend/src/modules/catalogs/tests/brands.controller.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
 import { BrandsController } from "../brands/brands.controller";
 import { BrandsService } from "../brands/brands.service";

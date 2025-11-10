@@ -91,6 +91,12 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^@auth/(.*)$": "<rootDir>/../src/auth/$1",
+      "^@modules/(.*)$": "<rootDir>/../src/modules/$1",
+      "^@common/(.*)$": "<rootDir>/../src/common/$1",
+      "^@prisma/prisma\\.service$": "<rootDir>/../src/prisma/prisma.service"
+    },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
