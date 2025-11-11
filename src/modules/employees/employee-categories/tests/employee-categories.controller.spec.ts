@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { EmployeeCategoriesController } from "./employee-categories.controller";
-import { EmployeeCategoriesService } from "./employee-categories.service";
+import { EmployeeCategoriesController } from "../employee-categories.controller";
+import { EmployeeCategoriesService } from "../employee-categories.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 describe("EmployeeCategoriesController", () => {

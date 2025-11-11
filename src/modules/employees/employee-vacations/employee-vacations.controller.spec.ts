@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { EmployeeVacationsController } from "./employee-vacations.controller";
 import { EmployeeVacationsService } from "./employee-vacations.service";
 import { PrismaService } from "@prisma/prisma.service";
+import { HistoryLogService } from "../../history/services/history-log.service";
 
 describe("EmployeeVacationsController", () => {
   let controller: EmployeeVacationsController;
@@ -12,6 +13,7 @@ describe("EmployeeVacationsController", () => {
       providers: [
         EmployeeVacationsService,
         { provide: PrismaService, useValue: {} },
+        { provide: HistoryLogService, useValue: {} },
       ],
     }).compile();
 

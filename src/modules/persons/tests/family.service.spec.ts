@@ -7,6 +7,7 @@ import { BaseQueryDto } from "@common/dto/base-query.dto";
 
 // Mock Prisma Model
 const mockPrismaService = {
+  $transaction: jest.fn(),
   family: {
     create: jest.fn(),
     findMany: jest.fn(),
@@ -120,6 +121,13 @@ describe("FamilyService", () => {
       prisma.family.findMany.mockResolvedValue(mockData);
       prisma.family.count.mockResolvedValue(2);
 
+      // Mock $transaction to return [data, count]
+      (prisma.$transaction as any).mockImplementation(
+        async (queries: any[]) => {
+          return Promise.all(queries);
+        }
+      );
+
       const result = await service.findAll(query);
 
       expect(result).toBeInstanceOf(Object);
@@ -146,18 +154,41 @@ describe("FamilyService", () => {
       prisma.family.findMany.mockResolvedValue(mockData);
       prisma.family.count.mockResolvedValue(1);
 
+      // Mock $transaction to return [data, count]
+      (prisma.$transaction as any).mockImplementation(
+        async (queries: any[]) => {
+          return Promise.all(queries);
+        }
+      );
+
       const result = await service.findAll(query);
 
       expect(result.data).toEqual(mockData);
       expect(prisma.family.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
-            deletedAt: null,
             OR: expect.arrayContaining([
               { relationship: { contains: "Padre", mode: "insensitive" } },
-              expect.any(Object),
-              expect.any(Object),
-              expect.any(Object),
+              {
+                person: {
+                  firstName: { contains: "Padre", mode: "insensitive" },
+                },
+              },
+              {
+                person: {
+                  lastName: { contains: "Padre", mode: "insensitive" },
+                },
+              },
+              {
+                relative: {
+                  firstName: { contains: "Padre", mode: "insensitive" },
+                },
+              },
+              {
+                relative: {
+                  lastName: { contains: "Padre", mode: "insensitive" },
+                },
+              },
             ]),
           },
         })
@@ -171,6 +202,13 @@ describe("FamilyService", () => {
 
       prisma.family.findMany.mockResolvedValue([]);
       prisma.family.count.mockResolvedValue(0);
+
+      // Mock $transaction to return [data, count]
+      (prisma.$transaction as any).mockImplementation(
+        async (queries: any[]) => {
+          return Promise.all(queries);
+        }
+      );
 
       await service.findAll(query);
 

@@ -42,7 +42,16 @@ describe("EmployeeVacationsService", () => {
   it("create() should compute endDate and default year", async () => {
     const prisma = (service as any).prisma as PrismaService;
     (prisma.employeeVacation.create as any).mockImplementation(
-      ({ data }: any) => ({ id: 1, ...data })
+      ({ data }: any) => ({
+        id: 1,
+        ...data,
+        employee: {
+          person: {
+            firstName: "John",
+            lastName: "Doe",
+          },
+        },
+      })
     );
 
     const startDate = "2025-01-10T00:00:00.000Z";

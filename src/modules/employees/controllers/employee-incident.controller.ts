@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/history/controllers/employee-incident.controller.ts
+// filepath: sae-backend/src/modules/employees/controllers/employee-incident.controller.ts
 import {
   Controller,
   Get,
@@ -10,8 +10,10 @@ import {
 } from "@nestjs/common";
 import { EmployeeIncidentService } from "../services/employee-incident.service";
 import { CreateEmployeeIncidentDto } from "../dto/create-employee-incident.dto";
-import { UpdateEmployeeIncidentDto } from "../dto/update-employee-incident.dto";
+import { UpdateEmployeeIncidentDto } from "../../history/dto/update-employee-incident.dto";
+import { ApiTags } from "@nestjs/swagger";
 
+@ApiTags("employees-incidents")
 @Controller("employee-incidents")
 export class EmployeeIncidentController {
   constructor(

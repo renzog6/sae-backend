@@ -38,7 +38,18 @@ describe("BrandsService", () => {
       findMany: jest.fn().mockResolvedValue(mockBrands),
       findUnique: jest.fn().mockResolvedValue(mockBrand),
       findFirst: jest.fn().mockResolvedValue(mockBrand),
-      create: jest.fn().mockResolvedValue({ ...mockBrand, id: 3 }),
+      create: jest.fn().mockImplementation((data) => {
+        return {
+          id: 3,
+          name: data.name || "New Brand",
+          code: data.code || "NEW",
+          information: data.information || "New brand information",
+          isActive: true,
+          deletedAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+      }),
       update: jest.fn().mockResolvedValue(mockBrand),
       count: jest.fn().mockResolvedValue(2),
     },
@@ -139,6 +150,9 @@ describe("BrandsService", () => {
         information: "Updated information",
       };
 
+      // Ensure findFirst returns the mockBrand for successful cases
+      jest.spyOn(prismaService.brand, "findFirst").mockResolvedValue(mockBrand);
+
       const result = await service.update(1, updateBrandDto);
 
       expect(result).toBeDefined();
@@ -159,6 +173,15 @@ describe("BrandsService", () => {
 
   describe("remove (soft delete)", () => {
     it("should soft delete a brand", async () => {
+      // Ensure findFirst returns the mockBrand for successful cases
+      const deletedBrand = {
+        ...mockBrand,
+        isActive: false,
+        deletedAt: new Date(),
+      };
+      jest.spyOn(prismaService.brand, "findFirst").mockResolvedValue(mockBrand);
+      jest.spyOn(prismaService.brand, "update").mockResolvedValue(deletedBrand);
+
       const result = await service.remove(1);
 
       expect(result).toBeDefined();
@@ -187,9 +210,17 @@ describe("BrandsService", () => {
         isActive: false,
         deletedAt: new Date(),
       };
+      const restoredBrand = {
+        ...mockBrand,
+        isActive: true,
+        deletedAt: null,
+      };
       jest
         .spyOn(prismaService.brand, "findUnique")
         .mockResolvedValue(deletedBrand);
+      jest
+        .spyOn(prismaService.brand, "update")
+        .mockResolvedValue(restoredBrand);
 
       const result = await service.restore(1);
 

@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/history/dto/create-equipment-maintenance.dto.ts
+// filepath: sae-backend/src/modules/equipment/dto/create-equipment-maintenance.dto.ts
 import {
   IsEnum,
   IsString,

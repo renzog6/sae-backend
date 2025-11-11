@@ -1,9 +1,9 @@
-// filepath: sae-backend/src/modules/history/services/employee-incident.service.ts
+// filepath: sae-backend/src/modules/employees/services/employee-incident.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { HistoryLogService } from "./history-log.service";
+import { HistoryLogService } from "../../history/services/history-log.service";
 import { CreateEmployeeIncidentDto } from "../dto/create-employee-incident.dto";
-import { UpdateEmployeeIncidentDto } from "../dto/update-employee-incident.dto";
+import { UpdateEmployeeIncidentDto } from "../../history/dto/update-employee-incident.dto";
 import { EmployeeIncidentType, HistoryType } from "@prisma/client";
 
 @Injectable()

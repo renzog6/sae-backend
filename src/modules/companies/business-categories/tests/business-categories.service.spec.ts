@@ -40,7 +40,19 @@ describe("BusinessCategoriesService", () => {
       findMany: jest.fn().mockResolvedValue(mockCategories),
       findUnique: jest.fn().mockResolvedValue(mockCategory),
       findFirst: jest.fn().mockResolvedValue(mockCategory),
-      create: jest.fn().mockResolvedValue({ ...mockCategory, id: 3 }),
+      create: jest.fn().mockImplementation((data) => {
+        return {
+          id: 3,
+          name: data.name || "New Category",
+          code: data.code || "NEW",
+          information: data.information || "New category information",
+          isActive: true,
+          deletedAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          subCategories: [],
+        };
+      }),
       update: jest.fn().mockResolvedValue(mockCategory),
       count: jest.fn().mockResolvedValue(2),
     },
@@ -147,6 +159,11 @@ describe("BusinessCategoriesService", () => {
         information: "Updated information",
       };
 
+      // Ensure findFirst returns the mockCategory for successful cases
+      jest
+        .spyOn(prismaService.businessCategory, "findFirst")
+        .mockResolvedValue(mockCategory);
+
       const result = await service.update(1, updateCategoryDto);
 
       expect(result).toBeDefined();
@@ -167,6 +184,19 @@ describe("BusinessCategoriesService", () => {
 
   describe("remove (soft delete)", () => {
     it("should soft delete a business category", async () => {
+      // Ensure findFirst returns the mockCategory for successful cases
+      const deletedCategory = {
+        ...mockCategory,
+        isActive: false,
+        deletedAt: new Date(),
+      };
+      jest
+        .spyOn(prismaService.businessCategory, "findFirst")
+        .mockResolvedValue(mockCategory);
+      jest
+        .spyOn(prismaService.businessCategory, "update")
+        .mockResolvedValue(deletedCategory);
+
       const result = await service.remove(1);
 
       expect(result).toBeDefined();
@@ -195,9 +225,17 @@ describe("BusinessCategoriesService", () => {
         isActive: false,
         deletedAt: new Date(),
       };
+      const restoredCategory = {
+        ...mockCategory,
+        isActive: true,
+        deletedAt: null,
+      };
       jest
         .spyOn(prismaService.businessCategory, "findUnique")
         .mockResolvedValue(deletedCategory);
+      jest
+        .spyOn(prismaService.businessCategory, "update")
+        .mockResolvedValue(restoredCategory);
 
       const result = await service.restore(1);
 

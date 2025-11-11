@@ -123,6 +123,9 @@ describe("UnitsService", () => {
       const updatedUnit = { ...mockUnit, name: "Updated Kilogram" };
       prismaService.unit.update.mockResolvedValue(updatedUnit);
 
+      // Ensure findFirst returns the mockUnit for successful cases
+      prismaService.unit.findFirst.mockResolvedValue(mockUnit);
+
       const result = await service.update(1, updateUnitDto);
 
       expect(result).toEqual(updatedUnit);
@@ -150,6 +153,9 @@ describe("UnitsService", () => {
         deletedAt: new Date(),
       };
       prismaService.unit.update.mockResolvedValue(deletedUnit);
+
+      // Ensure findFirst returns the mockUnit for successful cases
+      prismaService.unit.findFirst.mockResolvedValue(mockUnit);
 
       const result = await service.remove(1);
 

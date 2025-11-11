@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/history/dto/create-employee-incident.dto.ts
+// filepath: sae-backend/src/modules/employees/dto/create-employee-incident.dto.ts
 import {
   IsEnum,
   IsString,

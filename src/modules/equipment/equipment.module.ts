@@ -1,5 +1,5 @@
 // filepath: sae-backend/src/modules/equipment/equipment.module.ts
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { EquipmentService } from "./services/equipment.service";
 import { EquipmentController } from "./controllers/equipment.controller";
 import { EquipmentCategoryService } from "./services/equipment-category.service";
@@ -11,10 +11,14 @@ import { EquipmentModelController } from "./controllers/equipment-model.controll
 import { PrismaModule } from "../../prisma/prisma.module";
 import { EquipmentAxlesController } from "./controllers/equipment-axles.controller";
 import { EquipmentAxlesService } from "./services/equipment-axles.service";
+import { EquipmentMaintenanceController } from "./controllers/equipment-maintenance.controller";
+import { EquipmentMaintenanceService } from "./services/equipment-maintenance.service";
+import { HistoryModule } from "../history/history.module";
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, forwardRef(() => HistoryModule)],
   controllers: [
+    EquipmentMaintenanceController,
     EquipmentAxlesController,
     EquipmentCategoryController,
     EquipmentTypeController,
@@ -22,6 +26,7 @@ import { EquipmentAxlesService } from "./services/equipment-axles.service";
     EquipmentController,
   ],
   providers: [
+    EquipmentMaintenanceService,
     EquipmentAxlesService,
     EquipmentCategoryService,
     EquipmentTypeService,
@@ -29,6 +34,7 @@ import { EquipmentAxlesService } from "./services/equipment-axles.service";
     EquipmentService,
   ],
   exports: [
+    EquipmentMaintenanceService,
     EquipmentAxlesService,
     EquipmentCategoryService,
     EquipmentTypeService,

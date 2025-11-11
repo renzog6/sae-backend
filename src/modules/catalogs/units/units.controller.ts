@@ -38,7 +38,7 @@ export class UnitsController {
   @ApiResponse({ status: 201, description: "Unit created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
   create(@Body() createUnitDto: CreateUnitDto) {
-    return this.unitsService.create(createUnitDto).then((data) => ({ data }));
+    return this.unitsService.create(createUnitDto);
   }
 
   @Get()
@@ -55,7 +55,7 @@ export class UnitsController {
   @ApiResponse({ status: 200, description: "Unit retrieved successfully" })
   @ApiResponse({ status: 404, description: "Unit not found" })
   findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.unitsService.findOne(id).then((data) => ({ data }));
+    return this.unitsService.findOne(id);
   }
 
   @Patch(":id(\\d+)")
@@ -68,9 +68,7 @@ export class UnitsController {
     @Param("id", ParseIntPipe) id: number,
     @Body() updateUnitDto: UpdateUnitDto
   ) {
-    return this.unitsService
-      .update(id, updateUnitDto)
-      .then((data) => ({ data }));
+    return this.unitsService.update(id, updateUnitDto);
   }
 
   @Delete(":id(\\d+)")
@@ -80,7 +78,7 @@ export class UnitsController {
   @ApiResponse({ status: 200, description: "Unit deleted successfully" })
   @ApiResponse({ status: 404, description: "Unit not found" })
   remove(@Param("id", ParseIntPipe) id: number) {
-    return this.unitsService.remove(id).then((data) => ({ data }));
+    return this.unitsService.remove(id);
   }
 
   @Patch(":id(\\d+)/restore")
@@ -90,6 +88,6 @@ export class UnitsController {
   @ApiResponse({ status: 200, description: "Unit restored successfully" })
   @ApiResponse({ status: 404, description: "Unit not found" })
   restore(@Param("id", ParseIntPipe) id: number) {
-    return this.unitsService.restore(id).then((data) => ({ data }));
+    return this.unitsService.restore(id);
   }
 }

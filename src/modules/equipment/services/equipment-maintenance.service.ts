@@ -1,7 +1,7 @@
-// filepath: sae-backend/src/modules/history/services/equipment-maintenance.service.ts
+// filepath: sae-backend/src/modules/equipment/services/equipment-maintenance.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { HistoryLogService } from "./history-log.service";
+import { HistoryLogService } from "../../history/services/history-log.service";
 import { CreateEquipmentMaintenanceDto } from "../dto/create-equipment-maintenance.dto";
 import { MaintenanceType, HistoryType } from "@prisma/client";
 
