@@ -1,6 +1,7 @@
+// filepath: sae-backend/src/modules/persons/tests/persons.controller.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { PersonsController } from "./persons.controller";
-import { PersonsService } from "./persons.service";
+import { PersonsController } from "../controllers/persons.controller";
+import { PersonsService } from "../services/persons.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 describe("PersonsController", () => {

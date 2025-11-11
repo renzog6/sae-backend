@@ -2,7 +2,7 @@
 import { Module } from "@nestjs/common";
 import { PersonsService } from "./services/persons.service";
 import { PersonsController } from "./controllers/persons.controller";
-import { FamilyModule } from "./family/family.module";
+import { FamilyModule } from "./family.module";
 
 @Module({
   controllers: [PersonsController],

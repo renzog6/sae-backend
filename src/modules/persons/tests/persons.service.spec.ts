@@ -1,5 +1,6 @@
+// filepath: sae-backend/src/modules/persons/tests/persons.service.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { PersonsService } from "./persons.service";
+import { PersonsService } from "../services/persons.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 describe("PersonsService", () => {

@@ -1,6 +1,6 @@
 // filepath: sae-backend/src/modules/catalogs/tests/brands.service.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { BrandsService } from "../brands/brands.service";
+import { BrandsService } from "../brands.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { NotFoundException } from "@nestjs/common";
 

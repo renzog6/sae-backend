@@ -1,5 +1,6 @@
+// filepath: sae-backend/src/modules/documents/tests/documents.service.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { DocumentsService } from "./documents.service";
+import { DocumentsService } from "../services/documents.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 const prismaMock = {
