@@ -74,28 +74,42 @@ model Company {
 }
 
 model BusinessCategory {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique @db.VarChar(25)
-  code        String? @unique
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(25)
+  code        String?   @unique
   information String?
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   companies     Company[]
   subCategories BusinessSubCategory[]
 
+  @@index([name])
+  @@index([deletedAt])
   @@map("business_categories")
 }
 
 model BusinessSubCategory {
-  id                 Int     @id @default(autoincrement())
-  name               String  @db.VarChar(25)
+  id                 Int       @id @default(autoincrement())
+  name               String    @db.VarChar(25)
   description        String?
   businessCategoryId Int
+  isActive           Boolean   @default(true)
+  deletedAt          DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   businessCategory BusinessCategory @relation(fields: [businessCategoryId], references: [id])
 
   @@unique([businessCategoryId, name]) // evita duplicados dentro de la misma categoría
+  @@index([name])
+  @@index([deletedAt])
   @@map("business_subcategories")
 }
 

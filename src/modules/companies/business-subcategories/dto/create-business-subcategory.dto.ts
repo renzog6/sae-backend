@@ -21,4 +21,12 @@ export class CreateBusinessSubCategoryDto {
   @IsInt()
   @Type(() => Number)
   businessCategoryId: number;
+
+  @ApiProperty({
+    description: "Estado activo de la subcategoría",
+    required: false,
+    example: true,
+  })
+  @IsOptional()
+  isActive?: boolean;
 }

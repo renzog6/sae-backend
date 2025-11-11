@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
-import { BrandsService } from './brands.service';
-import { BrandsController } from './brands.controller';
+//file: sae-backend/src/modules/catalogs/brands/brands.module.ts
+import { Module } from "@nestjs/common";
+import { BrandsService } from "./brands.service";
+import { BrandsController } from "./brands.controller";
 
 @Module({
   controllers: [BrandsController],

@@ -4,8 +4,8 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -23,6 +23,7 @@ import { UpdateBusinessSubCategoryDto } from "./dto/update-business-subcategory.
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { BaseQueryDto } from "@common/dto/base-query.dto";
 
 @ApiTags("business-subcategories")
 @Controller("companies/subcategories")
@@ -31,43 +32,80 @@ export class BusinessSubcategoriesController {
   constructor(private readonly service: BusinessSubcategoriesService) {}
 
   @Get()
-  @HttpCode(200)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "List business subcategories by category id" })
-  findAll(@Query("categoryId") categoryId?: string) {
-    if (categoryId) return this.service.findAllByCategory(Number(categoryId));
-    return this.service.findAll();
+  @ApiOperation({ summary: "Get all business subcategories" })
+  @ApiResponse({
+    status: 200,
+    description: "Business subcategories retrieved successfully",
+  })
+  findAll(@Query() query?: BaseQueryDto) {
+    return this.service.findAll(query || new BaseQueryDto());
   }
 
-  @Get(":id")
+  @Get(":id(\\d+)")
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Get subcategory by id" })
-  findOne(@Param("id") id: string) {
-    return this.service.findOne(Number(id));
+  @ApiOperation({ summary: "Get a business subcategory by ID" })
+  @ApiResponse({
+    status: 200,
+    description: "Business subcategory retrieved successfully",
+  })
+  @ApiResponse({ status: 404, description: "Business subcategory not found" })
+  findOne(@Param("id", ParseIntPipe) id: number) {
+    return this.service.findOne(id).then((data) => ({ data }));
   }
 
   @Post()
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Create business subcategory" })
-  @ApiResponse({ status: 201, description: "Subcategory created successfully" })
+  @ApiOperation({ summary: "Create a new business subcategory" })
+  @ApiResponse({
+    status: 201,
+    description: "Business subcategory created successfully",
+  })
+  @ApiResponse({ status: 400, description: "Bad request" })
   create(@Body() dto: CreateBusinessSubCategoryDto) {
-    return this.service.create(dto);
+    return this.service.create(dto).then((data) => ({ data }));
   }
 
-  @Patch(":id")
+  @Patch(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Update business subcategory" })
-  update(@Param("id") id: string, @Body() dto: UpdateBusinessSubCategoryDto) {
-    return this.service.update(Number(id), dto);
+  @ApiOperation({ summary: "Update a business subcategory" })
+  @ApiResponse({
+    status: 200,
+    description: "Business subcategory updated successfully",
+  })
+  @ApiResponse({ status: 404, description: "Business subcategory not found" })
+  update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: UpdateBusinessSubCategoryDto
+  ) {
+    return this.service.update(id, dto).then((data) => ({ data }));
   }
 
-  @Delete(":id")
+  @Delete(":id(\\d+)")
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Delete business subcategory" })
-  remove(@Param("id") id: string) {
-    return this.service.remove(Number(id));
+  @ApiOperation({ summary: "Delete a business subcategory (soft delete)" })
+  @ApiResponse({
+    status: 200,
+    description: "Business subcategory deleted successfully",
+  })
+  @ApiResponse({ status: 404, description: "Business subcategory not found" })
+  remove(@Param("id", ParseIntPipe) id: number) {
+    return this.service.remove(id).then((data) => ({ data }));
+  }
+
+  @Patch(":id(\\d+)/restore")
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Restore a deleted business subcategory" })
+  @ApiResponse({
+    status: 200,
+    description: "Business subcategory restored successfully",
+  })
+  @ApiResponse({ status: 404, description: "Business subcategory not found" })
+  restore(@Param("id", ParseIntPipe) id: number) {
+    return this.service.restore(id).then((data) => ({ data }));
   }
 }

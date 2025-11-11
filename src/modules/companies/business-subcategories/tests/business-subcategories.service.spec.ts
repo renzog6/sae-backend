@@ -1,6 +1,6 @@
 // filepath: sae-backend/src/modules/companies/business-subcategories/business-subcategories.service.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { BusinessSubcategoriesService } from "./business-subcategories.service";
+import { BusinessSubcategoriesService } from "../business-subcategories.service";
 import { PrismaService } from "@prisma/prisma.service";
 
 const prismaMock = {

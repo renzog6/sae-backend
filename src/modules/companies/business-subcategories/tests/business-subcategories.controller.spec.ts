@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/modules/companies/business-subcategories/business-subcategories.controller.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { BusinessSubcategoriesController } from "./business-subcategories.controller";
-import { BusinessSubcategoriesService } from "./business-subcategories.service";
+import { BusinessSubcategoriesController } from "../business-subcategories.controller";
+import { BusinessSubcategoriesService } from "../business-subcategories.service";
 
 const serviceMock = {
   findAll: jest.fn(),
