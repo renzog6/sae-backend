@@ -495,12 +495,14 @@ model Brand {
 }
 
 model Unit {
-  id           Int     @id @default(autoincrement())
-  name         String  @db.VarChar(25)
-  abbreviation String  @unique
-  isActive     Boolean @default(true)
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(25)
+  abbreviation String    @unique
+  isActive     Boolean   @default(true)
+  deletedAt    DateTime?
 
   @@index([name])
+  @@index([deletedAt])
   @@map("units")
 }
 
