@@ -759,6 +759,21 @@ model EquipmentModel {
   @@map("equipment_models")
 }
 
+model EquipmentAxle {
+  id          Int      @id @default(autoincrement())
+  equipmentId Int
+  order       Int // Eje 1, Eje 2, etc.
+  axleType    AxleType
+  wheelCount  Int
+  description String?
+
+  equipment     Equipment            @relation(fields: [equipmentId], references: [id])
+  tirePositions TirePositionConfig[]
+
+  @@index([equipmentId])
+  @@map("equipment_axles")
+}
+
 // ====================
 // 🧱 PARTES
 // ====================
@@ -1128,21 +1143,6 @@ model TireEvent {
   @@index([tireId])
   @@index([eventType])
   @@map("tire_events")
-}
-
-model EquipmentAxle {
-  id          Int      @id @default(autoincrement())
-  equipmentId Int
-  order       Int // Eje 1, Eje 2, etc.
-  axleType    AxleType
-  wheelCount  Int
-  description String?
-
-  equipment     Equipment            @relation(fields: [equipmentId], references: [id])
-  tirePositions TirePositionConfig[]
-
-  @@index([equipmentId])
-  @@map("equipment_axles")
 }
 
 model TirePositionConfig {

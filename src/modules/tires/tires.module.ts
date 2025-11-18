@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/modules/tires/tires.module.ts
 import { Module } from "@nestjs/common";
-import { TiresService } from "./services/tires.service";
-import { TiresController } from "./controllers/tires.controller";
+import { TiresService } from "./tires.service";
+import { TiresController } from "./tires.controller";
 import { PrismaService } from "@prisma/prisma.service";
 import { TireAssignmentsModule } from "./tire-assignments/tire-assignments.module";
 import { TireRotationsModule } from "./tire-rotations/tire-rotations.module";

@@ -1,6 +1,6 @@
 // filepath: sae-backend/src/app.module.ts
 import { join } from "path";
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { PrismaModule } from "./prisma/prisma.module";
@@ -18,6 +18,7 @@ import { PersonsModule } from "./modules/persons/persons.module";
 import { DocumentsModule } from "./modules/documents/documents.module";
 import { HistoryModule } from "./modules/history/history.module";
 import { TiresModule } from "./modules/tires/tires.module";
+import { LoggerMiddleware } from "@common/logger/logger.middleware";
 
 @Module({
   imports: [
@@ -57,4 +58,8 @@ import { TiresModule } from "./modules/tires/tires.module";
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes("*"); // Aplica a todas las rutas
+  }
+}

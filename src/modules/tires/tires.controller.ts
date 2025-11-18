@@ -9,10 +9,10 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import { TiresService } from "../services/tires.service";
-import { CreateTireDto } from "../dto/create-tire.dto";
-import { UpdateTireDto } from "../dto/update-tire.dto";
-import { TireQueryDto } from "../dto/tire-query.dto";
+import { TiresService } from "./tires.service";
+import { CreateTireDto } from "./dto/create-tire.dto";
+import { UpdateTireDto } from "./dto/update-tire.dto";
+import { TireQueryDto } from "./dto/tire-query.dto";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 
 @ApiTags("tires")

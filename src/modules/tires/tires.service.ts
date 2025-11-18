@@ -3,9 +3,9 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseResponseDto } from "@common/dto/base-query.dto";
-import { TireQueryDto } from "../dto/tire-query.dto";
-import { CreateTireDto } from "../dto/create-tire.dto";
-import { UpdateTireDto } from "../dto/update-tire.dto";
+import { TireQueryDto } from "./dto/tire-query.dto";
+import { CreateTireDto } from "./dto/create-tire.dto";
+import { UpdateTireDto } from "./dto/update-tire.dto";
 
 @Injectable()
 export class TiresService extends BaseService<any> {
