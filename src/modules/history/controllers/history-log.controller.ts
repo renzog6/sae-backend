@@ -1,8 +1,8 @@
 // filepath: sae-backend/src/modules/history/controllers/history-log.controller.ts
 import { Controller, Get, Post, Body, Param } from "@nestjs/common";
-import { HistoryLogService } from "../services/history-log.service";
-import { EmployeeIncidentService } from "../../employees/services/employee-incident.service";
-import { CreateEmployeeIncidentDto } from "../../employees/dto/create-employee-incident.dto";
+import { HistoryLogService } from "@modules/history/services/history-log.service";
+import { EmployeeIncidentService } from "@modules/employees/services/employee-incident.service";
+import { CreateEmployeeIncidentDto } from "@modules/employees/dto/create-employee-incident.dto";
 import { ApiTags } from "@nestjs/swagger";
 
 @ApiTags("history-logs")

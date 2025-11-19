@@ -1,8 +1,8 @@
 // filepath: sae-backend/src/modules/persons/services/persons.service.ts
 
 import { Injectable } from "@nestjs/common";
-import { CreatePersonDto } from "../dto/create-person.dto";
-import { UpdatePersonDto } from "../dto/update-person.dto";
+import { CreatePersonDto } from "@modules/persons/dto/create-person.dto";
+import { UpdatePersonDto } from "@modules/persons/dto/update-person.dto";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";

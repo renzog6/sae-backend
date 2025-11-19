@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/modules/persons/family/tests/family.controller.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { FamilyController } from "../controllers/family.controller";
-import { FamilyService } from "../services/family.service";
+import { FamilyController } from "@modules/persons/controllers/family.controller";
+import { FamilyService } from "@modules/persons/services/family.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 import { RolesGuard } from "@common/guards/roles.guard";

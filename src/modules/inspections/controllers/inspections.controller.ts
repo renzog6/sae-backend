@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/modules/inspections/controllers/inspections.controller.ts
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { InspectionsService } from "../services/inspections.service";
+import { InspectionsService } from "@modules/inspections/services/inspections.service";
 import { BaseQueryDto } from "@common/dto/base-query.dto";
 
 @ApiTags("inspections")

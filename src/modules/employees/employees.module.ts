@@ -1,7 +1,7 @@
 import { Module, forwardRef } from "@nestjs/common";
 import { EmployeesService } from "./services/employees.service";
 import { EmployeesController } from "./controllers/employees.controller";
-import { PrismaModule } from "../../prisma/prisma.module";
+import { PrismaModule } from "@prisma/prisma.module";
 import { EmployeeVacationsModule } from "./employee-vacations/employee-vacations.module";
 import { EmployeePositionsModule } from "./employee-positions/employee-positions.module";
 import { EmployeeCategoriesModule } from "./employee-categories/employee-categories.module";

@@ -22,7 +22,8 @@
       "@auth/*": ["src/auth/*"],
       "@modules/*": ["src/modules/*"],
       "@common/*": ["src/common/*"],
-      "@prisma/*": ["src/prisma/*"]
+      "@prisma/*": ["src/prisma/*"],
+      "@reports/*": ["src/reports/*"]
     }
   },
   "include": ["src/**/*", "test/**/*", "prisma/**/*.ts"],

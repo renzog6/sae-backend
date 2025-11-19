@@ -19,7 +19,7 @@ import { DocumentsModule } from "./modules/documents/documents.module";
 import { HistoryModule } from "./modules/history/history.module";
 import { TiresModule } from "./modules/tires/tires.module";
 import { LoggerMiddleware } from "@common/logger/logger.middleware";
-
+import { ReportsModule } from "@reports/reports.module";
 @Module({
   imports: [
     // Configuration module
@@ -54,6 +54,7 @@ import { LoggerMiddleware } from "@common/logger/logger.middleware";
     DocumentsModule,
     HistoryModule,
     TiresModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],

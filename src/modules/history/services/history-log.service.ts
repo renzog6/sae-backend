@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/modules/history/services/history-log.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { CreateHistoryLogDto } from "../dto/create-history-log.dto";
+import { CreateHistoryLogDto } from "@modules/history/dto/create-history-log.dto";
 
 @Injectable()
 export class HistoryLogService {

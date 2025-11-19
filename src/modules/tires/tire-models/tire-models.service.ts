@@ -1,3 +1,4 @@
+//filepath: sae-backend/src/modules/tires/tire-models/tire-models.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateTireModelDto } from "./dto/create-tire-model.dto";

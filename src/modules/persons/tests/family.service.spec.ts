@@ -1,6 +1,6 @@
 // filepath: sae-backend/src/modules/persons/family/tests/family.service.spec.ts
 import { Test, TestingModule } from "@nestjs/testing";
-import { FamilyService } from "../services/family.service";
+import { FamilyService } from "@modules/persons/services/family.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { NotFoundException } from "@nestjs/common";
 import { BaseQueryDto } from "@common/dto/base-query.dto";

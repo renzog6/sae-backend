@@ -29,7 +29,7 @@ import {
 import { BaseQueryDto } from "@common/dto/base-query.dto";
 import { EquipmentQueryDto } from "../dto/equipment-query.dto";
 
-@ApiTags("Equipment")
+@ApiTags("equipment")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller("equipments")

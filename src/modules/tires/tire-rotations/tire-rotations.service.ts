@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateTireRotationDto } from "./dto/create-tire-rotation.dto";
 import { UpdateTireRotationDto } from "./dto/update-tire-rotation.dto";
-import { TireAssignmentEventsService } from "../tire-assignments/tire-events.service";
+import { TireAssignmentEventsService } from "@modules/tires/tire-assignments/tire-events.service";
 
 @Injectable()
 export class TireRotationsService {

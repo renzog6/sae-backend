@@ -7,9 +7,9 @@ import {
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseResponseDto } from "@common/dto/base-query.dto";
-import { EquipmentQueryDto } from "../dto/equipment-query.dto";
-import { CreateEquipmentDto } from "../dto/create-equipment.dto";
-import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
+import { EquipmentQueryDto } from "@modules/equipment/dto/equipment-query.dto";
+import { CreateEquipmentDto } from "@modules/equipment/dto/create-equipment.dto";
+import { UpdateEquipmentDto } from "@modules/equipment/dto/update-equipment.dto";
 
 @Injectable()
 export class EquipmentService extends BaseService<any> {

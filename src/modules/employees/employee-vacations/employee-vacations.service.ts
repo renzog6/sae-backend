@@ -4,6 +4,12 @@ import { CreateEmployeeVacationDto } from "./dto/create-employee-vacation.dto";
 import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import {
+  formatDate,
+  formatDateOnly,
+  calculateTenure,
+} from "@common/utils/date.util";
+import { formatEmployeeName } from "@common/utils/string.util";
 import { PDFDocument } from "pdf-lib";
 import { Response } from "express";
 import * as fs from "fs";
@@ -198,12 +204,12 @@ export class EmployeeVacationsService {
       vacation.employee.person.firstName;
     const dias = vacation.days ?? 0;
     const anio = vacation.year ?? new Date().getFullYear();
-    const desde = this.formatDateOnly(vacation.startDate);
+    const desde = formatDateOnly(vacation.startDate);
 
     // Sumamos los días a la fecha de inicio (usando solo partes de fecha)
     const hastaDate = new Date(vacation.startDate);
     hastaDate.setDate(hastaDate.getDate() + dias - 1);
-    const hasta = this.formatDateOnly(hastaDate);
+    const hasta = formatDateOnly(hastaDate);
 
     // 🔹 Completar los campos del formulario (tolerante a campos faltantes)
     const safeSet = (fieldName: string, value: string) => {
@@ -424,11 +430,11 @@ export class EmployeeVacationsService {
   private mapVacationToRow(vacation: any, includeCompany: boolean) {
     const period =
       vacation.type !== "ASSIGNED"
-        ? `${this.formatDate(vacation.startDate)} - ${this.formatDate(vacation.endDate)}`
+        ? `${formatDate(vacation.startDate)} - ${formatDate(vacation.endDate)}`
         : "-";
 
     return {
-      settlementDate: this.formatDate(vacation.settlementDate),
+      settlementDate: formatDate(vacation.settlementDate),
       type: vacation.type === "ASSIGNED" ? "Asignadas" : "Tomadas",
       days: vacation.days,
       year: vacation.year,
@@ -441,9 +447,12 @@ export class EmployeeVacationsService {
    * Mapea un empleado a una fila de Excel
    */
   private mapEmployeeToRow(employee: any, includeCompany: boolean) {
-    const fullName = this.formatEmployeeName(employee.person);
-    const hireDate = this.formatDate(employee.hireDate);
-    const tenure = this.calculateTenure(employee.hireDate);
+    const fullName = formatEmployeeName(
+      employee.person.lastName,
+      employee.person.firstName
+    );
+    const hireDate = formatDate(employee.hireDate);
+    const tenure = calculateTenure(employee.hireDate);
     const availableDays = this.calculateAvailableDays(employee.vacations);
     const categoryPosition = `${employee.category?.name ?? "-"} - ${employee.position?.name ?? "-"}`;
 
@@ -464,51 +473,6 @@ export class EmployeeVacationsService {
     }
 
     return baseRow;
-  }
-
-  /**
-   * Formatea el nombre del empleado
-   */
-  private formatEmployeeName(person: any): string {
-    if (!person) return "";
-    return `${person.lastName || ""} ${person.firstName || ""}`.trim();
-  }
-
-  /**
-   * Formatea una fecha consistentemente
-   */
-  private formatDate(date?: Date | null): string {
-    if (!date) return "";
-    return new Date(date).toLocaleDateString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
-
-  /**
-   * Formatea una fecha sin considerar timezone ni hora, solo fecha
-   */
-  private formatDateOnly(date: Date): string {
-    const day = date.getUTCDate().toString().padStart(2, "0");
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-    const year = date.getUTCFullYear();
-    return `${day}/${month}/${year}`;
-  }
-
-  /**
-   * Calcula la antigüedad desde la fecha de ingreso
-   */
-  private calculateTenure(hireDate?: Date | null): string {
-    if (!hireDate) return "";
-    const hire = new Date(hireDate);
-    const now = new Date();
-    const years = now.getFullYear() - hire.getFullYear();
-    const months = now.getMonth() - hire.getMonth();
-    const totalMonths = years * 12 + months;
-    const y = Math.floor(totalMonths / 12);
-    const m = totalMonths % 12;
-    return `${y} años ${m} meses`;
   }
 
   /**

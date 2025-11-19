@@ -1,10 +1,9 @@
-// filepath: sae-backend/src/modules/history/history.module.ts
 import { Module, forwardRef } from "@nestjs/common";
-import { PrismaModule } from "../../prisma/prisma.module";
-import { EmployeesModule } from "../employees/employees.module";
-import { CompaniesModule } from "../companies/companies.module";
-import { EquipmentModule } from "../equipment/equipment.module";
-import { HistoryLogService } from "./services/history-log.service";
+import { PrismaModule } from "@prisma/prisma.module";
+import { EmployeesModule } from "@modules/employees/employees.module";
+import { CompaniesModule } from "@modules/companies/companies.module";
+import { EquipmentModule } from "@modules/equipment/equipment.module";
+import { HistoryLogService } from "@modules/history/services/history-log.service";
 import { HistoryLogController } from "./controllers/history-log.controller";
 
 @Module({

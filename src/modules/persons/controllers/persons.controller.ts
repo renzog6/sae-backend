@@ -10,9 +10,9 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
-import { PersonsService } from "../services/persons.service";
-import { CreatePersonDto } from "../dto/create-person.dto";
-import { UpdatePersonDto } from "../dto/update-person.dto";
+import { PersonsService } from "@modules/persons/services/persons.service";
+import { CreatePersonDto } from "@modules/persons/dto/create-person.dto";
+import { UpdatePersonDto } from "@modules/persons/dto/update-person.dto";
 import { BaseQueryDto } from "@common/dto/base-query.dto";
 
 @ApiTags("persons")
