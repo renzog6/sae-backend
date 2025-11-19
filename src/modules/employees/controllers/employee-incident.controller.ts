@@ -7,11 +7,14 @@ import {
   Delete,
   Body,
   Param,
+  Query,
 } from "@nestjs/common";
 import { EmployeeIncidentService } from "../services/employee-incident.service";
 import { CreateEmployeeIncidentDto } from "../dto/create-employee-incident.dto";
 import { UpdateEmployeeIncidentDto } from "../../history/dto/update-employee-incident.dto";
+import { EmployeeIncidentsQueryDto } from "../dto/employee-incidents-query.dto";
 import { ApiTags } from "@nestjs/swagger";
+import { BaseResponseDto } from "@common/dto/base-query.dto";
 
 @ApiTags("employees-incidents")
 @Controller("employee-incidents")
@@ -25,9 +28,20 @@ export class EmployeeIncidentController {
     return this.employeeIncidentService.createIncident(createIncidentDto);
   }
 
+  @Get()
+  async findAll(@Query() query: EmployeeIncidentsQueryDto) {
+    return this.employeeIncidentService.findAll(query);
+  }
+
   @Get("employee/:employeeId")
-  async findByEmployee(@Param("employeeId") employeeId: string) {
-    return this.employeeIncidentService.findByEmployee(parseInt(employeeId));
+  async findByEmployee(
+    @Param("employeeId") employeeId: string,
+    @Query() query: EmployeeIncidentsQueryDto
+  ) {
+    return this.employeeIncidentService.findByEmployee(
+      parseInt(employeeId),
+      query
+    );
   }
 
   @Patch(":id")

@@ -12,10 +12,10 @@ import {
 } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
+import { BaseQueryDto } from "@common/dto/base-query.dto";
 import { EmployeeVacationsService } from "./employee-vacations.service";
 import { CreateEmployeeVacationDto } from "./dto/create-employee-vacation.dto";
 import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";
-import { PaginationDto } from "@common/dto/pagination.dto";
 
 @ApiTags("employee-vacations")
 @Controller("employee-vacations")
@@ -26,23 +26,22 @@ export class EmployeeVacationsController {
 
   @Post()
   create(@Body() createEmployeeVacationDto: CreateEmployeeVacationDto) {
-    return this.employeeVacationsService
-      .create(createEmployeeVacationDto)
-      .then((data) => ({ data }));
+    return this.employeeVacationsService.create(createEmployeeVacationDto);
   }
 
   @Get()
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
-  findAll(@Query() query: PaginationDto) {
+  @ApiQuery({ name: "q", required: false, type: String })
+  @ApiQuery({ name: "sortBy", required: false, type: String })
+  @ApiQuery({ name: "sortOrder", required: false, type: String })
+  findAll(@Query() query: BaseQueryDto) {
     return this.employeeVacationsService.findAll(query);
   }
 
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.employeeVacationsService
-      .findOne(+id)
-      .then((data) => ({ data }));
+    return this.employeeVacationsService.findOne(+id);
   }
 
   @Patch(":id")
@@ -50,14 +49,12 @@ export class EmployeeVacationsController {
     @Param("id") id: string,
     @Body() updateEmployeeVacationDto: UpdateEmployeeVacationDto
   ) {
-    return this.employeeVacationsService
-      .update(+id, updateEmployeeVacationDto)
-      .then((data) => ({ data }));
+    return this.employeeVacationsService.update(+id, updateEmployeeVacationDto);
   }
 
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.employeeVacationsService.remove(+id).then((data) => ({ data }));
+    return this.employeeVacationsService.remove(+id);
   }
 
   @Get(":id/pdf")

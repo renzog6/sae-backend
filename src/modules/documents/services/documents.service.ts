@@ -2,7 +2,9 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateDocumentDto } from "../dto/create-document.dto";
 import { UpdateDocumentDto } from "../dto/update-document.dto";
+import { DocumentQueryDto } from "../dto/document-query.dto";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
 export class DocumentsService {
@@ -50,16 +52,36 @@ export class DocumentsService {
     return this.prisma.document.create({ data: createDocumentDto });
   }
 
-  findAll(filter?: { companyId?: number; employeeId?: number }) {
+  async findAll(
+    query: DocumentQueryDto = new DocumentQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "uploadedAt", sortOrder = "desc" } = query;
+
+    // Build WHERE clause
     const where: any = {};
-    if (typeof filter?.companyId === "number")
-      where.companyId = filter.companyId;
-    if (typeof filter?.employeeId === "number")
-      where.employeeId = filter.employeeId;
-    return this.prisma.document.findMany({
-      where,
-      orderBy: { uploadedAt: "desc" },
-    });
+    if (query.employeeId) where.employeeId = query.employeeId;
+    if (query.companyId) where.companyId = query.companyId;
+
+    // Add search filter if provided
+    if (q) {
+      where.OR = [
+        { filename: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    // Execute query with transaction
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.document.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
+      }),
+      this.prisma.document.count({ where }),
+    ]);
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   findOne(id: number) {

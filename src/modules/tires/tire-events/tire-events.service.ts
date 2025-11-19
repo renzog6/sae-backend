@@ -2,6 +2,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateTireEventDto } from "./dto/create-tire-event.dto";
+import { TireEventsQueryDto } from "./dto/tire-events-query.dto";
+import { BaseResponseDto } from "@common/dto/base-query.dto";
 import { TireEventType } from "@prisma/client";
 
 @Injectable()
@@ -22,8 +24,76 @@ export class TireEventsService {
     });
   }
 
-  async findAll(tireId?: number) {
-    const where = tireId ? { tireId } : {};
+  async findAll(
+    query: TireEventsQueryDto = new TireEventsQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "eventDate", sortOrder = "desc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (query.tireId) where.tireId = query.tireId;
+    if (query.eventType) where.eventType = query.eventType;
+    if (query.equipmentId) {
+      where.tire = {
+        assignments: {
+          some: {
+            positionConfig: {
+              axle: {
+                equipmentId: query.equipmentId,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    // Add date range filter
+    if (query.fromDate || query.toDate) {
+      where.eventDate = {};
+      if (query.fromDate) {
+        where.eventDate.gte = query.fromDate;
+      }
+      if (query.toDate) {
+        where.eventDate.lte = query.toDate;
+      }
+    }
+
+    // Add search filter if provided
+    if (q) {
+      where.OR = [
+        { description: { contains: q, mode: "insensitive" } },
+        { tire: { serialNumber: { contains: q, mode: "insensitive" } } },
+      ];
+    }
+
+    // Get paginated data and total count in a single transaction
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.tireEvent.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          tire: {
+            include: {
+              model: {
+                include: {
+                  brand: true,
+                  size: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.tireEvent.count({ where }),
+    ]);
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
+  }
+
+  async findAllByTire(tireId: number) {
+    const where = { tireId };
     return this.prisma.tireEvent.findMany({
       where,
       include: {

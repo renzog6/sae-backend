@@ -1,6 +1,7 @@
 // filepath: sae-backend/src/modules/locations/addresses/addresses.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 import { CreateAddressDto } from "./dto/create-address.dto";
 import { UpdateAddressDto } from "./dto/update-address.dto";
 
@@ -8,14 +9,43 @@ import { UpdateAddressDto } from "./dto/update-address.dto";
 export class AddressesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.address.findMany({
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "street", sortOrder = "asc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { street: { contains: q, mode: "insensitive" } },
+        { city: { name: { contains: q, mode: "insensitive" } } },
+        { postalCode: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    // Get total count for pagination
+    const total = await this.prisma.address.count({ where });
+
+    // Get paginated data
+    const addresses = await this.prisma.address.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { [sortBy]: sortOrder },
       include: {
         city: { include: { province: true } },
         company: true,
         person: true,
       },
     });
+
+    return new BaseResponseDto(
+      addresses,
+      total,
+      query.page || 1,
+      query.limit || 10
+    );
   }
 
   async findOne(id: number) {
@@ -32,7 +62,7 @@ export class AddressesService {
     return address;
   }
 
-  create(dto: CreateAddressDto) {
+  async create(dto: CreateAddressDto) {
     // If personId is present, enforce one address per person via upsert
     if (dto.personId) {
       const { personId, companyId: _ignoredCompany, ...rest } = dto as any;
@@ -58,7 +88,7 @@ export class AddressesService {
     });
   }
 
-  createForPerson(personId: number, dto: CreateAddressDto) {
+  async createForPerson(personId: number, dto: CreateAddressDto) {
     const { personId: _ignored, companyId: _ignoredCompany, ...rest } = dto;
     // Upsert to ensure a single address per person
     return this.prisma.address.upsert({
@@ -73,7 +103,7 @@ export class AddressesService {
     });
   }
 
-  createForCompany(companyId: number, dto: CreateAddressDto) {
+  async createForCompany(companyId: number, dto: CreateAddressDto) {
     const { personId: _ignored, companyId: _ignoredCompany, ...rest } = dto;
     return this.prisma.address.create({
       data: { ...rest, companyId },

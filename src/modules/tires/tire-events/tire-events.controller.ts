@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import { TireEventsService } from "./tire-events.service";
 import { CreateTireEventDto } from "./dto/create-tire-event.dto";
+import { TireEventsQueryDto } from "./dto/tire-events-query.dto";
 import { ApiTags } from "@nestjs/swagger";
 
 @ApiTags("tire-events")
@@ -23,22 +24,8 @@ export class TireEventsController {
   }
 
   @Get()
-  findAll(
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("q") q?: string,
-    @Query("eventType") eventType?: string,
-    @Query("fromDate") fromDate?: string,
-    @Query("toDate") toDate?: string
-  ) {
-    return this.service.findAllWithFilters({
-      page: page ? +page : 1,
-      limit: limit ? +limit : 10,
-      q: q || undefined,
-      eventType: eventType as any,
-      fromDate: fromDate ? new Date(fromDate) : undefined,
-      toDate: toDate ? new Date(toDate) : undefined,
-    });
+  findAll(@Query() query: TireEventsQueryDto) {
+    return this.service.findAll(query);
   }
 
   @Get(":id")

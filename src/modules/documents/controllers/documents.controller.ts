@@ -21,6 +21,7 @@ import { DocumentsService } from "../services/documents.service";
 import { CreateDocumentDto } from "../dto/create-document.dto";
 import { UpdateDocumentDto } from "../dto/update-document.dto";
 import { UploadDocumentDto } from "../dto/upload-document.dto";
+import { DocumentQueryDto } from "../dto/document-query.dto";
 import {
   extname,
   join,
@@ -174,14 +175,8 @@ export class DocumentsController {
   }
 
   @Get()
-  findAll(
-    @Query("employeeId") employeeId?: string,
-    @Query("companyId") companyId?: string
-  ) {
-    const filter: { employeeId?: number; companyId?: number } = {};
-    if (employeeId) filter.employeeId = Number(employeeId);
-    if (companyId) filter.companyId = Number(companyId);
-    return this.documentsService.findAll(filter);
+  findAll(@Query() query: DocumentQueryDto) {
+    return this.documentsService.findAll(query);
   }
 
   @Get(":id")

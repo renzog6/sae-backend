@@ -7,6 +7,8 @@ import {
   CreateEquipmentAxleWithPositionsDto,
 } from "../dto/create-equipment-axle.dto";
 import { UpdateEquipmentAxleDto } from "../dto/update-equipment-axle.dto";
+import { EquipmentAxleQueryDto } from "../dto/equipment-axle-query.dto";
+import { BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
 export class EquipmentAxlesService {
@@ -22,17 +24,36 @@ export class EquipmentAxlesService {
     });
   }
 
-  async findAll(equipmentId?: number) {
-    const where = equipmentId ? { equipmentId } : {};
+  async findAll(
+    query: EquipmentAxleQueryDto = new EquipmentAxleQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "order", sortOrder = "asc" } = query;
 
-    return this.prisma.equipmentAxle.findMany({
-      where,
-      include: {
-        equipment: true,
-        tirePositions: true,
-      },
-      orderBy: { order: "asc" },
-    });
+    // Build WHERE clause
+    const where: any = {};
+    if (query.equipmentId) where.equipmentId = query.equipmentId;
+
+    // Add search filter if provided
+    if (q) {
+      where.OR = [{ description: { contains: q, mode: "insensitive" } }];
+    }
+
+    // Execute query with transaction
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.equipmentAxle.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          equipment: true,
+          tirePositions: true,
+        },
+      }),
+      this.prisma.equipmentAxle.count({ where }),
+    ]);
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   async findOne(id: number) {

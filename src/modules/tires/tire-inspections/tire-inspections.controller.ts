@@ -12,6 +12,7 @@ import {
 import { TireInspectionsService } from "./tire-inspections.service";
 import { CreateTireInspectionDto } from "./dto/create-tire-inspection.dto";
 import { UpdateTireInspectionDto } from "./dto/update-tire-inspection.dto";
+import { TireInspectionsQueryDto } from "./dto/tire-inspections-query.dto";
 import { ApiTags } from "@nestjs/swagger";
 
 @ApiTags("tire-inspections")
@@ -25,16 +26,8 @@ export class TireInspectionsController {
   }
 
   @Get()
-  findAll(
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("q") q?: string
-  ) {
-    return this.service.findAll({
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      q: q || undefined,
-    });
+  findAll(@Query() query: TireInspectionsQueryDto) {
+    return this.service.findAll(query);
   }
 
   @Get(":id")

@@ -4,6 +4,8 @@ import { PrismaService } from "@prisma/prisma.service";
 import { HistoryLogService } from "../../history/services/history-log.service";
 import { CreateEmployeeIncidentDto } from "../dto/create-employee-incident.dto";
 import { UpdateEmployeeIncidentDto } from "../../history/dto/update-employee-incident.dto";
+import { EmployeeIncidentsQueryDto } from "../dto/employee-incidents-query.dto";
+import { BaseResponseDto } from "@common/dto/base-query.dto";
 import { EmployeeIncidentType, HistoryType } from "@prisma/client";
 
 @Injectable()
@@ -47,11 +49,46 @@ export class EmployeeIncidentService {
     return incident;
   }
 
-  async findByEmployee(employeeId: number) {
-    return this.prisma.employeeIncident.findMany({
-      where: { employeeId },
-      orderBy: { startDate: "desc" },
-    });
+  async findAll(
+    query: EmployeeIncidentsQueryDto = new EmployeeIncidentsQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "startDate", sortOrder = "desc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (query.employeeId) where.employeeId = query.employeeId;
+    if (query.type) where.type = query.type;
+    if (query.paidLeave !== undefined) where.paidLeave = query.paidLeave;
+
+    // Add search filter if provided
+    if (q) {
+      where.OR = [
+        { description: { contains: q, mode: "insensitive" } },
+        { type: { equals: q as any } },
+      ];
+    }
+
+    // Get paginated data and total count in a single transaction
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.employeeIncident.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
+        include: { employee: true },
+      }),
+      this.prisma.employeeIncident.count({ where }),
+    ]);
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
+  }
+
+  async findByEmployee(
+    employeeId: number,
+    query: EmployeeIncidentsQueryDto = new EmployeeIncidentsQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    query.employeeId = employeeId;
+    return this.findAll(query);
   }
 
   async deleteIncident(id: number) {

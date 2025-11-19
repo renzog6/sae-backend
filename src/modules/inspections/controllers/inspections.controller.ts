@@ -1,7 +1,8 @@
 // filepath: sae-backend/src/modules/inspections/controllers/inspections.controller.ts
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { InspectionsService } from "../services/inspections.service";
+import { BaseQueryDto } from "@common/dto/base-query.dto";
 
 @ApiTags("inspections")
 @Controller("inspections")
@@ -9,8 +10,8 @@ export class InspectionsController {
   constructor(private readonly inspectionsService: InspectionsService) {}
 
   @Get()
-  findAll() {
-    return this.inspectionsService.findAll();
+  findAll(@Query() query: BaseQueryDto) {
+    return this.inspectionsService.findAll(query);
   }
 
   @Get(":id")

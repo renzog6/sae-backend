@@ -1,12 +1,9 @@
 // filepath: sae-backend/src/modules/contacts/services/contacts.service.ts
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 import { CreateContactDto } from "../dto/create-contact.dto";
 import { UpdateContactDto } from "../dto/update-contact.dto";
-import {
-  PaginationDto,
-  PaginatedResponseDto,
-} from "@common/dto/pagination.dto";
 
 @Injectable()
 export class ContactsService {
@@ -44,62 +41,117 @@ export class ContactsService {
     return contact;
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { page, limit, skip } = paginationDto;
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "id", sortOrder = "desc" } = query;
 
-    const [contacts, total] = await Promise.all([
-      this.prisma.contact.findMany({
-        skip,
-        take: limit,
-        include: { contactLinks: { include: { company: true, person: true } } },
-        orderBy: { id: "desc" },
-      }),
-      this.prisma.contact.count(),
-    ]);
+    // Build search filter
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { type: { contains: q, mode: "insensitive" } },
+        { value: { contains: q, mode: "insensitive" } },
+        { label: { contains: q, mode: "insensitive" } },
+      ];
+    }
 
-    return new PaginatedResponseDto(contacts, total, page, limit);
+    // Get total count for pagination
+    const total = await this.prisma.contact.count({ where });
+
+    // Get paginated data
+    const contacts = await this.prisma.contact.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { [sortBy]: sortOrder },
+      include: { contactLinks: { include: { company: true, person: true } } },
+    });
+
+    return new BaseResponseDto(
+      contacts,
+      total,
+      query.page || 1,
+      query.limit || 10
+    );
   }
 
-  async findByPerson(personId: string, paginationDto: PaginationDto) {
-    const { page, limit, skip } = paginationDto;
-
+  async findByPerson(
+    personId: string,
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "id", sortOrder = "desc" } = query;
     const personIdNum = parseInt(personId);
-    const whereClause = {
+
+    const whereClause: any = {
       contactLinks: { some: { personId: personIdNum } },
-    } as const;
+    };
+
+    // Add search filter if provided
+    if (q) {
+      whereClause.OR = [
+        { type: { contains: q, mode: "insensitive" } },
+        { value: { contains: q, mode: "insensitive" } },
+        { label: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
     const [contacts, total] = await Promise.all([
       this.prisma.contact.findMany({
         where: whereClause,
         skip,
-        take: limit,
+        take,
+        orderBy: { [sortBy]: sortOrder },
         include: { contactLinks: { include: { person: true } } },
-        orderBy: { id: "desc" },
       }),
       this.prisma.contact.count({ where: whereClause }),
     ]);
 
-    return new PaginatedResponseDto(contacts, total, page, limit);
+    return new BaseResponseDto(
+      contacts,
+      total,
+      query.page || 1,
+      query.limit || 10
+    );
   }
 
-  async findByCompany(companyId: string, paginationDto: PaginationDto) {
-    const { page, limit, skip } = paginationDto;
-
+  async findByCompany(
+    companyId: string,
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "id", sortOrder = "desc" } = query;
     const companyIdNum = parseInt(companyId);
-    const whereClause = {
+
+    const whereClause: any = {
       contactLinks: { some: { companyId: companyIdNum } },
-    } as const;
+    };
+
+    // Add search filter if provided
+    if (q) {
+      whereClause.OR = [
+        { type: { contains: q, mode: "insensitive" } },
+        { value: { contains: q, mode: "insensitive" } },
+        { label: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
     const [contacts, total] = await Promise.all([
       this.prisma.contact.findMany({
         where: whereClause,
         skip,
-        take: limit,
+        take,
+        orderBy: { [sortBy]: sortOrder },
         include: { contactLinks: { include: { company: true } } },
-        orderBy: { id: "desc" },
       }),
       this.prisma.contact.count({ where: whereClause }),
     ]);
 
-    return new PaginatedResponseDto(contacts, total, page, limit);
+    return new BaseResponseDto(
+      contacts,
+      total,
+      query.page || 1,
+      query.limit || 10
+    );
   }
 
   async findOne(id: string) {

@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/modules/equipment/controllers/equipment-category.controller.ts
 import {
   Controller,
   Get,
@@ -15,13 +16,13 @@ import { UpdateEquipmentTypeDto } from "../dto/update-equipment-type.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { BaseQueryDto } from "@common/dto/base-query.dto";
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { Pagination } from "@common/decorators/pagination.decorator";
 
 @ApiTags("equipment-types")
 @ApiBearerAuth()
@@ -45,8 +46,8 @@ export class EquipmentTypeController {
   @Get()
   @ApiOperation({ summary: "Get all equipment types with pagination" })
   @ApiResponse({ status: 200, description: "Return all equipment types." })
-  findAll(@Pagination() pagination: any) {
-    return this.equipmentTypeService.findAll(pagination);
+  findAll(@Query() query: BaseQueryDto) {
+    return this.equipmentTypeService.findAll(query);
   }
 
   @Get(":id")

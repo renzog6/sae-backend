@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateEquipmentModelDto } from "../dto/create-equipment-model.dto";
 import { UpdateEquipmentModelDto } from "../dto/update-equipment-model.dto";
-import { PaginationDto } from "@common/dto/pagination.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
 export class EquipmentModelService {
@@ -19,25 +19,36 @@ export class EquipmentModelService {
     });
   }
 
-  async findAll(pagination?: PaginationDto) {
-    const page = pagination?.page ?? 1;
-    const limit = pagination?.limit ?? 10;
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    // Execute query with transaction
     const [data, total] = await this.prisma.$transaction([
       this.prisma.equipmentModel.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { name: "asc" },
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
         include: {
           brand: true,
           type: true,
         },
       }),
-      this.prisma.equipmentModel.count(),
+      this.prisma.equipmentModel.count({ where }),
     ]);
-    return {
-      data,
-      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   async findOne(id: number) {

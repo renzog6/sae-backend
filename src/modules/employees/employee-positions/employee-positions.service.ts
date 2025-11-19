@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateEmployeePositionDto } from "./dto/create-employee-position.dto";
 import { UpdateEmployeePositionDto } from "./dto/update-employee-position.dto";
 import { PrismaService } from "@prisma/prisma.service";
-import { PaginationDto } from "@common/dto/pagination.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
 export class EmployeePositionsService {
@@ -13,21 +13,32 @@ export class EmployeePositionsService {
     return this.prisma.employeePosition.create({ data: dto as any });
   }
 
-  async findAll(pagination?: PaginationDto) {
-    const page = pagination?.page ?? 1;
-    const limit = pagination?.limit ?? 10;
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    // Get paginated data and total count in a single transaction
     const [data, total] = await this.prisma.$transaction([
       this.prisma.employeePosition.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { createdAt: "desc" },
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
       }),
-      this.prisma.employeePosition.count(),
+      this.prisma.employeePosition.count({ where }),
     ]);
-    return {
-      data,
-      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   async findOne(id: number) {

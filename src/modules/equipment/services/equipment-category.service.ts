@@ -1,8 +1,9 @@
+// filepath: sae-backend/src/modules/equipment/services/equipment-category.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateEquipmentCategoryDto } from "../dto/create-equipment-category.dto";
 import { UpdateEquipmentCategoryDto } from "../dto/update-equipment-category.dto";
-import { PaginationDto } from "@common/dto/pagination.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
 export class EquipmentCategoryService {
@@ -15,22 +16,33 @@ export class EquipmentCategoryService {
     });
   }
 
-  async findAll(pagination?: PaginationDto) {
-    const page = pagination?.page ?? 1;
-    const limit = pagination?.limit ?? 10;
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    // Execute query with transaction
     const [data, total] = await this.prisma.$transaction([
       this.prisma.equipmentCategory.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
         include: { types: true },
-        orderBy: { name: "asc" },
       }),
-      this.prisma.equipmentCategory.count(),
+      this.prisma.equipmentCategory.count({ where }),
     ]);
-    return {
-      data,
-      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   async findOne(id: number) {

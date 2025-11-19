@@ -3,6 +3,8 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateTireInspectionDto } from "./dto/create-tire-inspection.dto";
 import { UpdateTireInspectionDto } from "./dto/update-tire-inspection.dto";
+import { TireInspectionsQueryDto } from "./dto/tire-inspections-query.dto";
+import { BaseResponseDto } from "@common/dto/base-query.dto";
 import { TireAssignmentEventsService } from "../tire-assignments/tire-events.service";
 
 @Injectable()
@@ -73,61 +75,102 @@ export class TireInspectionsService {
     return result;
   }
 
-  async findAll(params?: { page?: number; limit?: number; q?: string }) {
-    const { page = 1, limit = 10, q } = params || {};
+  async findAll(
+    query: TireInspectionsQueryDto = new TireInspectionsQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const {
+      skip,
+      take,
+      q,
+      sortBy = "inspectionDate",
+      sortOrder = "desc",
+    } = query;
 
-    const where = q
-      ? {
-          OR: [
-            { tire: { serialNumber: { contains: q } } },
-            {
-              tire: {
-                model: {
-                  brand: { name: { contains: q } },
-                },
-              },
-            },
-            {
-              tire: {
-                model: {
-                  size: { mainCode: { contains: q } },
-                },
-              },
-            },
-          ],
-        }
-      : {};
+    // Build search filter
+    const where: any = {};
+    if (query.tireId) where.tireId = query.tireId;
 
-    const total = await this.prisma.tireInspection.count({ where });
-
-    const inspections = await this.prisma.tireInspection.findMany({
-      where,
-      include: {
-        tire: {
-          include: {
-            model: {
-              include: {
-                brand: true,
-                size: true,
+    if (query.equipmentId) {
+      where.tire = {
+        assignments: {
+          some: {
+            positionConfig: {
+              axle: {
+                equipmentId: query.equipmentId,
               },
             },
           },
         },
-      },
-      orderBy: { inspectionDate: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+      };
+    }
 
-    return {
-      data: inspections,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    // Add date range filter
+    if (query.fromDate || query.toDate) {
+      where.inspectionDate = {};
+      if (query.fromDate) {
+        where.inspectionDate.gte = query.fromDate;
+      }
+      if (query.toDate) {
+        where.inspectionDate.lte = query.toDate;
+      }
+    }
+
+    // Add pressure filter
+    if (query.minPressure !== undefined) {
+      where.pressure = { gte: query.minPressure };
+    }
+
+    // Add tread depth filter
+    if (query.minTreadDepth !== undefined) {
+      where.treadDepth = { gte: query.minTreadDepth };
+    }
+
+    // Add search filter if provided
+    if (q) {
+      where.OR = [
+        { tire: { serialNumber: { contains: q, mode: "insensitive" } } },
+        { observation: { contains: q, mode: "insensitive" } },
+        {
+          tire: {
+            model: {
+              brand: { name: { contains: q, mode: "insensitive" } },
+            },
+          },
+        },
+        {
+          tire: {
+            model: {
+              size: { mainCode: { contains: q, mode: "insensitive" } },
+            },
+          },
+        },
+      ];
+    }
+
+    // Get paginated data and total count in a single transaction
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.tireInspection.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          tire: {
+            include: {
+              model: {
+                include: {
+                  brand: true,
+                  size: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.tireInspection.count({ where }),
+    ]);
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   async findOne(id: number) {

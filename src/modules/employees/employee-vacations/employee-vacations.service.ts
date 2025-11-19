@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateEmployeeVacationDto } from "./dto/create-employee-vacation.dto";
 import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";
 import { PrismaService } from "@prisma/prisma.service";
-import { PaginationDto } from "@common/dto/pagination.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 import { PDFDocument } from "pdf-lib";
 import { Response } from "express";
 import * as fs from "fs";
@@ -80,22 +80,43 @@ export class EmployeeVacationsService {
     return vacation;
   }
 
-  async findAll(pagination?: PaginationDto) {
-    const page = pagination?.page ?? 1;
-    const limit = pagination?.limit ?? 10;
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "createdAt", sortOrder = "desc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { detail: { contains: q, mode: "insensitive" } },
+        {
+          employee: {
+            person: { firstName: { contains: q, mode: "insensitive" } },
+          },
+        },
+        {
+          employee: {
+            person: { lastName: { contains: q, mode: "insensitive" } },
+          },
+        },
+        { year: { equals: parseInt(q) } },
+      ];
+    }
+
+    // Get paginated data and total count in a single transaction
     const [data, total] = await this.prisma.$transaction([
       this.prisma.employeeVacation.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder },
         include: { employee: true },
-        orderBy: { createdAt: "desc" },
       }),
-      this.prisma.employeeVacation.count(),
+      this.prisma.employeeVacation.count({ where }),
     ]);
-    return {
-      data,
-      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    };
+
+    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   async findOne(id: number) {

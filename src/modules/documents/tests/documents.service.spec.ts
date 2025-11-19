@@ -11,7 +11,9 @@ const prismaMock = {
     findUniqueOrThrow: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    count: jest.fn(),
   },
+  $transaction: jest.fn(),
 } as unknown as PrismaService;
 
 describe("DocumentsService", () => {
@@ -49,9 +51,15 @@ describe("DocumentsService", () => {
 
   it("findAll calls prisma.document.findMany", async () => {
     (prismaMock.document.findMany as any).mockResolvedValue([]);
+    (prismaMock.document.count as any).mockResolvedValue(0);
+    (prismaMock.$transaction as any).mockResolvedValue([[], 0]);
     const res = await service.findAll();
     expect(prismaMock.document.findMany).toHaveBeenCalled();
-    expect(res).toEqual([]);
+    expect(prismaMock.document.count).toHaveBeenCalled();
+    expect(res).toEqual({
+      data: [],
+      meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
+    });
   });
 
   it("findOne calls prisma.document.findUniqueOrThrow", async () => {

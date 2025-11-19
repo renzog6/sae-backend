@@ -1,6 +1,7 @@
 // filepath: sae-backend/src/modules/locations/countries/countries.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { UpdateCountryDto } from "./dto/update-country.dto";
 
@@ -8,8 +9,38 @@ import { UpdateCountryDto } from "./dto/update-country.dto";
 export class CountriesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.country.findMany({ include: { provinces: true } });
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+
+    // Build search filter
+    const where: any = {};
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { isoCode: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    // Get total count for pagination
+    const total = await this.prisma.country.count({ where });
+
+    // Get paginated data
+    const countries = await this.prisma.country.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { [sortBy]: sortOrder },
+      include: { provinces: true },
+    });
+
+    return new BaseResponseDto(
+      countries,
+      total,
+      query.page || 1,
+      query.limit || 10
+    );
   }
 
   async findOne(id: number) {
@@ -22,7 +53,7 @@ export class CountriesService {
     return country;
   }
 
-  create(dto: CreateCountryDto) {
+  async create(dto: CreateCountryDto) {
     const { name, code, isoCode } = dto as any;
     return this.prisma.country.create({
       data: {

@@ -15,6 +15,7 @@ import {
   CreateEquipmentAxleWithPositionsDto,
 } from "../dto/create-equipment-axle.dto";
 import { UpdateEquipmentAxleDto } from "../dto/update-equipment-axle.dto";
+import { EquipmentAxleQueryDto } from "../dto/equipment-axle-query.dto";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
 
 @ApiTags("equipment-axles")
@@ -28,8 +29,8 @@ export class EquipmentAxlesController {
   }
 
   @Get()
-  findAll(@Query("equipmentId") equipmentId?: string) {
-    return this.service.findAll(equipmentId ? +equipmentId : undefined);
+  findAll(@Query() query: EquipmentAxleQueryDto) {
+    return this.service.findAll(query);
   }
 
   @Get("positions/equipment/:equipmentId")

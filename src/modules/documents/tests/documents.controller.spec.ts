@@ -41,10 +41,16 @@ describe("DocumentsController", () => {
   });
 
   it("findAll delegates to service", async () => {
-    (serviceMock.findAll as any).mockResolvedValue([]);
-    const res = await controller.findAll();
+    (serviceMock.findAll as any).mockResolvedValue({
+      data: [],
+      meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
+    });
+    const res = await controller.findAll({} as any);
     expect(serviceMock.findAll).toHaveBeenCalled();
-    expect(res).toEqual([]);
+    expect(res).toEqual({
+      data: [],
+      meta: { total: 0, page: 1, limit: 10, totalPages: 0 },
+    });
   });
 
   it("findOne delegates to service", async () => {

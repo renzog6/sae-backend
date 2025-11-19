@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/modules/equipment/controllers/equipment-model.controller.ts
 import {
   Controller,
   Get,
@@ -21,7 +22,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { Pagination } from "@common/decorators/pagination.decorator";
+import { BaseQueryDto } from "@common/dto/base-query.dto";
 
 @ApiTags("equipment-models")
 @ApiBearerAuth()
@@ -45,8 +46,8 @@ export class EquipmentModelController {
   @Get()
   @ApiOperation({ summary: "Get all equipment models with pagination" })
   @ApiResponse({ status: 200, description: "Return all equipment models." })
-  findAll(@Pagination() pagination: any) {
-    return this.equipmentModelService.findAll(pagination);
+  findAll(@Query() query: BaseQueryDto) {
+    return this.equipmentModelService.findAll(query);
   }
 
   @Get(":id")
