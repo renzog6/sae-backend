@@ -16,7 +16,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 - **🧪 Testing Exhaustivo**: Cobertura completa con Jest para unitarios, integración y e2e (>80% objetivo)
 - **🛞 Gestión de Neumáticos Especializada**: Módulo profesional para ciclo de vida completo con asignaciones, rotaciones, recapados e inspecciones
 - **🔍 Sistema de Inspecciones Técnico**: Control periódico de equipos y neumáticos con métricas especializadas
-- **📈 Reportes Analíticos Empresariales**: Generación de reportes Excel, métricas de rendimiento y business intelligence
+- **📈 Reportes Analíticos Empresariales**: Generación de reportes Excel, PDF, CSV, DOCX, métricas de rendimiento y business intelligence
 - **⚡ Performance Optimizada**: Consultas optimizadas, caching preparado y transacciones ACID
 - **🐳 Despliegue Profesional**: Docker multi-stage, health checks y configuración de producción
 - **🗑️ Soft Delete Implementado**: Eliminación lógica en todas las entidades principales con campos `isActive` y `deletedAt`
@@ -26,7 +26,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 - **Versión**: 1.1.0
 - **Autor**: Renzo O. Gorosito
 - **Licencia**: MIT
-- **Última Actualización**: Octubre 2025
+- **Última Actualización**: Noviembre 2025
 - **Lenguaje**: TypeScript 5.1+ (strict mode)
 - **Framework**: NestJS 10.x con arquitectura modular
 - **Base de Datos**: MySQL 8.0+ con 50+ modelos
@@ -51,7 +51,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 ### 🗄️ Base de Datos y ORM
 
 - **Motor de BD**: MySQL 8.0+ con InnoDB engine
-- **ORM**: Prisma 6.17+ con cliente TypeScript generado automáticamente
+- **ORM**: Prisma 6.19.0 con cliente TypeScript generado automáticamente
 - **Migraciones**: Sistema automatizado con rollback y preview
 - **Relaciones**: Soporte completo para 1:1, 1:N, N:M, polimórficas y self-referencing
 - **Índices**: Optimización estratégica en campos de búsqueda (composite indexes)
@@ -84,10 +84,11 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 ### 🛠️ Utilidades y Librerías Especializadas
 
 - **File Upload**: Multer con storage en disco, límites configurables (10MB) y validación MIME
-- **PDF Generation**: pdf-lib para documentos dinámicos (notificaciones de vacaciones, reportes)
+- **PDF Generation**: pdf-lib y pdfkit para documentos dinámicos (notificaciones de vacaciones, reportes)
+- **DOCX Generation**: docx para documentos Word dinámicos y reportes profesionales
 - **Date Handling**: date-fns para manipulación robusta y timezone-aware
 - **Excel Export**: exceljs para reportes empresariales con formato profesional
-- **CSV Processing**: csv-parse para importación masiva de datos
+- **CSV Processing**: csv-parse para importación masiva, json2csv para exportación avanzada
 - **Compression**: Gzip automático en respuestas HTTP
 - **Logging**: Winston/NestJS logger con niveles configurables y structured logging
 - **Caching**: Preparado para Redis con @nestjs/cache-manager
@@ -98,7 +99,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 
 ### 1. Requisitos del Sistema
 
-- **Node.js**: 18+ (LTS recomendado)
+- **Node.js**: 20+ (LTS recomendado)
 - **MySQL**: 8.0+
 - **npm**: 8+ (viene con Node.js)
 - **Sistema Operativo**: Windows 10+, macOS, Linux
@@ -352,6 +353,38 @@ src/
 ├── 📁 health/                          # 🏥 Health checks y monitoreo
 │   ├── health.controller.ts            # 🌐 Endpoints de salud
 │   └── health.module.ts                # 📦 Módulo health
+├── 📁 reports/                         # 📊 Sistema unificado de reportes
+│   ├── reports.module.ts               # 📦 Módulo principal
+│   ├── controllers/                    # 🌐 Controladores HTTP
+│   │   └── reports.controller.ts       # 📊 Endpoints generate/preview
+│   ├── services/                       # 🔧 Servicios de negocio
+│   │   └── reports.service.ts          # 📈 Lógica de reportes
+│   ├── factories/                      # 🏭 Factory pattern
+│   │   ├── report-factory.ts           # 🎯 Factory de estrategias
+│   │   └── report-format-factory.ts    # 📄 Factory de formatos
+│   ├── formatters/                     # 🖨️ Generadores de formatos
+│   │   ├── excel.formatter.ts          # 📊 Excel profesional
+│   │   ├── pdf.formatter.ts            # 📄 PDF dinámico
+│   │   ├── csv.formatter.ts            # 📋 CSV export
+│   │   └── docx.formatter.ts           # 📝 Word documents
+│   ├── mappers/                        # 🔄 Transformadores de datos
+│   │   ├── report-data.mapper.ts       # 📊 Mapper base
+│   │   ├── employee/                   # 👷 Mappers de empleados
+│   │   ├── equipment/                  # 🔧 Mappers de equipos
+│   │   └── tire/                       # 🛞 Mappers de neumáticos
+│   ├── strategies/                     # 🎯 Estrategias por entidad
+│   │   ├── report-strategy.interface.ts # 🎯 Interfaz base
+│   │   ├── employee/                   # 👷 Estrategias RRHH
+│   │   ├── equipment/                  # 🔧 Estrategias flota
+│   │   └── tire/                       # � Estrategias neumáticos
+│   ├── core/                           # ⚙️ Componentes core
+│   │   ├── report-type.enum.ts         # 📋 Tipos de reportes
+│   │   ├── report-format.enum.ts       # 📄 Formatos disponibles
+│   │   ├── report-context.ts           # 📊 Contexto de ejecución
+│   │   ├── report-metadata.ts          # 📋 Metadata del reporte
+│   │   └── report-result.ts            # 📤 Resultado final
+│   └── dto/                            # 📝 DTOs de reportes
+│       └── generate-report.dto.ts      # 📋 Request DTO
 ├── 📁 tires/                           # 🛞 Gestión especializada de neumáticos ⭐
 │   ├── tires.module.ts                 # 📦 Módulo principal
 │   ├── tires.controller.ts             # 🌐 CRUD neumáticos
@@ -1082,6 +1115,48 @@ stateDiagram-v2
 - `POST /units` - Crear unidad _(ADMIN/MANAGER)_
 - `PATCH /units/:id` - Actualizar unidad _(ADMIN/MANAGER)_
 - `DELETE /units/:id` - Eliminar unidad _(ADMIN)_
+
+### 📊 Reportes (`/reports`)
+
+El módulo de reportes implementa un **sistema unificado y extensible** para la generación de reportes empresariales en múltiples formatos. Utiliza una arquitectura de Factory Pattern para soporte dinámico de diferentes tipos de reportes y formatos de salida.
+
+#### Características Principales
+
+- **Múltiples Formatos**: Excel, PDF, CSV, DOCX con formateo profesional
+- **Vista Previa**: Endpoint dedicado para previsualizar datos antes de generar
+- **Factory Pattern**: Arquitectura extensible para nuevos tipos de reportes
+- **Mappers Especializados**: Transformación de datos organizada por entidad
+- **Formatters Modulares**: Cada formato implementado como componente independiente
+
+#### Endpoints Principales
+
+- `POST /reports/generate` - Generar reporte en formato especificado
+- `POST /reports/preview` - Previsualizar datos del reporte
+
+#### Tipos de Reportes Disponibles
+
+- `EMPLOYEE_LIST` - Lista completa de empleados
+- `EMPLOYEE_VACATION` - Reporte de vacaciones de empleados
+- `EQUIPMENT_LIST` - Inventario de equipos
+- `TIRE_LIST` - Gestión de neumáticos
+
+#### Ejemplo de Uso
+
+```bash
+POST /api/reports/generate
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "reportType": "EMPLOYEE_LIST",
+  "format": "EXCEL",
+  "filter": {
+    "categoryId": 1,
+    "status": "ACTIVE"
+  },
+  "title": "Lista de Empleados - Recursos Humanos"
+}
+```
 
 ### 📊 Historial (`/history`)
 
