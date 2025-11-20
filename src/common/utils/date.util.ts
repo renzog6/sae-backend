@@ -24,5 +24,8 @@ export const calculateTenure = (start: Date | string): string => {
     months += 12;
   }
 
-  return `${years} years ${months} months`;
+  //return `${years} years ${months} months`;
+
+  //Solo numeros
+  return `${years},${months}`;
 };

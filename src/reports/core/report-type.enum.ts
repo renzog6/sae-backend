@@ -1,7 +1,4 @@
-/**
- * Centralized enum for all report types in the SAE system.
- * This enum ensures type safety and consistency across all report-related modules.
- */
+// filepath: src/reports/core/report-type.enum.ts
 export enum ReportType {
   EMPLOYEE_LIST = "employee_list",
   EMPLOYEE_VACATION = "employee_vacation",

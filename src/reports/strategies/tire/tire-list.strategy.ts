@@ -1,59 +1,74 @@
 // filepath: sae-backend/src/reports/strategies/tire/tire-list.strategy.ts
-import { Injectable } from "@nestjs/common";
-import { ExcelService } from "@reports/services/excel.service";
+import { Injectable, Logger, BadRequestException } from "@nestjs/common";
 import { ReportStrategy } from "@reports/strategies/report-strategy.interface";
-import { ReportDataMapper } from "@reports/mappers/report-data.mapper";
+import { ReportType } from "@reports/core/report-type.enum";
+import { GenerateReportDto } from "@reports/dto/generate-report.dto";
+import { TireListMapper } from "@reports/mappers/tire/tire-list.mapper";
+import { createReportContext } from "@reports/core/report-context";
 
 /**
  * Strategy for generating tire list reports.
- * Creates an Excel spreadsheet with tire information including ID, brand, model, size, and status.
+ * Creates a report context with tire information including ID, brand, model, size, and status.
  */
 @Injectable()
 export class TireListStrategy implements ReportStrategy {
-  fileName = "tire-list.xlsx";
-  outputType = "excel" as const;
-  mimeType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  readonly type = ReportType.TIRE_LIST;
+  private readonly logger = new Logger(TireListStrategy.name);
 
-  constructor(
-    private readonly excelService: ExcelService,
-    private readonly mapper: ReportDataMapper
-  ) {}
+  constructor(private readonly mapper: TireListMapper) {}
 
-  /**
-   * Generates the tire list report.
-   * @param filters Optional filters for the report (status, brandId)
-   * @returns Buffer containing the Excel file
-   */
-  async generate(filters: Record<string, any>): Promise<Buffer> {
-    const data = await this.mapper.mapTireList(filters);
+  async buildContext(dto: GenerateReportDto) {
+    this.logger.log(`Building context for tire list report`);
 
-    const sheets = [
-      {
-        name: "Tires",
-        columns: [
-          { header: "ID", key: "id", width: 10 },
-          { header: "Brand", key: "brand", width: 25 },
-          { header: "Model", key: "model", width: 25 },
-          { header: "Size", key: "size", width: 20 },
-          { header: "Serial Number", key: "serialNumber", width: 25 },
-          { header: "Status", key: "status", width: 15 },
-          { header: "Position", key: "position", width: 20 },
-          { header: "Active", key: "active", width: 10 },
-        ],
-        data: data,
+    // Validate filters
+    const filters = dto.filter ?? {};
+    if (
+      filters.brandId &&
+      (isNaN(Number(filters.brandId)) || Number(filters.brandId) <= 0)
+    ) {
+      throw new BadRequestException(
+        "Invalid brandId: must be a positive number"
+      );
+    }
+    if (
+      filters.status &&
+      !["active", "inactive", "mounted", "unmounted"].includes(filters.status)
+    ) {
+      throw new BadRequestException(
+        'Invalid status: must be "active", "inactive", "mounted", or "unmounted"'
+      );
+    }
+
+    const rows = await this.mapper.map(filters);
+
+    if (rows.length === 0) {
+      this.logger.warn(
+        `No tire data found for filters: ${JSON.stringify(filters)}`
+      );
+    } else {
+      this.logger.log(`Retrieved ${rows.length} tire records`);
+    }
+
+    return createReportContext({
+      title: dto.title ?? "Tire List",
+      columns: [
+        { key: "id", header: "ID", width: 10 },
+        { key: "brand", header: "Brand", width: 25 },
+        { key: "model", header: "Model", width: 25 },
+        { key: "size", header: "Size", width: 20 },
+        { key: "serialNumber", header: "Serial Number", width: 25 },
+        { key: "status", header: "Status", width: 15 },
+        { key: "position", header: "Position", width: 20 },
+        { key: "active", header: "Active", width: 10 },
+      ],
+      rows,
+      format: dto.format,
+      fileName: "tire_list",
+      mimeType: "",
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        totalRecords: rows.length,
       },
-    ];
-
-    return this.excelService.buildWorkbookBuffer(sheets);
-  }
-
-  /**
-   * Maps data for the report (passthrough implementation).
-   * @param data The data to map
-   * @returns The mapped data
-   */
-  async map(data: any): Promise<any> {
-    return data;
+    });
   }
 }

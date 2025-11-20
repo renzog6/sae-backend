@@ -1,71 +1,37 @@
-// filepath: src/reports/dto/generate-report.dto.ts
-import { IsEnum, IsOptional, IsString, IsObject } from "class-validator";
+//filepath: sae-backend/src/reports/dto/generate-report.dto.ts
+import { IsEnum, IsOptional, IsObject, IsString } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { ReportType } from "@common/enums/report-type.enum";
+import { ReportType } from "@reports/core/report-type.enum";
 
-/**
- * Supported output formats
- */
 export enum ReportFormat {
   EXCEL = "excel",
   PDF = "pdf",
+  CSV = "csv",
+  DOCX = "docx",
 }
 
-export { ReportType };
-
-/**
- * DTO for report generation
- */
 export class GenerateReportDto {
-  @ApiProperty({
-    description: "Report type identifier",
-    enum: ReportType,
-    example: ReportType.EMPLOYEE_LIST,
-  })
   @IsEnum(ReportType)
+  @ApiProperty({ enum: ReportType })
   reportType!: ReportType;
 
-  @ApiPropertyOptional({
-    description:
-      "Filter object to restrict report data. E.g. { filters: { dateFrom: '2024-01-01' } } or plain filters object",
-    type: Object,
-  })
-  @IsOptional()
-  @IsObject()
-  filter?: Record<string, any>;
-
-  @ApiProperty({
-    description: "Desired output format",
-    enum: ReportFormat,
-    example: ReportFormat.EXCEL,
-  })
   @IsEnum(ReportFormat)
+  @ApiProperty({ enum: ReportFormat })
   format!: ReportFormat;
 
+  @IsOptional()
+  @IsObject()
   @ApiPropertyOptional({
-    description: "Optional report title",
-    example: "My Report",
+    description: "Optional filters for the report (depends on report type)",
+    example: { status: "active", categoryId: 1 },
   })
+  filter?: Record<string, any>;
+
   @IsOptional()
   @IsString()
-  title?: string;
-
-  @ApiPropertyOptional({ description: "Company id to filter by", example: 1 })
-  @IsOptional()
-  companyId?: number;
-
-  @ApiPropertyOptional({ description: "Employee id to filter by", example: 2 })
-  @IsOptional()
-  employeeId?: number;
-
   @ApiPropertyOptional({
-    description: "Date from (ISO)",
-    example: "2024-01-01",
+    description: "Custom title for the report",
+    example: "Monthly Employee Report",
   })
-  @IsOptional()
-  dateFrom?: string;
-
-  @ApiPropertyOptional({ description: "Date to (ISO)", example: "2024-01-31" })
-  @IsOptional()
-  dateTo?: string;
+  title?: string;
 }

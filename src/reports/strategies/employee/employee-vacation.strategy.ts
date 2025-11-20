@@ -1,55 +1,133 @@
-// filepath: sae-backend/src/reports/strategies/employee/employee-vacation.strategy.ts
-import { Injectable } from "@nestjs/common";
-import { ExcelService } from "@reports/services/excel.service";
-import { ReportStrategy } from "@reports/strategies/report-strategy.interface";
-import { ReportDataMapper } from "@reports/mappers/report-data.mapper";
+// filepath: reports/strategies/employee/employee-vacation.strategy.ts
+import { Injectable, Logger, BadRequestException } from "@nestjs/common";
+import { ReportStrategy } from "../report-strategy.interface";
+import { ReportType } from "@reports/core/report-type.enum";
+import { GenerateReportDto } from "@reports/dto/generate-report.dto";
+import { EmployeeVacationMapper } from "@reports/mappers/employee/employee-vacation.mapper";
+import { createReportContext } from "@reports/core/report-context";
 
-/**
- * Strategy for generating employee vacation reports.
- * Creates an Excel spreadsheet with vacation information including employee name, dates, and duration.
- */
 @Injectable()
 export class EmployeeVacationStrategy implements ReportStrategy {
-  fileName = "employee-vacations.xlsx";
-  outputType = "excel" as const;
-  mimeType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  readonly type = ReportType.EMPLOYEE_VACATION;
+  private readonly logger = new Logger(EmployeeVacationStrategy.name);
 
-  constructor(
-    private readonly excelService: ExcelService,
-    private readonly mapper: ReportDataMapper
-  ) {}
+  constructor(private readonly mapper: EmployeeVacationMapper) {}
 
-  /**
-   * Generates the employee vacation report.
-   * @param filters Optional filters for the report (startDate, endDate)
-   * @returns Buffer containing the Excel file
-   */
-  async generate(filters: Record<string, any>): Promise<Buffer> {
-    const data = await this.mapper.mapEmployeeVacations(filters);
+  async buildContext(dto: GenerateReportDto) {
+    this.logger.log(`Building context for employee vacation report`);
 
-    const sheets = [
-      {
-        name: "Employee Vacations",
-        columns: [
-          { header: "Employee", key: "employee", width: 30 },
-          { header: "Start Date", key: "startDate", width: 20 },
-          { header: "End Date", key: "endDate", width: 20 },
-          { header: "Days", key: "days", width: 10 },
-        ],
-        data: data,
+    // Validate filters
+    const filters = dto.filter ?? {};
+    if (filters.startDate && isNaN(Date.parse(filters.startDate))) {
+      throw new BadRequestException(
+        "Invalid startDate: must be a valid date string"
+      );
+    }
+    if (filters.endDate && isNaN(Date.parse(filters.endDate))) {
+      throw new BadRequestException(
+        "Invalid endDate: must be a valid date string"
+      );
+    }
+    if (
+      filters.startDate &&
+      filters.endDate &&
+      new Date(filters.startDate) > new Date(filters.endDate)
+    ) {
+      throw new BadRequestException("startDate cannot be after endDate");
+    }
+
+    const rows = await this.mapper.map(filters);
+
+    if (rows.length === 0) {
+      this.logger.warn(
+        `No vacation data found for filters: ${JSON.stringify(filters)}`
+      );
+    } else {
+      this.logger.log(`Retrieved ${rows.length} vacation records`);
+    }
+
+    return createReportContext({
+      title: dto.title ?? "Employee Vacation Report",
+      columns: [
+        //Legajo
+        {
+          key: "employeeCode",
+          header: "Legajo",
+          width: 10,
+          style: {
+            header: { bold: true, alignment: "center" },
+            data: { alignment: "center" },
+          },
+        },
+        //Apellido y Nombre
+        {
+          key: "name",
+          header: "Name",
+          width: 30,
+          style: {
+            header: { bold: true, alignment: "center" },
+            data: { alignment: "left" },
+          },
+        },
+        //Fecha de Alta
+        {
+          key: "hireDate",
+          header: "F*Alta",
+          width: 15,
+          style: {
+            header: { bold: true, alignment: "center" },
+            data: { alignment: "center" },
+          },
+        },
+        //Antiguedad
+        {
+          key: "seniority",
+          header: "Antiguedad",
+          width: 12,
+          style: {
+            header: { bold: true, alignment: "center" },
+            data: { alignment: "center" },
+          },
+        },
+        //Antiguedad
+        {
+          key: "days",
+          header: "Dias Disponibles",
+          width: 12,
+          style: {
+            header: { bold: true, alignment: "center" },
+            data: { alignment: "center" },
+          },
+        },
+        //Puesto
+        {
+          key: "position",
+          header: "Position",
+          width: 15,
+          style: {
+            header: { bold: true, alignment: "center" },
+            data: { alignment: "center" },
+          },
+        },
+        //Categoria
+        {
+          key: "category",
+          header: "Category",
+          width: 15,
+          style: {
+            header: { bold: true, alignment: "center" },
+            data: { alignment: "center" },
+          },
+        },
+      ],
+      rows,
+      format: dto.format,
+      fileName: "employee_vacation",
+      mimeType: "",
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        totalRecords: rows.length,
       },
-    ];
-
-    return this.excelService.buildWorkbookBuffer(sheets);
-  }
-
-  /**
-   * Maps data for the report (passthrough implementation).
-   * @param data The data to map
-   * @returns The mapped data
-   */
-  async map(data: any): Promise<any> {
-    return data;
+    });
   }
 }
