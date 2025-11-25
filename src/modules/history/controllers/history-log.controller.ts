@@ -26,11 +26,11 @@ export class HistoryLogController {
 
   @Get()
   async getEmployeeHistory(@Param("employeeId") employeeId: string) {
-    const [incidents, logs] = await Promise.all([
+    const [incidentsResponse, logs] = await Promise.all([
       this.employeeIncidentService.findByEmployee(parseInt(employeeId)),
       this.historyLogService.findByEntity("employee", parseInt(employeeId)),
     ]);
 
-    return { incidents, logs };
+    return { incidents: incidentsResponse.data, logs };
   }
 }
