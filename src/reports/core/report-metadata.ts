@@ -1,4 +1,4 @@
-// src/reports/core/report-metadata.ts
+//filepath: sae-backend/src/reports/core/report-metadata.ts
 /**
  * Metadata produced for each report generation.
  * Useful for audits, UI display, debugging and traceability.

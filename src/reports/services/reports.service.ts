@@ -1,57 +1,53 @@
-// filepath: src/reports/services/reports.service.ts
 import { Injectable, Logger } from "@nestjs/common";
-import { ReportFactory } from "@reports/factories/report-factory";
-import { ReportFormatFactory } from "../factories/report-format-factory";
 import { GenerateReportDto } from "../dto/generate-report.dto";
 import { ReportResult } from "../core/report-result";
+import { ReportStrategyFactory } from "../strategies/report-strategy.factory";
+import { ReportFormatterFactory } from "../formatters/report-formatter.factory";
 
 @Injectable()
 export class ReportsService {
   private readonly logger = new Logger(ReportsService.name);
 
   constructor(
-    private readonly reportFactory: ReportFactory,
-    private readonly formatFactory: ReportFormatFactory
+    private readonly strategyFactory: ReportStrategyFactory,
+    private readonly formatterFactory: ReportFormatterFactory
   ) {}
 
+  /**
+   * Genera el reporte final (PDF/XLSX/CSV/DOCX).
+   */
   async generate(dto: GenerateReportDto): Promise<ReportResult> {
-    const startTime = Date.now();
+    const start = Date.now();
     this.logger.log(
-      `Starting report generation: type=${dto.reportType}, format=${dto.format}`
+      `Generating report: type=${dto.reportType}, format=${dto.format}`
     );
 
     try {
-      const strategy = this.reportFactory.getStrategy(dto.reportType);
+      // 1) Obtener strategy del tipo de reporte
+      const strategy = this.strategyFactory.getStrategy(dto.reportType);
+
+      // 2) Obtener contexto de dominio (ReportContext)
       const context = await strategy.buildContext(dto);
 
-      const formatter = this.formatFactory.getFormatter(dto.format);
+      // 3) Obtener formatter según formato solicitado
+      const formatter = this.formatterFactory.getFormatter(dto.format);
+
+      // 4) Generar archivo final
       const result = await formatter.render(context);
 
-      const duration = Date.now() - startTime;
+      const ms = Date.now() - start;
       this.logger.log(
-        `Report generated successfully in ${duration}ms, size: ${result.buffer.length} bytes`
+        `Report generated successfully in ${ms}ms (size=${result.buffer.length} bytes)`
       );
 
       return result;
-    } catch (error) {
-      const duration = Date.now() - startTime;
+    } catch (err: any) {
+      const ms = Date.now() - start;
       this.logger.error(
-        `Report generation failed after ${duration}ms: ${error.message}`,
-        error.stack
+        `Report generation failed after ${ms}ms: ${err.message}`,
+        err.stack
       );
-      throw error;
+      throw err;
     }
-  }
-
-  async preview(dto: GenerateReportDto): Promise<any> {
-    const context = await (
-      await this.reportFactory.getStrategy(dto.reportType)
-    ).buildContext(dto);
-
-    return {
-      title: context.title,
-      columns: context.columns,
-      preview: context.rows.slice(0, 20),
-    };
   }
 }

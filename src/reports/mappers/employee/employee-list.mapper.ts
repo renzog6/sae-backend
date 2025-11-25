@@ -64,7 +64,6 @@ export class EmployeeListMapper {
         address: formatAddress(employee.person.address),
         phone: phoneContact?.contact.value || "N/A",
         email: emailContact?.contact.value || "N/A",
-        active: employee.isActive ? "Yes" : "No",
         status: employee.status,
       };
     });

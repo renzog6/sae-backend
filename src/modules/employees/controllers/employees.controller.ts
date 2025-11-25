@@ -13,7 +13,6 @@ import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { EmployeesService } from "../services/employees.service";
 import { CreateEmployeeDto } from "../dto/create-employee.dto";
 import { UpdateEmployeeDto } from "../dto/update-employee.dto";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
 import { EmployeeQueryDto } from "../dto/employee-query.dto";
 
 @ApiTags("employees")

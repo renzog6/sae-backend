@@ -1,39 +1,52 @@
-// filepath: src/reports/formatters/pdf.formatter.ts
+// filepath: sae-backend/src/reports/formatters/pdf.formatter.ts
+
 import { Injectable } from "@nestjs/common";
-import { ReportFormatter } from "./report-formatter";
+import { ReportFormatter } from "./report-formatter.interface";
 import { ReportContext } from "../core/report-context";
 import { ReportResult } from "../core/report-result";
-import PDFDocument from "pdfkit";
+import PDFDocument = require("pdfkit");
 
 @Injectable()
-export class PdfFormatter implements ReportFormatter {
+export class PDFFormatter implements ReportFormatter {
   readonly format = "pdf";
 
   async render(context: ReportContext): Promise<ReportResult> {
-    const doc = new PDFDocument({ margin: 30 });
-    const chunks: Buffer[] = [];
+    const doc = new PDFDocument({ margin: 40 });
+    const buffers: Buffer[] = [];
 
-    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("data", buffers.push.bind(buffers));
+    const endPromise = new Promise<Buffer>((resolve) =>
+      doc.on("end", () => resolve(Buffer.concat(buffers)))
+    );
 
+    // Title
     doc.fontSize(20).text(context.title, { align: "center" });
     doc.moveDown();
 
-    const headers = context.columns.map((c) => c.header).join(" | ");
-    doc.fontSize(12).text(headers);
+    // Table header
+    doc.fontSize(12);
+    context.columns.forEach((col) => {
+      doc.text(col.header + "   ", { continued: true });
+    });
     doc.moveDown();
 
+    // Rows
     context.rows.forEach((row) => {
-      const line = context.columns.map((c) => row[c.key]).join(" | ");
-      doc.text(line);
+      context.columns.forEach((col) => {
+        doc.text(String(row[col.key] ?? ""), { continued: true });
+      });
+      doc.moveDown();
     });
 
     doc.end();
 
+    const pdfBuffer = await endPromise;
+
     return {
-      buffer: Buffer.concat(chunks),
-      fileName: `${context.fileName}.pdf`,
+      buffer: pdfBuffer,
+      fileName: `${context.metadata?.fileName ?? "report"}.pdf`,
       mimeType: "application/pdf",
-      metadata: context.metadata,
+      metadata: context.metadata ?? {},
     };
   }
 }

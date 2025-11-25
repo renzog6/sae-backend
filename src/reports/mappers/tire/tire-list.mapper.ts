@@ -2,6 +2,7 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { mapTireStatus } from "../utils/status.util";
 
 /**
  * Maps tire list data for reports.
@@ -18,7 +19,7 @@ export class TireListMapper {
       const { status, brandId } = filters;
 
       const whereClause: any = {};
-      if (status) whereClause.status = status;
+      if (status) whereClause.status = mapTireStatus(status);
       if (brandId) whereClause.model = { brandId: parseInt(brandId) };
 
       const tires = await this.prisma.tire.findMany({

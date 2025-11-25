@@ -12,6 +12,18 @@ export const formatDateOnly = (value: Date | string): string => {
   return format(new Date(value), "dd/MM/yyyy", { locale: es });
 };
 
+/**
+ * Calculates the tenure (years and months) from a start date to the current date.
+ *
+ * @param start - The start date as a Date object or string
+ * @returns A string representing years and months in "years,months" format (e.g., "5,8" for 5 years and 8 months)
+ *
+ * @example
+ * ```typescript
+ * calculateTenure('2020-01-15') // Returns "5,8" for 5 years and 8 months from 2025
+ * calculateTenure(new Date('2020-01-15')) // Same result
+ * ```
+ */
 export const calculateTenure = (start: Date | string): string => {
   const startDate = new Date(start);
   const now = new Date();
@@ -24,8 +36,6 @@ export const calculateTenure = (start: Date | string): string => {
     months += 12;
   }
 
-  //return `${years} years ${months} months`;
-
-  //Solo numeros
+  //Años ,  Meses
   return `${years},${months}`;
 };

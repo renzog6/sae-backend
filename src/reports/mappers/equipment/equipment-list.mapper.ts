@@ -2,6 +2,7 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { mapEquipmentStatus } from "../utils/status.util";
 
 /**
  * Maps equipment list data for reports.
@@ -18,7 +19,7 @@ export class EquipmentListMapper {
       const { status, categoryId, typeId } = filters;
 
       const whereClause: any = {};
-      if (status) whereClause.status = status;
+      if (status) whereClause.status = mapEquipmentStatus(status);
       if (categoryId) whereClause.categoryId = parseInt(categoryId);
       if (typeId) whereClause.typeId = parseInt(typeId);
 

@@ -46,31 +46,4 @@ export class ReportsController {
     );
     res.send(result.buffer);
   }
-
-  @Post("preview")
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: "Preview report data",
-    description:
-      "Returns a preview of report data without generating the full file",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Report preview data",
-    schema: {
-      type: "object",
-      properties: {
-        title: { type: "string" },
-        columns: { type: "array" },
-        preview: { type: "array" },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: "Invalid request parameters",
-  })
-  async preview(@Body() dto: GenerateReportDto) {
-    return this.reportsService.preview(dto);
-  }
 }

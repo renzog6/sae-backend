@@ -1,9 +1,7 @@
-// filepath: src/reports/core/report-result.ts
-import { ReportMetadata } from "./report-metadata";
-
+// filepath: sae-backend/src/reports/core/report-result.ts
 export interface ReportResult {
   buffer: Buffer;
   fileName: string;
   mimeType: string;
-  metadata: ReportMetadata;
+  metadata?: Record<string, any>;
 }

@@ -1,36 +1,32 @@
-// filepath: src/reports/formatters/docx.formatter.ts
+// filepath: sae-backend/src/reports/formatters/docx.formatter.ts
+
 import { Injectable } from "@nestjs/common";
-import { ReportFormatter } from "./report-formatter";
+import { ReportFormatter } from "./report-formatter.interface";
 import { ReportContext } from "../core/report-context";
 import { ReportResult } from "../core/report-result";
-
 import {
   Document,
   Packer,
   Paragraph,
-  HeadingLevel,
   Table,
   TableRow,
   TableCell,
-  WidthType,
+  HeadingLevel,
 } from "docx";
 
 @Injectable()
-export class DocxFormatter implements ReportFormatter {
+export class DOCXFormatter implements ReportFormatter {
   readonly format = "docx";
 
   async render(context: ReportContext): Promise<ReportResult> {
+    const title = new Paragraph({
+      text: context.title,
+      heading: HeadingLevel.HEADING_1,
+    });
+
     const headerRow = new TableRow({
       children: context.columns.map(
-        (c) =>
-          new TableCell({
-            children: [
-              new Paragraph({
-                text: c.header,
-                heading: HeadingLevel.HEADING_3,
-              }),
-            ],
-          })
+        (col) => new TableCell({ children: [new Paragraph(col.header)] })
       ),
     });
 
@@ -38,42 +34,34 @@ export class DocxFormatter implements ReportFormatter {
       (row) =>
         new TableRow({
           children: context.columns.map(
-            (c) =>
+            (col) =>
               new TableCell({
-                children: [new Paragraph(String(row[c.key] ?? ""))],
+                children: [new Paragraph(String(row[col.key] ?? ""))],
               })
           ),
         })
     );
 
     const table = new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
       rows: [headerRow, ...dataRows],
     });
 
-    const document = new Document({
+    const doc = new Document({
       sections: [
         {
-          children: [
-            new Paragraph({ text: context.title, heading: HeadingLevel.TITLE }),
-            new Paragraph({
-              text: `Generated: ${context.metadata.generatedAt}`,
-            }),
-            new Paragraph(" "),
-            table,
-          ],
+          children: [title, table],
         },
       ],
     });
 
-    const buffer = await Packer.toBuffer(document);
+    const buffer = await Packer.toBuffer(doc);
 
     return {
       buffer,
-      fileName: `${context.fileName}.docx`,
+      fileName: `${context.metadata?.fileName ?? "report"}.docx`,
       mimeType:
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      metadata: context.metadata,
+      metadata: context.metadata ?? {},
     };
   }
 }

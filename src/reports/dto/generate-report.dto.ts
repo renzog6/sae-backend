@@ -4,7 +4,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { ReportType } from "@reports/core/report-type.enum";
 
 export enum ReportFormat {
-  EXCEL = "excel",
+  XLSX = "xlsx",
   PDF = "pdf",
   CSV = "csv",
   DOCX = "docx",

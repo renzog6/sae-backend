@@ -1,18 +1,18 @@
-// filepath: sae-backend/src/reports/mappers/employee/employee-vacation.mapper.ts
+// filepath: sae-backend/src/reports/mappers/employee/employee-vacation-balance.mapper.ts
 import { calculateTenure } from "@common/utils/date.util";
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { calculateAvailableVacationDays } from "../utils/vacationDays.util";
 
 /**
- * Maps employee vacation days diponibles data for reports.
+ * Maps employee vacation balance data for reports.
  * @param filters Optional filters ()
- * @returns Array of vacation data objects
+ * @returns Array of vacation balance data objects
  * @throws InternalServerErrorException if data mapping fails
  */
 
 @Injectable()
-export class EmployeeVacationMapper {
+export class EmployeeVacationBalanceMapper {
   constructor(private readonly prisma: PrismaService) {}
   async map(filters: Record<string, any>): Promise<any[]> {
     try {

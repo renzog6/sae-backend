@@ -13,8 +13,22 @@ export class LoggerMiddleware implements NestMiddleware {
       req.headers["x-correlation-id"]?.toString() ?? randomUUID();
     res.setHeader("x-correlation-id", correlationId);
 
+    // Log básico de request
     this.logger.debug(
       `Incoming request: ${req.method} ${req.baseUrl + req.path} [CID=${correlationId}]`
+    );
+
+    // Log de parámetros
+    this.logger.debug(
+      `Parameters: ${JSON.stringify(
+        {
+          query: req.query,
+          params: req.params,
+          body: req.body,
+        },
+        null,
+        2
+      )} [CID=${correlationId}]`
     );
 
     res.on("finish", () => {

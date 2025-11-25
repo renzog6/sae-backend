@@ -1,48 +1,30 @@
-// filepath: src/reports/core/report-context.ts
-import { ReportMetadata } from "./report-metadata";
-
+// filepath: sae-backend/src/reports/core/report-context.ts
 export interface ReportColumn {
   key: string;
   header: string;
-  width?: number | string;
-  format?: (value: any) => string | number;
+  width?: number;
+
+  /** "string" | "number" | "date" | "boolean" */
+  type?: string;
+
+  /** ExcelJS numFmt (solo para number/date) */
+  format?: string;
+
+  /** Estilos opcionales para excel / pdf */
   style?: {
-    header?: {
-      bold?: boolean;
-      alignment?: "left" | "center" | "right";
-    };
-    data?: {
-      alignment?: "left" | "center" | "right";
-    };
+    header?: Record<string, any>;
+    data?: Record<string, any>;
   };
 }
 
 export interface ReportContext {
   title: string;
   columns: ReportColumn[];
-  rows: Record<string, any>[];
-  format: string;
-  fileName: string;
-  mimeType: string;
-  metadata: ReportMetadata;
-  options?: Record<string, any>;
+  rows: any[];
+
+  metadata?: Record<string, any>;
 }
 
-export function createReportContext(
-  params: Partial<ReportContext> & {
-    title: string;
-    columns: ReportColumn[];
-    rows?: Record<string, any>[];
-  }
-): ReportContext {
-  return {
-    title: params.title,
-    columns: params.columns,
-    rows: params.rows ?? [],
-    format: params.format ?? "",
-    fileName: params.fileName ?? "report",
-    mimeType: params.mimeType ?? "application/octet-stream",
-    metadata: params.metadata ?? { generatedAt: new Date().toISOString() },
-    options: params.options ?? {},
-  };
+export function createReportContext(ctx: ReportContext): ReportContext {
+  return ctx;
 }

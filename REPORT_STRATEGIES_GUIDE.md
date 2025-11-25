@@ -328,8 +328,8 @@ export class ReportFactory {
 
   private initializeStrategies(): void {
     this.strategies.set(
-      NewReportType.EMPLOYEE_VACATION,
-      this.employeeVacationStrategy
+      NewReportType.EMPLOYEE_VACATION_BALANCE,
+      this.employeeVacationBalanceStrategy
     );
     this.strategies.set(NewReportType.EMPLOYEE_LIST, this.employeeListStrategy);
     this.strategies.set(
