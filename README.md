@@ -8,7 +8,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 
 - **🏗️ Arquitectura Modular Empresarial**: 40+ módulos independientes organizados por dominio de negocio
 - **🔐 Autenticación JWT Robusta**: Sistema de login con refresh tokens, roles jerárquicos (USER, ADMIN, MANAGER) y guards avanzados
-- **🗄️ Base de Datos Compleja**: MySQL 8.0+ con 50+ modelos relacionados, migraciones automatizadas y índices estratégicos
+- **🗄️ Base de Datos Compleja**: MySQL 8.0+ con 50+ modelos relacionados, migraciones automatizadas e índices estratégicos
 - **📚 Documentación Interactiva**: Swagger/OpenAPI 7.4+ completa con UI interactiva en `/api/docs`
 - **📄 Gestión Documental Avanzada**: Subida/descarga de archivos con organización automática por entidad y límites configurables
 - **📊 Historial Auditado Completo**: Sistema de logs polimórfico para eventos, incidentes, mantenimiento y operaciones críticas
@@ -350,9 +350,6 @@ src/
 │   ├── controllers/                    # 🌐 Logs polimórficos
 │   ├── services/                       # 📊 Lógica de auditoría
 │   └── dto/                            # 📝 HistoryDtos
-├── 📁 health/                          # 🏥 Health checks y monitoreo
-│   ├── health.controller.ts            # 🌐 Endpoints de salud
-│   └── health.module.ts                # 📦 Módulo health
 ├── 📁 reports/                         # 📊 Sistema unificado de reportes
 │   ├── reports.module.ts               # 📦 Módulo principal
 │   ├── controllers/                    # 🌐 Controladores HTTP
@@ -376,7 +373,7 @@ src/
 │   │   ├── report-strategy.interface.ts # 🎯 Interfaz base
 │   │   ├── employee/                   # 👷 Estrategias RRHH
 │   │   ├── equipment/                  # 🔧 Estrategias flota
-│   │   └── tire/                       # � Estrategias neumáticos
+│   │   └── tire/                       #  Estrategias neumáticos
 │   ├── core/                           # ⚙️ Componentes core
 │   │   ├── report-type.enum.ts         # 📋 Tipos de reportes
 │   │   ├── report-format.enum.ts       # 📄 Formatos disponibles
@@ -959,7 +956,7 @@ Authorization: Bearer <token>
 1. **Registro inicial**: Se crea `TireRecap` con proveedor y costo
 2. **Validaciones**: Verificación de estado actual del neumático
 3. **Cálculo automático**: `recapNumber` incremental por neumático
-4. **Transición de estado**: `IN_USE` → `RECAP` (bloquea operaciones)
+4. **Transición de estado**: `IN_USE` → `RECAP` → `IN_USE` (post-proceso)
 5. **Evento auditado**: Registro en `TireEvent` con metadata completa
 6. **Post-proceso**: Retorno a `IN_USE` vía montaje posterior
 7. **Reportes**: Actualización automática de métricas de costo
@@ -1136,7 +1133,7 @@ El módulo de reportes implementa un **sistema unificado y extensible** para la 
 #### Tipos de Reportes Disponibles
 
 - `EMPLOYEE_LIST` - Lista completa de empleados
-- `EMPLOYEE_VACATION` - Reporte de vacaciones de empleados
+- `EMPLOYEE_VACATION_BALANCE` - Reporte de balance de vacaciones de empleados
 - `EQUIPMENT_LIST` - Inventario de equipos
 - `TIRE_LIST` - Gestión de neumáticos
 
@@ -1306,6 +1303,7 @@ erDiagram
     Company ||--o{ Document : stores
     Company ||--o{ Product : sells
     Company ||--o{ Part : supplies
+    Company ||--o{ HistoryLog : logs
 
     Person ||--o{ Employee : is
     Person ||--o{ Contact : has
@@ -1316,12 +1314,14 @@ erDiagram
     Employee ||--o{ Document : owns
     Employee ||--o{ Inspection : performs
     Employee ||--o{ EmployeeIncident : has
+    Employee ||--o{ HistoryLog : logs
 
     Equipment ||--o{ Inspection : undergoes
     Equipment ||--o{ EquipmentMaintenance : receives
     Equipment ||--o{ Document : has
     Equipment ||--o{ TireAssignment : has_tires
     Equipment ||--o{ EquipmentAxle : configured
+    Equipment ||--o{ HistoryLog : logs
 
     Country ||--|{ Province : contains
     Province ||--|{ City : contains
@@ -1375,15 +1375,13 @@ erDiagram
 ##### Sistema de Neumáticos Especializado
 
 - **TireStatus**: IN_STOCK, IN_USE, UNDER_REPAIR, RECAP, DISCARDED
-- **TirePosition**: DI, DD, E1I, E1D, E2I, E2D, E3I, E3D, E1II, E1ID, etc.
+- **TirePosition**: DI, DD, E1I, E1D, E2I, E2D, etc. (delanteros, ejes traseros, duales)
 - **TireEventType**: ASSIGNMENT, UNASSIGNMENT, ROTATION, INSPECTION, RECAP, DISCARD, OTHER
-- **TireSide**: LEFT, RIGHT, INNER, OUTER
 
 ##### Historial y Auditoría
 
 - **HistoryType**: EMPLOYEE_ILLNESS, EMPLOYEE_WARNING, VACATION_ASSIGNED, EQUIPMENT_MAINTENANCE, etc.
 - **SeverityLevel**: INFO, WARNING, CRITICAL, SUCCESS
-- **EmployeeIncidentType**: SICK_LEAVE, DISCIPLINARY, WARNING, ACCIDENT, FAMILY_EMERGENCY
 
 ### Optimización de Performance
 
@@ -1740,9 +1738,12 @@ module.exports = {
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "moduleNameMapping": {
+  "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/../src/$1"
-  }
+  },
+  "collectCoverageFrom": ["src/**/*.(t|j)s"],
+  "coverageDirectory": "coverage-e2e",
+  "verbose": true
 }
 ```
 
@@ -1926,32 +1927,63 @@ npx husky add .husky/pre-commit "npm run lint && npm run test"
 ```dockerfile
 # Dockerfile optimizado para producción
 FROM node:22-alpine AS base
-RUN apk add --no-cache openssl ca-certificates curl && corepack enable
+
+# Instalar dependencias del sistema necesarias
+RUN apk add --no-cache \
+    openssl \
+    ca-certificates \
+    curl \
+    && corepack enable
 
 WORKDIR /app
+
+# Stage de dependencias de producción
+FROM base AS deps
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev --ignore-scripts --loglevel=error
 
+# Stage de dependencias de desarrollo para build
+FROM base AS deps-dev
+COPY package.json package-lock.json* ./
+RUN npm install --include=dev --loglevel=error
+
+# Stage de build
 FROM base AS builder
+WORKDIR /app
 COPY --from=deps-dev /app/node_modules ./node_modules
 COPY . .
+# Generar el cliente Prisma ANTES del build
 RUN npx prisma generate
-RUN npm run build
+RUN npm run build && ls -la dist/
+RUN date > dummy
 
+# Stage de producción con cliente Prisma generado
 FROM base AS runner
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/assets ./assets
+WORKDIR /app
 
+# Crear usuario y grupo no root
+RUN addgroup -g 1001 -S nodejs \
+    && adduser -S -u 1001 -G nodejs nestjs
+
+# Copiar archivos necesarios con los permisos correctos
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nestjs:nodejs /app/src ./src
+COPY --from=builder --chown=nestjs:nodejs /app/assets ./assets
+
+# Variables de entorno
 USER nestjs
-ENV NODE_ENV=production PORT=3005
+ENV NODE_ENV=production
+ENV PORT=3005
 EXPOSE 3005
 
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3005/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+    CMD node -e "require('http').get('http://localhost:3005', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
+# Comando de inicio
 CMD ["node", "dist/src/main.js"]
 ```
 
