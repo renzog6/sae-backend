@@ -9,7 +9,12 @@ export const formatDate = (value: Date | string): string => {
 
 export const formatDateOnly = (value: Date | string): string => {
   if (!value) return "";
-  return format(new Date(value), "dd/MM/yyyy", { locale: es });
+  const date = new Date(value);
+  // Usar métodos UTC para evitar shifts de zona horaria
+  const day = date.getUTCDate().toString().padStart(2, "0");
+  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+  const year = date.getUTCFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 /**
