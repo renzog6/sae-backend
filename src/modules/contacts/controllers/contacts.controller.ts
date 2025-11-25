@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   UseGuards,
@@ -79,7 +79,7 @@ export class ContactsController {
     return this.contactsService.findOne(id);
   }
 
-  @Patch(":id(\\d+)")
+  @Put(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a contact" })

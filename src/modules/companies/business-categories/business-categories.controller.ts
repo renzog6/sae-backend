@@ -6,7 +6,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
+  Put,
   Post,
   Query,
   UseGuards,
@@ -67,7 +67,7 @@ export class BusinessCategoriesController {
     return this.service.create(dto).then((data) => ({ data }));
   }
 
-  @Patch(":id(\\d+)")
+  @Put(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a business category" })
@@ -96,7 +96,7 @@ export class BusinessCategoriesController {
     return this.service.remove(id).then((data) => ({ data }));
   }
 
-  @Patch(":id(\\d+)/restore")
+  @Put(":id(\\d+)/restore")
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Restore a deleted business category" })

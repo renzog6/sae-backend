@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -37,7 +37,7 @@ export class EmployeeCategoriesController {
     return this.employeeCategoriesService.findOne(+id);
   }
 
-  @Patch(":id")
+  @Put(":id")
   update(
     @Param("id") id: string,
     @Body() updateEmployeeCategoryDto: UpdateEmployeeCategoryDto

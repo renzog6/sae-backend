@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -64,7 +64,7 @@ export class AddressesController {
     return this.addressesService.createForCompany(+companyId, dto);
   }
 
-  @Patch(":id")
+  @Put(":id")
   @ApiOperation({ summary: "Update address" })
   @ApiParam({ name: "id", description: "Address ID" })
   @ApiResponse({ status: 200, description: "Address updated successfully" })

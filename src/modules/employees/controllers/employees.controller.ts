@@ -5,7 +5,7 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
+  Put,
   Post,
   Query,
 } from "@nestjs/common";
@@ -37,7 +37,7 @@ export class EmployeesController {
     return this.employeesService.create(dto).then((data) => ({ data }));
   }
 
-  @Patch(":id")
+  @Put(":id")
   update(@Param("id") id: string, @Body() dto: UpdateEmployeeDto) {
     return this.employeesService.update(+id, dto).then((data) => ({ data }));
   }

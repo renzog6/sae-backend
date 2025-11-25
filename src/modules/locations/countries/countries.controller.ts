@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -42,7 +42,7 @@ export class CountriesController {
     return this.countriesService.create(dto);
   }
 
-  @Patch(":id")
+  @Put(":id")
   @ApiOperation({ summary: "Update country" })
   @ApiParam({ name: "id", description: "Country ID" })
   @ApiResponse({ status: 200, description: "Country updated successfully" })

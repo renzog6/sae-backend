@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -44,7 +44,7 @@ export class EmployeeVacationsController {
     return this.employeeVacationsService.findOne(+id);
   }
 
-  @Patch(":id")
+  @Put(":id")
   update(
     @Param("id") id: string,
     @Body() updateEmployeeVacationDto: UpdateEmployeeVacationDto

@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   UseGuards,
@@ -67,7 +67,7 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Patch(":id")
+  @Put(":id")
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a user" })

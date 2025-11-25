@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -178,7 +178,7 @@ export class FamilyController {
     return this.familyService.findOne(+id).then((data) => ({ data }));
   }
 
-  @Patch(":id")
+  @Put(":id")
   @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({
     summary: "Update a family relationship",

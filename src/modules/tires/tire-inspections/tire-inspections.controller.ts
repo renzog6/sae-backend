@@ -5,7 +5,7 @@ import {
   Post,
   Body,
   Param,
-  Patch,
+  Put,
   Delete,
   Query,
 } from "@nestjs/common";
@@ -35,7 +35,7 @@ export class TireInspectionsController {
     return this.service.findOne(+id);
   }
 
-  @Patch(":id")
+  @Put(":id")
   update(@Param("id") id: string, @Body() dto: UpdateTireInspectionDto) {
     return this.service.update(+id, dto);
   }

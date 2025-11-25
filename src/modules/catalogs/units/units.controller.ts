@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   ParseIntPipe,
@@ -58,7 +58,7 @@ export class UnitsController {
     return this.unitsService.findOne(id);
   }
 
-  @Patch(":id(\\d+)")
+  @Put(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a unit" })
@@ -81,7 +81,7 @@ export class UnitsController {
     return this.unitsService.remove(id);
   }
 
-  @Patch(":id(\\d+)/restore")
+  @Put(":id(\\d+)/restore")
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Restore a deleted unit" })

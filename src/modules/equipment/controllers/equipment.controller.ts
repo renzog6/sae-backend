@@ -5,7 +5,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -156,7 +156,7 @@ export class EquipmentController {
   // -------------------------------------------------------------------------
   // UPDATE
   // -------------------------------------------------------------------------
-  @Patch(":id")
+  @Put(":id")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiOperation({
     summary: "Update equipment by ID",

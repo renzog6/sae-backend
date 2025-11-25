@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -58,7 +58,7 @@ export class EquipmentModelController {
     return this.equipmentModelService.findOne(+id);
   }
 
-  @Patch(":id")
+  @Put(":id")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiOperation({ summary: "Update equipment model by id" })
   @ApiResponse({

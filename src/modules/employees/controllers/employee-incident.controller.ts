@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
+  Put,
   Delete,
   Body,
   Param,
@@ -44,7 +44,7 @@ export class EmployeeIncidentController {
     );
   }
 
-  @Patch(":id")
+  @Put(":id")
   async update(
     @Param("id") id: string,
     @Body() updateIncidentDto: UpdateEmployeeIncidentDto

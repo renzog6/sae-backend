@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   UseGuards,
@@ -59,7 +59,7 @@ export class CompaniesController {
     return this.companiesService.findOne(id).then((data) => ({ data }));
   }
 
-  @Patch(":id(\\d+)")
+  @Put(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a company" })

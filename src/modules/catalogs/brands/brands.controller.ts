@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   ParseIntPipe,
@@ -58,7 +58,7 @@ export class BrandsController {
     return this.brandsService.findOne(id).then((data) => ({ data }));
   }
 
-  @Patch(":id(\\d+)")
+  @Put(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a brand" })
@@ -83,7 +83,7 @@ export class BrandsController {
     return this.brandsService.remove(id).then((data) => ({ data }));
   }
 
-  @Patch(":id(\\d+)/restore")
+  @Put(":id(\\d+)/restore")
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Restore a deleted brand" })

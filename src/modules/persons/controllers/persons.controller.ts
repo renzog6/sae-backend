@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -39,7 +39,7 @@ export class PersonsController {
     return this.personsService.findOne(+id).then((data) => ({ data }));
   }
 
-  @Patch(":id")
+  @Put(":id")
   update(@Param("id") id: string, @Body() updatePersonDto: UpdatePersonDto) {
     return this.personsService
       .update(+id, updatePersonDto)

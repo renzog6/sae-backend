@@ -4,7 +4,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -60,7 +60,7 @@ export class EquipmentCategoryController {
     return this.equipmentCategoryService.findOne(+id);
   }
 
-  @Patch(":id")
+  @Put(":id")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiOperation({ summary: "Update equipment category by id" })
   @ApiResponse({
