@@ -26,8 +26,8 @@ export class FamilyService extends BaseService<any> {
     ];
   }
 
-  create(dto: CreateFamilyDto) {
-    return this.prisma.family.create({
+  async create(dto: CreateFamilyDto) {
+    const family = await this.prisma.family.create({
       data: {
         relationship: dto.relationship,
         person: { connect: { id: dto.personId } },
@@ -35,6 +35,7 @@ export class FamilyService extends BaseService<any> {
       },
       include: { person: true, relative: true },
     });
+    return { data: family };
   }
 
   async findAll(
@@ -67,11 +68,12 @@ export class FamilyService extends BaseService<any> {
       updateData.relative = { connect: { id: (dto as any).relativeId } };
     }
 
-    return this.prisma.family.update({
+    const family = await this.prisma.family.update({
       where: { id },
       data: updateData,
       include: { person: true, relative: true },
     });
+    return { data: family };
   }
 
   async remove(id: number) {

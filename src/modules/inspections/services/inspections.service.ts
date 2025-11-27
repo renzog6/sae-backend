@@ -1,11 +1,35 @@
 // filepath: sae-backend/src/modules/inspections/services/inspections.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class InspectionsService {
-  constructor(private prisma: PrismaService) {}
+export class InspectionsService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.inspection;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { equipment: { name: { contains: q, mode: "insensitive" } } },
+      {
+        employee: {
+          person: { firstName: { contains: q, mode: "insensitive" } },
+        },
+      },
+      {
+        employee: {
+          person: { lastName: { contains: q, mode: "insensitive" } },
+        },
+      },
+      { inspectionType: { name: { contains: q, mode: "insensitive" } } },
+    ];
+  }
 
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
@@ -15,20 +39,7 @@ export class InspectionsService {
     // Build search filter
     const where: any = {};
     if (q) {
-      where.OR = [
-        { equipment: { name: { contains: q, mode: "insensitive" } } },
-        {
-          employee: {
-            person: { firstName: { contains: q, mode: "insensitive" } },
-          },
-        },
-        {
-          employee: {
-            person: { lastName: { contains: q, mode: "insensitive" } },
-          },
-        },
-        { inspectionType: { name: { contains: q, mode: "insensitive" } } },
-      ];
+      where.OR = this.buildSearchConditions(q);
     }
 
     // Execute query with transaction
@@ -48,17 +59,6 @@ export class InspectionsService {
     ]);
 
     return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
-  }
-
-  async findOne(id: number) {
-    return this.prisma.inspection.findUnique({
-      where: { id },
-      include: {
-        equipment: true,
-        employee: true,
-        inspectionType: true,
-      },
-    });
   }
 
   async findInspectionTypes() {

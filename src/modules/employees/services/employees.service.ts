@@ -148,7 +148,7 @@ export class EmployeesService extends BaseService<any> {
       }),
     });
 
-    return employee;
+    return { data: employee };
   }
 
   /**
@@ -322,7 +322,7 @@ export class EmployeesService extends BaseService<any> {
    */
   async update(id: number, dto: UpdateEmployeeDto) {
     await this.findOne(id);
-    return this.prisma.employee.update({
+    const employee = await this.prisma.employee.update({
       where: { id },
       data: {
         ...(typeof dto.employeeCode !== "undefined"
@@ -365,6 +365,7 @@ export class EmployeesService extends BaseService<any> {
         vacations: true,
       },
     });
+    return { data: employee };
   }
 
   /**

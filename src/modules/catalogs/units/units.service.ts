@@ -1,19 +1,33 @@
 // filepath: sae-backend/src/modules/catalogs/units/units.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateUnitDto } from "./dto/create-unit.dto";
-import { UpdateUnitDto } from "./dto/update-unit.dto";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class UnitsService {
-  constructor(private readonly prisma: PrismaService) {}
+export class UnitsService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.unit;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { abbreviation: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async create(createUnitDto: CreateUnitDto) {
     const { name, abbreviation } = createUnitDto;
-    return this.prisma.unit.create({
+    const unit = await this.prisma.unit.create({
       data: { name, abbreviation },
     });
+    return { data: unit };
   }
 
   async findAll(
@@ -54,39 +68,18 @@ export class UnitsService {
     );
   }
 
-  async findOne(id: number) {
-    const unit = await this.prisma.unit.findFirst({
-      where: {
-        id,
-        deletedAt: null, // Don't return deleted units
-      },
-    });
-    if (!unit) {
-      throw new NotFoundException(`Unit with id ${id} not found`);
-    }
-    return unit;
-  }
-
-  async update(id: number, updateUnitDto: UpdateUnitDto) {
-    // Ensure unit exists and is not deleted
-    await this.findOne(id);
-    return this.prisma.unit.update({
-      where: { id },
-      data: updateUnitDto,
-    });
-  }
-
-  async remove(id: number) {
+  async remove(id: number): Promise<{ message: string }> {
     // Soft delete: set both isActive to false and deletedAt
     // Ensure unit exists
     await this.findOne(id);
-    return this.prisma.unit.update({
+    await this.prisma.unit.update({
       where: { id },
       data: {
         isActive: false,
         deletedAt: new Date(),
       },
     });
+    return { message: "Unit deleted successfully" };
   }
 
   async restore(id: number) {
@@ -99,12 +92,13 @@ export class UnitsService {
       throw new NotFoundException(`Unit with id ${id} not found`);
     }
 
-    return this.prisma.unit.update({
+    const restoredUnit = await this.prisma.unit.update({
       where: { id },
       data: {
         isActive: true,
         deletedAt: null,
       },
     });
+    return { data: restoredUnit };
   }
 }

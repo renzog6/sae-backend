@@ -1,18 +1,31 @@
 //filepath: sae-backend/src/tires/tire-sizes/tire-sizes.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 import { CreateTireSizeDto } from "./dto/create-tire-size.dto";
 import { UpdateTireSizeDto } from "./dto/update-tire-size.dto";
 
 @Injectable()
-export class TireSizesService {
-  constructor(private readonly prisma: PrismaService) {}
+export class TireSizesService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.tireSize;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [{ mainCode: { contains: q, mode: "insensitive" } }];
+  }
 
   async create(data: CreateTireSizeDto) {
-    return this.prisma.tireSize.create({
+    const size = await this.prisma.tireSize.create({
       data,
       include: { aliases: true },
     });
+    return { data: size };
   }
 
   async findAll(options?: { page?: number; limit?: number; query?: string }) {
@@ -61,23 +74,25 @@ export class TireSizesService {
       include: { aliases: true },
     });
     if (!size) throw new NotFoundException("Tire size not found");
-    return size;
+    return { data: size };
   }
 
   async update(id: number, data: UpdateTireSizeDto) {
     await this.findOne(id); // Check if exists
-    return this.prisma.tireSize.update({
+    const size = await this.prisma.tireSize.update({
       where: { id },
       data,
       include: { aliases: true },
     });
+    return { data: size };
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<{ message: string }> {
     await this.findOne(id); // Check if exists
-    return this.prisma.tireSize.delete({
+    await this.prisma.tireSize.delete({
       where: { id },
     });
+    return { message: "Tire size deleted successfully" };
   }
 
   async getAliases(sizeId: number) {

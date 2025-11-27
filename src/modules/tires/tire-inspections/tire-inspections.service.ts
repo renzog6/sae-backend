@@ -72,7 +72,7 @@ export class TireInspectionsService {
       },
     });
 
-    return result;
+    return { data: result };
   }
 
   async findAll(
@@ -179,7 +179,7 @@ export class TireInspectionsService {
       include: { tire: true },
     });
     if (!inspection) throw new NotFoundException("Inspection not found");
-    return inspection;
+    return { data: inspection };
   }
 
   async findByTire(tireId: number) {
@@ -193,19 +193,21 @@ export class TireInspectionsService {
     // Validar que existe
     await this.findOne(id);
 
-    return this.prisma.tireInspection.update({
+    const inspection = await this.prisma.tireInspection.update({
       where: { id },
       data: updateDto,
       include: { tire: true },
     });
+    return { data: inspection };
   }
 
   async remove(id: number) {
     // Validar que existe
     await this.findOne(id);
 
-    return this.prisma.tireInspection.delete({
+    await this.prisma.tireInspection.delete({
       where: { id },
     });
+    return { message: "Tire inspection deleted successfully" };
   }
 }

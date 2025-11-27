@@ -64,9 +64,7 @@ export class FamilyController {
   })
   @ApiResponse({ status: 404, description: "Not found - Person not found" })
   create(@Body() createFamilyDto: CreateFamilyDto) {
-    return this.familyService
-      .create(createFamilyDto)
-      .then((data) => ({ data }));
+    return this.familyService.create(createFamilyDto);
   }
 
   @Get()
@@ -175,7 +173,7 @@ export class FamilyController {
   })
   @ApiResponse({ status: 404, description: "Family relationship not found" })
   findOne(@Param("id") id: string) {
-    return this.familyService.findOne(+id).then((data) => ({ data }));
+    return this.familyService.findOne(+id);
   }
 
   @Put(":id")
@@ -216,9 +214,7 @@ export class FamilyController {
   })
   @ApiResponse({ status: 404, description: "Family relationship not found" })
   update(@Param("id") id: string, @Body() updateFamilyDto: UpdateFamilyDto) {
-    return this.familyService
-      .update(+id, updateFamilyDto)
-      .then((data) => ({ data }));
+    return this.familyService.update(+id, updateFamilyDto);
   }
 
   @Delete(":id")
@@ -245,6 +241,6 @@ export class FamilyController {
   })
   @ApiResponse({ status: 404, description: "Family relationship not found" })
   remove(@Param("id") id: string) {
-    return this.familyService.remove(+id).then((data) => ({ data }));
+    return this.familyService.remove(+id);
   }
 }

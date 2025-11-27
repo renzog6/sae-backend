@@ -38,7 +38,14 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Create a new user" })
-  @ApiResponse({ status: 201, description: "User created successfully" })
+  @ApiResponse({
+    status: 201,
+    description: "User created successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/User" } },
+    },
+  })
   @ApiResponse({ status: 400, description: "Bad request" })
   @ApiResponse({ status: 409, description: "Email already in use" })
   create(@Body() createUserDto: CreateUserDto) {
@@ -61,7 +68,14 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Get a user by ID" })
-  @ApiResponse({ status: 200, description: "User retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "User retrieved successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/User" } },
+    },
+  })
   @ApiResponse({ status: 404, description: "User not found" })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
@@ -71,7 +85,14 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a user" })
-  @ApiResponse({ status: 200, description: "User updated successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "User updated successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/User" } },
+    },
+  })
   @ApiResponse({ status: 404, description: "User not found" })
   @ApiResponse({ status: 409, description: "Email already in use" })
   update(

@@ -35,7 +35,14 @@ export class UnitsController {
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Create a new unit" })
-  @ApiResponse({ status: 201, description: "Unit created successfully" })
+  @ApiResponse({
+    status: 201,
+    description: "Unit created successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Unit" } },
+    },
+  })
   @ApiResponse({ status: 400, description: "Bad request" })
   create(@Body() createUnitDto: CreateUnitDto) {
     return this.unitsService.create(createUnitDto);
@@ -52,7 +59,14 @@ export class UnitsController {
   @Get(":id(\\d+)")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Get a unit by ID" })
-  @ApiResponse({ status: 200, description: "Unit retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Unit retrieved successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Unit" } },
+    },
+  })
   @ApiResponse({ status: 404, description: "Unit not found" })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.unitsService.findOne(id);
@@ -62,7 +76,14 @@ export class UnitsController {
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a unit" })
-  @ApiResponse({ status: 200, description: "Unit updated successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Unit updated successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Unit" } },
+    },
+  })
   @ApiResponse({ status: 404, description: "Unit not found" })
   update(
     @Param("id", ParseIntPipe) id: number,

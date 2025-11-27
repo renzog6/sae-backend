@@ -38,7 +38,7 @@ export class ContactsService {
       },
     });
 
-    return contact;
+    return { data: contact };
   }
 
   async findAll(
@@ -164,7 +164,7 @@ export class ContactsService {
       throw new NotFoundException(`Contact with ID ${id} not found`);
     }
 
-    return contact;
+    return { data: contact };
   }
 
   async update(id: string, updateContactDto: UpdateContactDto) {
@@ -222,7 +222,7 @@ export class ContactsService {
     }
     if (ops.length) await Promise.all(ops);
 
-    return this.findOne(String(contact.id));
+    return await this.findOne(String(contact.id));
   }
 
   async remove(id: string) {

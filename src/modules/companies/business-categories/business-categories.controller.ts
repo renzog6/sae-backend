@@ -48,10 +48,14 @@ export class BusinessCategoriesController {
   @ApiResponse({
     status: 200,
     description: "Business category retrieved successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/BusinessCategory" } },
+    },
   })
   @ApiResponse({ status: 404, description: "Business category not found" })
   findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.service.findOne(id).then((data) => ({ data }));
+    return this.service.findOne(id);
   }
 
   @Post()
@@ -61,10 +65,14 @@ export class BusinessCategoriesController {
   @ApiResponse({
     status: 201,
     description: "Business category created successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/BusinessCategory" } },
+    },
   })
   @ApiResponse({ status: 400, description: "Bad request" })
   create(@Body() dto: CreateBusinessCategoryDto) {
-    return this.service.create(dto).then((data) => ({ data }));
+    return this.service.create(dto);
   }
 
   @Put(":id(\\d+)")
@@ -74,13 +82,17 @@ export class BusinessCategoriesController {
   @ApiResponse({
     status: 200,
     description: "Business category updated successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/BusinessCategory" } },
+    },
   })
   @ApiResponse({ status: 404, description: "Business category not found" })
   update(
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: UpdateBusinessCategoryDto
   ) {
-    return this.service.update(id, dto).then((data) => ({ data }));
+    return this.service.update(id, dto);
   }
 
   @Delete(":id(\\d+)")
@@ -93,7 +105,7 @@ export class BusinessCategoriesController {
   })
   @ApiResponse({ status: 404, description: "Business category not found" })
   remove(@Param("id", ParseIntPipe) id: number) {
-    return this.service.remove(id).then((data) => ({ data }));
+    return this.service.remove(id);
   }
 
   @Put(":id(\\d+)/restore")
@@ -106,6 +118,6 @@ export class BusinessCategoriesController {
   })
   @ApiResponse({ status: 404, description: "Business category not found" })
   restore(@Param("id", ParseIntPipe) id: number) {
-    return this.service.restore(id).then((data) => ({ data }));
+    return this.service.restore(id);
   }
 }

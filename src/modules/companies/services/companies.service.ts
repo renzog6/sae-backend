@@ -41,7 +41,7 @@ export class CompaniesService extends BaseService<any> {
       },
     });
 
-    return company;
+    return { data: company };
   }
 
   async findAll(
@@ -85,7 +85,7 @@ export class CompaniesService extends BaseService<any> {
       },
     });
 
-    return company;
+    return { data: company };
   }
 
   async remove(id: string): Promise<{ message: string }> {

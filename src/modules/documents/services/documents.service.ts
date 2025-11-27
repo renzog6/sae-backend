@@ -48,8 +48,11 @@ export class DocumentsService {
     return `${name}_${cuit}`;
   }
 
-  create(createDocumentDto: CreateDocumentDto) {
-    return this.prisma.document.create({ data: createDocumentDto });
+  async create(createDocumentDto: CreateDocumentDto) {
+    const document = await this.prisma.document.create({
+      data: createDocumentDto,
+    });
+    return { data: document };
   }
 
   async findAll(
@@ -84,15 +87,19 @@ export class DocumentsService {
     return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
-  findOne(id: number) {
-    return this.prisma.document.findUniqueOrThrow({ where: { id } });
+  async findOne(id: number) {
+    const document = await this.prisma.document.findUniqueOrThrow({
+      where: { id },
+    });
+    return { data: document };
   }
 
-  update(id: number, updateDocumentDto: UpdateDocumentDto) {
-    return this.prisma.document.update({
+  async update(id: number, updateDocumentDto: UpdateDocumentDto) {
+    const document = await this.prisma.document.update({
       where: { id },
       data: updateDocumentDto,
     });
+    return { data: document };
   }
 
   async remove(id: number) {

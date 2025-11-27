@@ -1,24 +1,39 @@
 // filepath: sae-backend/src/modules/companies/business-subcategories/business-subcategories.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { CreateBusinessSubCategoryDto } from "./dto/create-business-subcategory.dto";
-import { UpdateBusinessSubCategoryDto } from "./dto/update-business-subcategory.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class BusinessSubcategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+export class BusinessSubcategoriesService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.businessSubCategory;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+      { businessCategory: { name: { contains: q, mode: "insensitive" } } },
+    ];
+  }
 
   async create(createBusinessSubCategoryDto: CreateBusinessSubCategoryDto) {
     const { name, description, businessCategoryId } =
       createBusinessSubCategoryDto;
-    return this.prisma.businessSubCategory.create({
+    const subcategory = await this.prisma.businessSubCategory.create({
       data: {
         name,
         description,
         businessCategoryId,
       },
     });
+    return { data: subcategory };
   }
 
   async findAll(
@@ -34,11 +49,7 @@ export class BusinessSubcategoriesService {
     };
 
     if (q) {
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-        { businessCategory: { name: { contains: q, mode: "insensitive" } } },
-      ];
+      where.OR = this.buildSearchConditions(q);
     }
 
     // Get all subcategories without pagination for client-side filtering
@@ -67,53 +78,18 @@ export class BusinessSubcategoriesService {
     );
   }
 
-  async findOne(id: number) {
-    const subcategory = await this.prisma.businessSubCategory.findFirst({
-      where: {
-        id,
-        deletedAt: null, // Don't return deleted subcategories
-      },
-      include: {
-        businessCategory: {
-          select: {
-            id: true,
-            name: true,
-            code: true,
-          },
-        },
-      },
-    });
-    if (!subcategory) {
-      throw new NotFoundException(
-        `BusinessSubCategory with id ${id} not found`
-      );
-    }
-    return subcategory;
-  }
-
-  async update(
-    id: number,
-    updateBusinessSubCategoryDto: UpdateBusinessSubCategoryDto
-  ) {
-    // Ensure subcategory exists and is not deleted
-    await this.findOne(id);
-    return this.prisma.businessSubCategory.update({
-      where: { id },
-      data: updateBusinessSubCategoryDto,
-    });
-  }
-
-  async remove(id: number) {
+  async remove(id: number): Promise<{ message: string }> {
     // Soft delete: set both isActive to false and deletedAt
     // Ensure subcategory exists
     await this.findOne(id);
-    return this.prisma.businessSubCategory.update({
+    await this.prisma.businessSubCategory.update({
       where: { id },
       data: {
         isActive: false,
         deletedAt: new Date(),
       },
     });
+    return { message: "Business subcategory deleted successfully" };
   }
 
   async restore(id: number) {
@@ -128,12 +104,13 @@ export class BusinessSubcategoriesService {
       );
     }
 
-    return this.prisma.businessSubCategory.update({
+    const restoredSubcategory = await this.prisma.businessSubCategory.update({
       where: { id },
       data: {
         isActive: true,
         deletedAt: null,
       },
     });
+    return { data: restoredSubcategory };
   }
 }

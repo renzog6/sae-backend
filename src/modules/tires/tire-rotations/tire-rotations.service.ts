@@ -135,7 +135,7 @@ export class TireRotationsService {
       },
     });
 
-    return result;
+    return { data: result };
   }
 
   async findAll() {
@@ -151,7 +151,7 @@ export class TireRotationsService {
       include: { tire: true },
     });
     if (!rotation) throw new NotFoundException("Rotation not found");
-    return rotation;
+    return { data: rotation };
   }
 
   async findByTire(tireId: number) {
@@ -165,19 +165,21 @@ export class TireRotationsService {
     // Validar que existe
     await this.findOne(id);
 
-    return this.prisma.tireRotation.update({
+    const rotation = await this.prisma.tireRotation.update({
       where: { id },
       data: dto,
       include: { tire: true },
     });
+    return { data: rotation };
   }
 
   async remove(id: number) {
     // Validar que existe
     await this.findOne(id);
 
-    return this.prisma.tireRotation.delete({
+    await this.prisma.tireRotation.delete({
       where: { id },
     });
+    return { message: "Tire rotation deleted successfully" };
   }
 }

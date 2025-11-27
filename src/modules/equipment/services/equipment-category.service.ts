@@ -1,19 +1,34 @@
 // filepath: sae-backend/src/modules/equipment/services/equipment-category.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { CreateEquipmentCategoryDto } from "../dto/create-equipment-category.dto";
 import { UpdateEquipmentCategoryDto } from "../dto/update-equipment-category.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class EquipmentCategoryService {
-  constructor(private prisma: PrismaService) {}
+export class EquipmentCategoryService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.equipmentCategory;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async create(createEquipmentCategoryDto: CreateEquipmentCategoryDto) {
-    return this.prisma.equipmentCategory.create({
+    const category = await this.prisma.equipmentCategory.create({
       data: createEquipmentCategoryDto,
       include: { types: true },
     });
+    return { data: category };
   }
 
   async findAll(
@@ -45,30 +60,9 @@ export class EquipmentCategoryService {
     return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
-  async findOne(id: number) {
-    const category = await this.prisma.equipmentCategory.findUnique({
-      where: { id },
-      include: { types: true },
-    });
-    if (!category)
-      throw new NotFoundException(`Equipment category with ID ${id} not found`);
-    return category;
-  }
-
-  async update(
-    id: number,
-    updateEquipmentCategoryDto: UpdateEquipmentCategoryDto
-  ) {
+  async remove(id: number): Promise<{ message: string }> {
     await this.findOne(id);
-    return this.prisma.equipmentCategory.update({
-      where: { id },
-      data: updateEquipmentCategoryDto,
-      include: { types: true },
-    });
-  }
-
-  async remove(id: number) {
-    await this.findOne(id);
-    return this.prisma.equipmentCategory.delete({ where: { id } });
+    await this.prisma.equipmentCategory.delete({ where: { id } });
+    return { message: "Equipment category deleted successfully" };
   }
 }

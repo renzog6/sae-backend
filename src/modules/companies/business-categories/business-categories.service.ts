@@ -1,23 +1,38 @@
 // filepath: sae-backend/src/modules/companies/business-categories/business-categories.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { CreateBusinessCategoryDto } from "./dto/create-business-category.dto";
-import { UpdateBusinessCategoryDto } from "./dto/update-business-category.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class BusinessCategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+export class BusinessCategoriesService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.businessCategory;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { code: { contains: q, mode: "insensitive" } },
+      { information: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async create(createDto: CreateBusinessCategoryDto) {
     const { name, code, information } = createDto;
-    return this.prisma.businessCategory.create({
+    const category = await this.prisma.businessCategory.create({
       data: {
         name,
         code,
         information,
       },
     });
+    return { data: category };
   }
 
   async findAll(
@@ -33,11 +48,7 @@ export class BusinessCategoriesService {
     };
 
     if (q) {
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { code: { contains: q, mode: "insensitive" } },
-        { information: { contains: q, mode: "insensitive" } },
-      ];
+      where.OR = this.buildSearchConditions(q);
     }
 
     // Get all business categories without pagination for client-side filtering
@@ -58,40 +69,18 @@ export class BusinessCategoriesService {
     );
   }
 
-  async findOne(id: number) {
-    const category = await this.prisma.businessCategory.findFirst({
-      where: {
-        id,
-        deletedAt: null, // Don't return deleted categories
-      },
-      include: { subCategories: true },
-    });
-    if (!category) {
-      throw new NotFoundException(`Business category with id ${id} not found`);
-    }
-    return category;
-  }
-
-  async update(id: number, updateDto: UpdateBusinessCategoryDto) {
-    // Ensure category exists and is not deleted
-    await this.findOne(id);
-    return this.prisma.businessCategory.update({
-      where: { id },
-      data: updateDto,
-    });
-  }
-
-  async remove(id: number) {
+  async remove(id: number): Promise<{ message: string }> {
     // Soft delete: set both isActive to false and deletedAt
     // Ensure category exists
     await this.findOne(id);
-    return this.prisma.businessCategory.update({
+    await this.prisma.businessCategory.update({
       where: { id },
       data: {
         isActive: false,
         deletedAt: new Date(),
       },
     });
+    return { message: "Business category deleted successfully" };
   }
 
   async restore(id: number) {
@@ -104,12 +93,13 @@ export class BusinessCategoriesService {
       throw new NotFoundException(`Business category with id ${id} not found`);
     }
 
-    return this.prisma.businessCategory.update({
+    const restoredCategory = await this.prisma.businessCategory.update({
       where: { id },
       data: {
         isActive: true,
         deletedAt: null,
       },
     });
+    return { data: restoredCategory };
   }
 }

@@ -8,7 +8,7 @@ export class HistoryLogService {
   constructor(private prisma: PrismaService) {}
 
   async createLog(createHistoryLogDto: CreateHistoryLogDto) {
-    return this.prisma.historyLog.create({
+    const log = await this.prisma.historyLog.create({
       data: {
         ...createHistoryLogDto,
         metadata: createHistoryLogDto.metadata
@@ -16,6 +16,7 @@ export class HistoryLogService {
           : null,
       },
     });
+    return { data: log };
   }
 
   async findByEntity(entityType: string, entityId: number) {

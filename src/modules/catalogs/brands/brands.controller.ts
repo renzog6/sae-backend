@@ -35,10 +35,17 @@ export class BrandsController {
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Create a new brand" })
-  @ApiResponse({ status: 201, description: "Brand created successfully" })
+  @ApiResponse({
+    status: 201,
+    description: "Brand created successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Brand" } },
+    },
+  })
   @ApiResponse({ status: 400, description: "Bad request" })
   create(@Body() createBrandDto: CreateBrandDto) {
-    return this.brandsService.create(createBrandDto).then((data) => ({ data }));
+    return this.brandsService.create(createBrandDto);
   }
 
   @Get()
@@ -52,25 +59,37 @@ export class BrandsController {
   @Get(":id(\\d+)")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Get a brand by ID" })
-  @ApiResponse({ status: 200, description: "Brand retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Brand retrieved successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Brand" } },
+    },
+  })
   @ApiResponse({ status: 404, description: "Brand not found" })
   findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.brandsService.findOne(id).then((data) => ({ data }));
+    return this.brandsService.findOne(id);
   }
 
   @Put(":id(\\d+)")
   @Roles(Role.ADMIN, Role.MANAGER)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Update a brand" })
-  @ApiResponse({ status: 200, description: "Brand updated successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Brand updated successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Brand" } },
+    },
+  })
   @ApiResponse({ status: 404, description: "Brand not found" })
   update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateBrandDto: UpdateBrandDto
   ) {
-    return this.brandsService
-      .update(id, updateBrandDto)
-      .then((data) => ({ data }));
+    return this.brandsService.update(id, updateBrandDto);
   }
 
   @Delete(":id(\\d+)")
@@ -80,16 +99,23 @@ export class BrandsController {
   @ApiResponse({ status: 200, description: "Brand deleted successfully" })
   @ApiResponse({ status: 404, description: "Brand not found" })
   remove(@Param("id", ParseIntPipe) id: number) {
-    return this.brandsService.remove(id).then((data) => ({ data }));
+    return this.brandsService.remove(id);
   }
 
   @Put(":id(\\d+)/restore")
   @Roles(Role.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Restore a deleted brand" })
-  @ApiResponse({ status: 200, description: "Brand restored successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Brand restored successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Brand" } },
+    },
+  })
   @ApiResponse({ status: 404, description: "Brand not found" })
   restore(@Param("id", ParseIntPipe) id: number) {
-    return this.brandsService.restore(id).then((data) => ({ data }));
+    return this.brandsService.restore(id);
   }
 }

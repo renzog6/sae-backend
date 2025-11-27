@@ -158,14 +158,14 @@ export class DocumentsController {
   @Get(":id/download")
   async download(@Param("id") id: string, @Res() res: Response) {
     const doc = await this.documentsService.findOne(+id);
-    const filePath = isAbsolute(doc.path)
-      ? doc.path
-      : join(process.cwd(), doc.path);
+    const filePath = isAbsolute(doc.data.path)
+      ? doc.data.path
+      : join(process.cwd(), doc.data.path);
     if (!existsSync(filePath)) {
       throw new NotFoundException("File not found");
     }
     // Trigger browser download with original filename
-    return res.download(filePath, doc.filename);
+    return res.download(filePath, doc.data.filename);
   }
 
   // 🔍 CRUD normal

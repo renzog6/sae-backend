@@ -59,14 +59,14 @@ export class AddressesService {
     });
     if (!address)
       throw new NotFoundException(`Address with ID ${id} not found`);
-    return address;
+    return { data: address };
   }
 
   async create(dto: CreateAddressDto) {
     // If personId is present, enforce one address per person via upsert
     if (dto.personId) {
       const { personId, companyId: _ignoredCompany, ...rest } = dto as any;
-      return this.prisma.address.upsert({
+      const address = await this.prisma.address.upsert({
         where: { personId },
         update: { ...rest },
         create: { ...rest, personId },
@@ -76,9 +76,10 @@ export class AddressesService {
           person: true,
         },
       });
+      return { data: address };
     }
     // Default create for company addresses or addresses without person linkage
-    return this.prisma.address.create({
+    const address = await this.prisma.address.create({
       data: dto,
       include: {
         city: { include: { province: true } },
@@ -86,12 +87,13 @@ export class AddressesService {
         person: true,
       },
     });
+    return { data: address };
   }
 
   async createForPerson(personId: number, dto: CreateAddressDto) {
     const { personId: _ignored, companyId: _ignoredCompany, ...rest } = dto;
     // Upsert to ensure a single address per person
-    return this.prisma.address.upsert({
+    const address = await this.prisma.address.upsert({
       where: { personId },
       update: { ...rest },
       create: { ...rest, personId },
@@ -101,11 +103,12 @@ export class AddressesService {
         person: true,
       },
     });
+    return { data: address };
   }
 
   async createForCompany(companyId: number, dto: CreateAddressDto) {
     const { personId: _ignored, companyId: _ignoredCompany, ...rest } = dto;
-    return this.prisma.address.create({
+    const address = await this.prisma.address.create({
       data: { ...rest, companyId },
       include: {
         city: { include: { province: true } },
@@ -113,12 +116,13 @@ export class AddressesService {
         person: true,
       },
     });
+    return { data: address };
   }
 
   async update(id: number, dto: UpdateAddressDto) {
     const exists = await this.prisma.address.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(`Address with ID ${id} not found`);
-    return this.prisma.address.update({
+    const address = await this.prisma.address.update({
       where: { id },
       data: dto,
       include: {
@@ -127,12 +131,14 @@ export class AddressesService {
         person: true,
       },
     });
+    return { data: address };
   }
 
   async remove(id: number) {
     const exists = await this.prisma.address.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(`Address with ID ${id} not found`);
-    return this.prisma.address.delete({ where: { id } });
+    await this.prisma.address.delete({ where: { id } });
+    return { message: "Address deleted successfully" };
   }
 
   findByCity(cityId: number) {

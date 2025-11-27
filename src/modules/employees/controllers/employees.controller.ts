@@ -29,21 +29,21 @@ export class EmployeesController {
 
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.employeesService.findOne(+id).then((data) => ({ data }));
+    return this.employeesService.findOne(+id);
   }
 
   @Post()
   create(@Body() dto: CreateEmployeeDto) {
-    return this.employeesService.create(dto).then((data) => ({ data }));
+    return this.employeesService.create(dto);
   }
 
   @Put(":id")
   update(@Param("id") id: string, @Body() dto: UpdateEmployeeDto) {
-    return this.employeesService.update(+id, dto).then((data) => ({ data }));
+    return this.employeesService.update(+id, dto);
   }
 
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.employeesService.remove(+id).then((data) => ({ data }));
+    return this.employeesService.remove(+id);
   }
 }

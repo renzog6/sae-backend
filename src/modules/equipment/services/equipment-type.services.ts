@@ -1,19 +1,34 @@
 // filepath: sae-backend/src/modules/equipment/services/equipment-type.services.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { CreateEquipmentTypeDto } from "../dto/create-equipment-type.dto";
 import { UpdateEquipmentTypeDto } from "../dto/update-equipment-type.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class EquipmentTypeService {
-  constructor(private prisma: PrismaService) {}
+export class EquipmentTypeService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.equipmentType;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async create(createEquipmentTypeDto: CreateEquipmentTypeDto) {
-    return this.prisma.equipmentType.create({
+    const type = await this.prisma.equipmentType.create({
       data: createEquipmentTypeDto,
       include: { category: true },
     });
+    return { data: type };
   }
 
   async findAll(
@@ -43,30 +58,6 @@ export class EquipmentTypeService {
     ]);
 
     return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
-  }
-
-  async findOne(id: number) {
-    const type = await this.prisma.equipmentType.findUnique({
-      where: { id },
-      include: { category: true },
-    });
-    if (!type)
-      throw new NotFoundException(`Equipment type with ID ${id} not found`);
-    return type;
-  }
-
-  async update(id: number, updateEquipmentTypeDto: UpdateEquipmentTypeDto) {
-    await this.findOne(id);
-    return this.prisma.equipmentType.update({
-      where: { id },
-      data: updateEquipmentTypeDto,
-      include: { category: true },
-    });
-  }
-
-  async remove(id: number) {
-    await this.findOne(id);
-    return this.prisma.equipmentType.delete({ where: { id } });
   }
 
   async findByCategory(categoryId: number) {

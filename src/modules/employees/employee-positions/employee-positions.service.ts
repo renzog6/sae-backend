@@ -1,16 +1,32 @@
 //filepath: sae-backend/src/modules/employees/employee-positions/employee-positions.service.ts
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { CreateEmployeePositionDto } from "./dto/create-employee-position.dto";
-import { UpdateEmployeePositionDto } from "./dto/update-employee-position.dto";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class EmployeePositionsService {
-  constructor(private prisma: PrismaService) {}
+export class EmployeePositionsService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
 
-  create(dto: CreateEmployeePositionDto) {
-    return this.prisma.employeePosition.create({ data: dto as any });
+  protected getModel() {
+    return this.prisma.employeePosition;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { description: { contains: q, mode: "insensitive" } },
+    ];
+  }
+
+  async create(dto: CreateEmployeePositionDto) {
+    const position = await this.prisma.employeePosition.create({
+      data: dto as any,
+    });
+    return { data: position };
   }
 
   async findAll(
@@ -41,26 +57,9 @@ export class EmployeePositionsService {
     return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
-  async findOne(id: number) {
-    const pos = await this.prisma.employeePosition.findUnique({
-      where: { id },
-    });
-    if (!pos)
-      throw new NotFoundException(`EmployeePosition with ID ${id} not found`);
-    return pos;
-  }
-
-  async update(id: number, dto: UpdateEmployeePositionDto) {
-    await this.findOne(id);
-    return this.prisma.employeePosition.update({
-      where: { id },
-      data: dto as any,
-    });
-  }
-
-  async remove(id: number) {
+  async remove(id: number): Promise<{ message: string }> {
     await this.findOne(id);
     await this.prisma.employeePosition.delete({ where: { id } });
-    return { id };
+    return { message: "Employee position deleted successfully" };
   }
 }

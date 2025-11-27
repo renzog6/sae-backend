@@ -22,7 +22,14 @@ export class TiresController {
 
   @Post()
   @ApiOperation({ summary: "Create a new tire" })
-  @ApiResponse({ status: 201, description: "Tire created successfully" })
+  @ApiResponse({
+    status: 201,
+    description: "Tire created successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Tire" } },
+    },
+  })
   create(@Body() dto: CreateTireDto) {
     return this.tiresService.create(dto);
   }
@@ -35,12 +42,28 @@ export class TiresController {
 
   @Get(":id")
   @ApiOperation({ summary: "Get tire by ID" })
+  @ApiResponse({
+    status: 200,
+    description: "Tire retrieved successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Tire" } },
+    },
+  })
   findOne(@Param("id") id: string) {
     return this.tiresService.findOne(+id);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Update tire information" })
+  @ApiResponse({
+    status: 200,
+    description: "Tire updated successfully",
+    schema: {
+      type: "object",
+      properties: { data: { $ref: "#/components/schemas/Tire" } },
+    },
+  })
   update(@Param("id") id: string, @Body() dto: UpdateTireDto) {
     return this.tiresService.update(+id, dto);
   }

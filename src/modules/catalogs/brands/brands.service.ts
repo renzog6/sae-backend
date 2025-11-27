@@ -1,23 +1,38 @@
 // filepath: sae-backend/src/modules/catalogs/brands/brands.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateBrandDto } from "./dto/create-brand.dto";
-import { UpdateBrandDto } from "./dto/update-brand.dto";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 
 @Injectable()
-export class BrandsService {
-  constructor(private readonly prisma: PrismaService) {}
+export class BrandsService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.brand;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { code: { contains: q, mode: "insensitive" } },
+      { information: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async create(createBrandDto: CreateBrandDto) {
     const { name, code, information } = createBrandDto;
-    return this.prisma.brand.create({
+    const brand = await this.prisma.brand.create({
       data: {
         name,
         code,
         information,
       },
     });
+    return { data: brand };
   }
 
   async findAll(
@@ -33,11 +48,7 @@ export class BrandsService {
     };
 
     if (q) {
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { code: { contains: q, mode: "insensitive" } },
-        { information: { contains: q, mode: "insensitive" } },
-      ];
+      where.OR = this.buildSearchConditions(q);
     }
 
     // Get all brands without pagination for client-side filtering
@@ -52,39 +63,18 @@ export class BrandsService {
     return new BaseResponseDto(brands, brands.length, 1, brands.length);
   }
 
-  async findOne(id: number) {
-    const brand = await this.prisma.brand.findFirst({
-      where: {
-        id,
-        deletedAt: null, // Don't return deleted brands
-      },
-    });
-    if (!brand) {
-      throw new NotFoundException(`Brand with id ${id} not found`);
-    }
-    return brand;
-  }
-
-  async update(id: number, updateBrandDto: UpdateBrandDto) {
-    // Ensure brand exists and is not deleted
-    await this.findOne(id);
-    return this.prisma.brand.update({
-      where: { id },
-      data: updateBrandDto,
-    });
-  }
-
-  async remove(id: number) {
+  async remove(id: number): Promise<{ message: string }> {
     // Soft delete: set both isActive to false and deletedAt
     // Ensure brand exists
     await this.findOne(id);
-    return this.prisma.brand.update({
+    await this.prisma.brand.update({
       where: { id },
       data: {
         isActive: false,
         deletedAt: new Date(),
       },
     });
+    return { message: "Brand deleted successfully" };
   }
 
   async restore(id: number) {
@@ -97,12 +87,13 @@ export class BrandsService {
       throw new NotFoundException(`Brand with id ${id} not found`);
     }
 
-    return this.prisma.brand.update({
+    const restoredBrand = await this.prisma.brand.update({
       where: { id },
       data: {
         isActive: true,
         deletedAt: null,
       },
     });
+    return { data: restoredBrand };
   }
 }

@@ -46,7 +46,7 @@ export class EmployeeIncidentService {
       }),
     });
 
-    return incident;
+    return { data: incident };
   }
 
   async findAll(
@@ -156,7 +156,7 @@ export class EmployeeIncidentService {
       }),
     });
 
-    return incident;
+    return { data: incident };
   }
 
   private mapToHistoryType(incidentType: EmployeeIncidentType): HistoryType {

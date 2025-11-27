@@ -50,7 +50,8 @@ export class TiresService extends BaseService<any> {
   }
 
   async create(data: CreateTireDto) {
-    return this.prisma.tire.create({ data });
+    const record = await this.prisma.tire.create({ data });
+    return { data: record };
   }
 
   async findAll(
@@ -105,14 +106,15 @@ export class TiresService extends BaseService<any> {
       events: true,
     };
 
-    return super.findOne(id, include);
+    return await super.findOne(id, include);
   }
 
   async update(id: number, data: UpdateTireDto) {
-    return this.prisma.tire.update({
+    const record = await this.prisma.tire.update({
       where: { id },
       data,
     });
+    return { data: record };
   }
 
   async remove(id: number): Promise<{ message: string }> {

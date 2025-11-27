@@ -9,23 +9,34 @@ export class TirePositionsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateTirePositionDto) {
-    return this.prisma.tirePositionConfig.create({
+    const position = await this.prisma.tirePositionConfig.create({
       data,
       include: {
         axle: true,
       },
     });
+    return { data: position };
   }
 
   async findAll(axleId?: number) {
     const where = axleId ? { axleId } : {};
 
-    return this.prisma.tirePositionConfig.findMany({
+    const positions = await this.prisma.tirePositionConfig.findMany({
       where,
       include: {
         axle: true,
       },
     });
+
+    return {
+      data: positions,
+      meta: {
+        total: positions.length,
+        page: 1,
+        limit: positions.length,
+        totalPages: 1,
+      },
+    };
   }
 
   async findOne(id: number) {
@@ -37,26 +48,28 @@ export class TirePositionsService {
     });
 
     if (!position) throw new NotFoundException("Tire position not found");
-    return position;
+    return { data: position };
   }
 
   async update(id: number, data: UpdateTirePositionDto) {
     await this.findOne(id); // Verificar que existe
 
-    return this.prisma.tirePositionConfig.update({
+    const position = await this.prisma.tirePositionConfig.update({
       where: { id },
       data,
       include: {
         axle: true,
       },
     });
+    return { data: position };
   }
 
   async remove(id: number) {
     await this.findOne(id); // Verificar que existe
 
-    return this.prisma.tirePositionConfig.delete({
+    await this.prisma.tirePositionConfig.delete({
       where: { id },
     });
+    return { message: "Tire position deleted successfully" };
   }
 }

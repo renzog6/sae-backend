@@ -86,7 +86,7 @@ export abstract class BaseService<T extends { id: number | string }> {
   /**
    * Standard findOne implementation with error handling and optional includes
    */
-  async findOne(id: number | string, include?: any): Promise<T> {
+  async findOne(id: number | string, include?: any): Promise<{ data: T }> {
     // Check if model supports soft deletes
     const modelFields = this.getModel().fields || {};
     const hasDeletedAt = "deletedAt" in modelFields;
@@ -113,25 +113,27 @@ export abstract class BaseService<T extends { id: number | string }> {
       throw new NotFoundException(`${entityName} with ID ${id} not found`);
     }
 
-    return record;
+    return { data: record };
   }
 
   /**
    * Standard create implementation
    */
-  async create(data: Partial<T>): Promise<T> {
-    return this.getModel().create({ data });
+  async create(data: Partial<T>): Promise<{ data: T }> {
+    const record = await this.getModel().create({ data });
+    return { data: record };
   }
 
   /**
    * Standard update implementation
    */
-  async update(id: number | string, data: Partial<T>): Promise<T> {
+  async update(id: number | string, data: Partial<T>): Promise<{ data: T }> {
     await this.findOne(id); // Ensure exists
-    return this.getModel().update({
+    const record = await this.getModel().update({
       where: { id },
       data,
     });
+    return { data: record };
   }
 
   /**

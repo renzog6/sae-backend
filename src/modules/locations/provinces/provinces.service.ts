@@ -1,13 +1,27 @@
 // filepath: sae-backend/src/modules/locations/provinces/provinces.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
 import { CreateProvinceDto } from "./dto/create-province.dto";
 import { UpdateProvinceDto } from "./dto/update-province.dto";
 
 @Injectable()
-export class ProvincesService {
-  constructor(private prisma: PrismaService) {}
+export class ProvincesService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.province;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { name: { contains: q, mode: "insensitive" } },
+      { code: { contains: q, mode: "insensitive" } },
+    ];
+  }
 
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
@@ -43,45 +57,21 @@ export class ProvincesService {
     );
   }
 
-  async findOne(id: number) {
-    const province = await this.prisma.province.findUnique({
-      where: { id },
-      include: { country: true, cities: true },
-    });
-    if (!province)
-      throw new NotFoundException(`Province with ID ${id} not found`);
-    return province;
-  }
-
   async create(dto: CreateProvinceDto) {
-    return this.prisma.province.create({
+    const province = await this.prisma.province.create({
       data: {
         code: dto.code,
         name: dto.name,
       } as any,
       include: { country: true, cities: true },
     });
+    return { data: province };
   }
 
-  async update(id: number, dto: UpdateProvinceDto) {
-    const exists = await this.prisma.province.findUnique({ where: { id } });
-    if (!exists)
-      throw new NotFoundException(`Province with ID ${id} not found`);
-    return this.prisma.province.update({
-      where: { id },
-      data: {
-        ...(typeof dto.name !== "undefined" ? { name: dto.name } : {}),
-        ...(typeof dto.code !== "undefined" ? { code: dto.code } : {}),
-      } as any,
-      include: { country: true, cities: true },
-    });
-  }
-
-  async remove(id: number) {
-    const exists = await this.prisma.province.findUnique({ where: { id } });
-    if (!exists)
-      throw new NotFoundException(`Province with ID ${id} not found`);
-    return this.prisma.province.delete({ where: { id } });
+  async remove(id: number): Promise<{ message: string }> {
+    await this.findOne(id);
+    await this.prisma.province.delete({ where: { id } });
+    return { message: "Province deleted successfully" };
   }
 
   findByCode(code: string) {

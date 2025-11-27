@@ -72,7 +72,7 @@ export class EmployeeVacationsService {
       }),
     });
 
-    return vacation;
+    return { data: vacation };
   }
 
   async findAll(
@@ -121,11 +121,12 @@ export class EmployeeVacationsService {
     });
     if (!rec)
       throw new NotFoundException(`EmployeeVacation with ID ${id} not found`);
-    return rec;
+    return { data: rec };
   }
 
   async update(id: number, dto: UpdateEmployeeVacationDto) {
-    const current = await this.findOne(id);
+    const currentResponse = await this.findOne(id);
+    const current = currentResponse.data;
     const nextStart = (dto as any).startDate
       ? new Date((dto as any).startDate)
       : current.startDate;
@@ -134,7 +135,7 @@ export class EmployeeVacationsService {
     nextEnd.setDate(nextEnd.getDate() + nextDays - 1);
     const nextYear = dto.year ? Number(dto.year) : nextStart.getFullYear();
 
-    return this.prisma.employeeVacation.update({
+    const vacation = await this.prisma.employeeVacation.update({
       where: { id },
       data: {
         ...(typeof dto.detail !== "undefined" ? { detail: dto.detail } : {}),
@@ -154,6 +155,7 @@ export class EmployeeVacationsService {
       },
       include: { employee: true },
     });
+    return { data: vacation };
   }
 
   async remove(id: number) {

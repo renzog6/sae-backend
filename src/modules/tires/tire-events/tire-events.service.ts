@@ -11,7 +11,7 @@ export class TireEventsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createTireEventDto: CreateTireEventDto) {
-    return this.prisma.tireEvent.create({
+    const event = await this.prisma.tireEvent.create({
       data: {
         tireId: createTireEventDto.tireId,
         eventType: createTireEventDto.type,
@@ -22,6 +22,7 @@ export class TireEventsService {
           : null,
       },
     });
+    return { data: event };
   }
 
   async findAll(
@@ -187,12 +188,13 @@ export class TireEventsService {
   }
 
   async findOne(id: number) {
-    return this.prisma.tireEvent.findUnique({
+    const event = await this.prisma.tireEvent.findUnique({
       where: { id },
       include: {
         tire: true,
       },
     });
+    return { data: event };
   }
 
   async findByTireAndType(tireId: number, type: TireEventType) {
@@ -208,9 +210,10 @@ export class TireEventsService {
   }
 
   async remove(id: number) {
-    return this.prisma.tireEvent.delete({
+    await this.prisma.tireEvent.delete({
       where: { id },
     });
+    return { message: "Tire event deleted successfully" };
   }
 
   // Método para registrar eventos automáticamente
@@ -221,7 +224,7 @@ export class TireEventsService {
     kmAtEvent?: number,
     data?: any
   ) {
-    return this.create({
+    const result = await this.create({
       tireId,
       type,
       description,
@@ -229,5 +232,6 @@ export class TireEventsService {
       kmAtEvent,
       data,
     });
+    return result;
   }
 }

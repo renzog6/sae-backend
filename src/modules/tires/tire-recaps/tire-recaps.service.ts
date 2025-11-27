@@ -86,7 +86,7 @@ export class TireRecapsService {
       },
     });
 
-    return recap;
+    return { data: recap };
   }
 
   async findAll() {
@@ -104,15 +104,17 @@ export class TireRecapsService {
   }
 
   async update(id: number, dto: UpdateTireRecapDto) {
-    return this.prisma.tireRecap.update({
+    const recap = await this.prisma.tireRecap.update({
       where: { id },
       data: dto,
     });
+    return { data: recap };
   }
 
   async remove(id: number) {
-    return this.prisma.tireRecap.delete({
+    await this.prisma.tireRecap.delete({
       where: { id },
     });
+    return { message: "Tire recap deleted successfully" };
   }
 }

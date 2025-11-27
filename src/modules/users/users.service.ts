@@ -53,7 +53,7 @@ export class UsersService extends BaseService<any> {
     });
 
     const { password, ...result } = user;
-    return result;
+    return { data: result };
   }
 
   async findAll(
@@ -89,8 +89,8 @@ export class UsersService extends BaseService<any> {
     const user = await super.findOne(id);
 
     // Exclude sensitive data
-    const { password, ...result } = user;
-    return result;
+    const { password, ...result } = user.data;
+    return { data: result };
   }
 
   async findByEmail(email: string) {
@@ -103,7 +103,7 @@ export class UsersService extends BaseService<any> {
     }
 
     const { password, ...result } = user;
-    return result;
+    return { data: result };
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -133,7 +133,7 @@ export class UsersService extends BaseService<any> {
     });
 
     const { password, ...result } = updatedUser;
-    return result;
+    return { data: result };
   }
 
   async remove(id: number): Promise<{ message: string }> {

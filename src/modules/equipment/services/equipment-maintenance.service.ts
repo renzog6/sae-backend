@@ -35,7 +35,7 @@ export class EquipmentMaintenanceService {
       }),
     });
 
-    return maintenance;
+    return { data: maintenance };
   }
 
   private mapToHistoryType(maintenanceType: MaintenanceType): HistoryType {

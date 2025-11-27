@@ -93,7 +93,7 @@ export class TireAssignmentsService {
       },
     });
 
-    return result;
+    return { data: result };
   }
 
   // desmontar: cierra assignment, actualiza km totales, cambia status si corresponde
@@ -193,7 +193,7 @@ export class TireAssignmentsService {
       },
     });
 
-    return result;
+    return { data: result };
   }
 
   // historial de assignments por tire
@@ -209,7 +209,7 @@ export class TireAssignmentsService {
 
   // opcional: obtener assignments abiertos
   async findOpenAssignments() {
-    return this.prisma.tireAssignment.findMany({
+    const assignments = await this.prisma.tireAssignment.findMany({
       where: { endDate: null },
       include: {
         tire: {
@@ -225,11 +225,12 @@ export class TireAssignmentsService {
         positionConfig: { include: { axle: { include: { equipment: true } } } },
       },
     });
+    return { data: assignments };
   }
 
   // obtener assignments abiertos filtrados por equipo
   async findOpenAssignmentsByEquipment(equipmentId: number) {
-    return this.prisma.tireAssignment.findMany({
+    const assignments = await this.prisma.tireAssignment.findMany({
       where: {
         endDate: null,
         positionConfig: {
@@ -252,5 +253,6 @@ export class TireAssignmentsService {
         positionConfig: { include: { axle: { include: { equipment: true } } } },
       },
     });
+    return { data: assignments };
   }
 }

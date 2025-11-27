@@ -15,13 +15,14 @@ export class EquipmentAxlesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateEquipmentAxleDto) {
-    return this.prisma.equipmentAxle.create({
+    const axle = await this.prisma.equipmentAxle.create({
       data,
       include: {
         equipment: true,
         tirePositions: true,
       },
     });
+    return { data: axle };
   }
 
   async findAll(
@@ -66,13 +67,13 @@ export class EquipmentAxlesService {
     });
 
     if (!axle) throw new NotFoundException("Equipment axle not found");
-    return axle;
+    return { data: axle };
   }
 
   async update(id: number, data: UpdateEquipmentAxleDto) {
     await this.findOne(id); // Verificar que existe
 
-    return this.prisma.equipmentAxle.update({
+    const axle = await this.prisma.equipmentAxle.update({
       where: { id },
       data,
       include: {
@@ -80,14 +81,16 @@ export class EquipmentAxlesService {
         tirePositions: true,
       },
     });
+    return { data: axle };
   }
 
   async remove(id: number) {
     await this.findOne(id); // Verificar que existe
 
-    return this.prisma.equipmentAxle.delete({
+    await this.prisma.equipmentAxle.delete({
       where: { id },
     });
+    return { message: "Equipment axle deleted successfully" };
   }
 
   async findPositionsByEquipment(equipmentId: number) {
@@ -109,7 +112,7 @@ export class EquipmentAxlesService {
   }
 
   async createWithPositions(dto: CreateEquipmentAxleWithPositionsDto) {
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       // Create the axle
       const axle = await tx.equipmentAxle.create({
         data: dto.axle,
@@ -136,5 +139,6 @@ export class EquipmentAxlesService {
         },
       });
     });
+    return { data: result };
   }
 }

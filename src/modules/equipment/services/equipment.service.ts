@@ -64,10 +64,11 @@ export class EquipmentService extends BaseService<any> {
     if (!category)
       throw new BadRequestException(`Category with id ${categoryId} not found`);
 
-    return this.prisma.equipment.create({
+    const equipment = await this.prisma.equipment.create({
       data,
       include: this.equipmentIncludes,
     });
+    return { data: equipment };
   }
 
   /**
@@ -129,11 +130,12 @@ export class EquipmentService extends BaseService<any> {
         );
     }
 
-    return this.prisma.equipment.update({
+    const updatedEquipment = await this.prisma.equipment.update({
       where: { id },
       data,
       include: this.equipmentIncludes,
     });
+    return { data: updatedEquipment };
   }
 
   /**

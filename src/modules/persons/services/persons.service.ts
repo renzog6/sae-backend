@@ -27,8 +27,8 @@ export class PersonsService extends BaseService<any> {
     ];
   }
 
-  create(dto: CreatePersonDto) {
-    return this.prisma.person.create({
+  async create(dto: CreatePersonDto) {
+    const person = await this.prisma.person.create({
       data: {
         firstName: dto.firstName,
         lastName: dto.lastName,
@@ -42,6 +42,7 @@ export class PersonsService extends BaseService<any> {
       },
       include: { employee: true, contacts: true, address: true },
     });
+    return { data: person };
   }
 
   async findAll(
@@ -58,7 +59,7 @@ export class PersonsService extends BaseService<any> {
 
   async update(id: number, dto: UpdatePersonDto) {
     await this.findOne(id);
-    return this.prisma.person.update({
+    const person = await this.prisma.person.update({
       where: { id },
       data: {
         ...(typeof dto.firstName !== "undefined"
@@ -87,6 +88,7 @@ export class PersonsService extends BaseService<any> {
       },
       include: { employee: true, contacts: true, address: true },
     });
+    return { data: person };
   }
 
   async remove(id: number): Promise<{ message: string }> {
