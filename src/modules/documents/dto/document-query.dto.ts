@@ -1,5 +1,5 @@
 //filepath: sae-backend/src/modules/documents/dto/document-query.dto.ts
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { IsOptional, IsNumber, IsString } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiPropertyOptional } from "@nestjs/swagger";

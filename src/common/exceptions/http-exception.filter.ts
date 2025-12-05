@@ -19,14 +19,26 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
 
-    const errorResponse = {
+    const error = exception.getResponse();
+    const message =
+      typeof error === "string" ? error : error["message"] || exception.message;
+
+    const errorResponse: any = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
-      message: exception.message || null,
-      error: exception.getResponse() || null,
+      message,
+      error,
     };
+
+    // Agregar stack solo en desarrollo
+    if (
+      process.env.NODE_ENV !== "production" &&
+      status === HttpStatus.INTERNAL_SERVER_ERROR
+    ) {
+      errorResponse.stack = exception.stack;
+    }
 
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(

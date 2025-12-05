@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { EmployeeVacationsService } from "./employee-vacations.service";
 import { CreateEmployeeVacationDto } from "./dto/create-employee-vacation.dto";
 import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";

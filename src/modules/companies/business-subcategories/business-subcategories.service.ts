@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { CreateBusinessSubCategoryDto } from "./dto/create-business-subcategory.dto";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class BusinessSubcategoriesService extends BaseService<any> {

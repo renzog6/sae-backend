@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/modules/locations/addresses/addresses.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { CreateAddressDto } from "./dto/create-address.dto";
 import { UpdateAddressDto } from "./dto/update-address.dto";
 

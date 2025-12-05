@@ -1,48 +1,75 @@
 // filepath: sae-backend/src/common/services/base.service.ts
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { BaseQueryDto, BaseResponseDto } from "../dto/base-query.dto";
+import { BaseQueryDto } from "../dto/base-query.dto";
 
-@Injectable()
+/**
+ * BaseService abstracto pensado para trabajar con PrismaService.
+ *
+ * Requisitos:
+ * - Los servicios concretos deben implementar getModel() devolviendo
+ *   el cliente del modelo de prisma (ej: this.prisma.user)
+ *
+ * Soft delete:
+ * - Detecta si existe deletedAt intentando seleccionar el campo (solo la primera vez).
+ * - Cachea la detección para evitar introspecciones repetidas.
+ */
 export abstract class BaseService<T extends { id: number | string }> {
-  protected prisma: PrismaService;
+  protected readonly logger = new Logger(this.constructor.name);
+  private _hasDeletedAt?: boolean | null = undefined;
 
-  constructor(prisma: PrismaService) {
-    this.prisma = prisma;
-  }
+  constructor(protected readonly prisma: PrismaService) {}
 
-  /**
-   * Get the Prisma model for this service
-   * Must be implemented by concrete services
-   */
+  // --- Cada servicio concreto debe devolver el model prisma: e.g. return this.prisma.user;
   protected abstract getModel(): any;
 
-  /**
-   * Standard findAll implementation with pagination, filtering, and soft deletes
-   */
+  // --- Introspección (cacheada) para saber si el modelo tiene deletedAt
+  protected async hasDeletedAt(): Promise<boolean> {
+    if (this._hasDeletedAt !== undefined && this._hasDeletedAt !== null) {
+      return this._hasDeletedAt;
+    }
+
+    try {
+      // intentamos hacer un select a deletedAt; si no existe, prisma lanzará
+      await this.getModel().findFirst({
+        select: { deletedAt: true as any },
+        take: 1,
+      });
+      this._hasDeletedAt = true;
+    } catch (err) {
+      // Si falla, asumimos que no existe el campo
+      this._hasDeletedAt = false;
+    }
+
+    return this._hasDeletedAt;
+  }
+
+  // --- Buscar muchos con paginación, search y soft-delete handling
   async findAll(
     query: BaseQueryDto = new BaseQueryDto(),
     additionalWhere: any = {},
     include?: any
-  ): Promise<BaseResponseDto<T>> {
-    const { skip, take, q, sortBy, sortOrder } = query;
+  ): Promise<{
+    data: T[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    const { skip, take, q, sortBy, sortOrder, page, limit, deleted } = query;
+    const hasDeletedAt = await this.hasDeletedAt();
 
-    // Check if model supports soft deletes
-    const modelFields = this.getModel().fields || {};
-    const hasDeletedAt = "deletedAt" in modelFields;
+    // Base where object
+    const where: any = { ...additionalWhere };
 
-    console.log(
-      `[BaseService] Model ${this.constructor.name} has deletedAt field: ${hasDeletedAt}`
-    );
+    // Soft delete behavior
+    if (hasDeletedAt) {
+      if (deleted === "exclude") {
+        where.deletedAt = null;
+      } else if (deleted === "only") {
+        where.deletedAt = { not: null };
+      } // include => no filtro
+    }
 
-    const where: any = {
-      ...(hasDeletedAt ? { deletedAt: null } : {}), // Soft delete filter only if field exists
-      ...additionalWhere,
-    };
-
-    // Add search filter if provided
+    // Search (overrideable)
     if (q) {
-      // Default search implementation - can be overridden by services
       const searchConditions = this.buildSearchConditions(q);
       if (searchConditions && searchConditions.length > 0) {
         where.OR = searchConditions;
@@ -58,7 +85,6 @@ export abstract class BaseService<T extends { id: number | string }> {
       orderBy,
     };
 
-    // Handle include/select properly - if include contains select, it's actually a select
     if (include) {
       if (include.select) {
         findManyOptions.select = include.select;
@@ -72,39 +98,34 @@ export abstract class BaseService<T extends { id: number | string }> {
       this.getModel().count({ where }),
     ]);
 
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
-  }
-
-  /**
-   * Build search conditions for findAll - can be overridden by services
-   */
-  protected buildSearchConditions(q: string): any[] {
-    // Default implementation - services should override for specific searchable fields
-    return [];
-  }
-
-  /**
-   * Standard findOne implementation with error handling and optional includes
-   */
-  async findOne(id: number | string, include?: any): Promise<{ data: T }> {
-    // Check if model supports soft deletes
-    const modelFields = this.getModel().fields || {};
-    const hasDeletedAt = "deletedAt" in modelFields;
-
-    console.log(
-      `[BaseService] Model ${this.constructor.name} has deletedAt field: ${hasDeletedAt}`
-    );
-
-    const findOptions: any = {
-      where: {
-        id,
-        ...(hasDeletedAt ? { deletedAt: null } : {}), // Soft delete filter only if field exists
+    return {
+      data,
+      meta: {
+        total,
+        page: page || 1,
+        limit: limit || take || 10,
+        totalPages: Math.ceil(total / (limit || take || 10)),
       },
     };
+  }
 
-    if (include) {
-      findOptions.include = include;
+  // --- Buscar uno (respetando soft delete)
+  async findOne(
+    id: number | string,
+    include?: any,
+    { includeDeleted = false } = {}
+  ): Promise<{ data: T }> {
+    const hasDeletedAt = await this.hasDeletedAt();
+
+    const findOptions: any = {
+      where: { id },
+    };
+
+    if (hasDeletedAt && !includeDeleted) {
+      findOptions.where.deletedAt = null;
     }
+
+    if (include) findOptions.include = include;
 
     const record = await this.getModel().findUnique(findOptions);
 
@@ -116,52 +137,64 @@ export abstract class BaseService<T extends { id: number | string }> {
     return { data: record };
   }
 
-  /**
-   * Standard create implementation
-   */
-  async create(data: Partial<T>): Promise<{ data: T }> {
+  // --- Create
+  async create(data: any): Promise<{ data: T }> {
     const record = await this.getModel().create({ data });
     return { data: record };
   }
 
-  /**
-   * Standard update implementation
-   */
-  async update(id: number | string, data: Partial<T>): Promise<{ data: T }> {
-    await this.findOne(id); // Ensure exists
-    const record = await this.getModel().update({
-      where: { id },
-      data,
-    });
+  // --- Update
+  async update(id: number | string, data: any): Promise<{ data: T }> {
+    await this.findOne(id); // throws if not exists
+    const record = await this.getModel().update({ where: { id }, data });
     return { data: record };
   }
 
-  /**
-   * Standard remove implementation (soft delete)
-   */
+  // --- Soft delete (si es soportado), o hard delete si no existe deletedAt
   async remove(id: number | string): Promise<{ message: string }> {
-    await this.findOne(id); // Ensure exists
-
-    // Check if model supports soft deletes
-    const modelFields = this.getModel().fields || {};
-    const hasDeletedAt = "deletedAt" in modelFields;
-
-    console.log(
-      `[BaseService] Model ${this.constructor.name} has deletedAt field: ${hasDeletedAt}`
-    );
+    const hasDeletedAt = await this.hasDeletedAt();
+    await this.findOne(id); // ensure exists (respects soft delete)
 
     if (hasDeletedAt) {
       await this.getModel().update({
         where: { id },
-        data: { deletedAt: new Date(), isActive: false },
+        data: { deletedAt: new Date(), isActive: false } as any,
       });
-      return { message: "Record deleted successfully" };
+      return { message: "Record soft-deleted successfully" };
     } else {
-      // Hard delete if no soft delete support
-      await this.getModel().delete({
-        where: { id },
-      });
-      return { message: "Record deleted successfully" };
+      await this.getModel().delete({ where: { id } });
+      return { message: "Record hard-deleted successfully" };
     }
+  }
+
+  // --- Restore soft-deleted
+  async restore(id: number | string): Promise<{ data: T }> {
+    const hasDeletedAt = await this.hasDeletedAt();
+
+    if (!hasDeletedAt) {
+      throw new NotFoundException("Restore not supported for this resource");
+    }
+
+    // allow restoring even if record is soft-deleted
+    const record = await this.getModel().update({
+      where: { id },
+      data: { deletedAt: null, isActive: true } as any,
+    });
+
+    return { data: record };
+  }
+
+  // --- Hard delete explicit
+  async hardDelete(id: number | string): Promise<{ message: string }> {
+    await this.getModel().delete({ where: { id } });
+    return { message: "Record permanently deleted" };
+  }
+
+  /**
+   * Construir condiciones de búsqueda por defecto
+   * Overridear en servicios concretos (ej: return [{ name: { contains: q, mode: 'insensitive' } }])
+   */
+  protected buildSearchConditions(q: string): any[] {
+    return [];
   }
 }

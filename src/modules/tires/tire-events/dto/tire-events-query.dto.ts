@@ -1,5 +1,5 @@
 // filepath: sae-backend/src/modules/tires/tire-events/dto/tire-events-query.dto.ts
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import {
   IsOptional,
   IsNumber,

@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateTireEventDto } from "./dto/create-tire-event.dto";
 import { TireEventsQueryDto } from "./dto/tire-events-query.dto";
-import { BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseResponseDto } from "@common/dto";
 import { TireEventType } from "@prisma/client";
 
 @Injectable()

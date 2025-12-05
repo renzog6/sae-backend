@@ -10,7 +10,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { CountriesService } from "./countries.service";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { UpdateCountryDto } from "./dto/update-country.dto";

@@ -1,5 +1,5 @@
 // filepath: sae-backend/src/modules/tires/dto/tire-query.dto.ts
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { IsEnum, IsOptional } from "class-validator";
 import { TireStatus } from "@prisma/client";
 

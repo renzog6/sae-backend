@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { FamilyController } from "@modules/persons/controllers/family.controller";
 import { FamilyService } from "@modules/persons/services/family.service";
 import { PrismaService } from "@prisma/prisma.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { ExecutionContext } from "@nestjs/common";
 

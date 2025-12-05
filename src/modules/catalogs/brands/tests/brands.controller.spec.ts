@@ -2,7 +2,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { BrandsController } from "../brands.controller";
 import { BrandsService } from "../brands.service";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { CreateBrandDto } from "../dto/create-brand.dto";
 import { UpdateBrandDto } from "../dto/update-brand.dto";
 

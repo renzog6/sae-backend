@@ -26,7 +26,7 @@ import {
   ApiParam,
   ApiBody,
 } from "@nestjs/swagger";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { EquipmentQueryDto } from "../dto/equipment-query.dto";
 
 @ApiTags("equipment")

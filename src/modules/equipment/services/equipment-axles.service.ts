@@ -8,7 +8,7 @@ import {
 } from "../dto/create-equipment-axle.dto";
 import { UpdateEquipmentAxleDto } from "../dto/update-equipment-axle.dto";
 import { EquipmentAxleQueryDto } from "../dto/equipment-axle-query.dto";
-import { BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class EquipmentAxlesService {

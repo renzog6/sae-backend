@@ -2,7 +2,7 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { InspectionsService } from "@modules/inspections/services/inspections.service";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 
 @ApiTags("inspections")
 @Controller("inspections")

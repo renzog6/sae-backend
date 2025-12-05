@@ -1,4 +1,4 @@
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { IsEnum, IsOptional } from "class-validator";
 import { EmployeeStatus } from "@prisma/client";
 

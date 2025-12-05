@@ -1,5 +1,5 @@
 //filepath: sae-backend/src/modules/equipment/dto/equipment-query.dto.ts
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { IsEnum, IsOptional } from "class-validator";
 import { EquipmentStatus } from "@prisma/client";
 

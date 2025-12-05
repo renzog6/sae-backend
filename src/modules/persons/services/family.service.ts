@@ -4,7 +4,7 @@ import { CreateFamilyDto } from "@modules/persons/dto/create-family.dto";
 import { UpdateFamilyDto } from "@modules/persons/dto/update-family.dto";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class FamilyService extends BaseService<any> {

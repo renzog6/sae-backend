@@ -2,7 +2,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { BusinessCategoriesController } from "../business-categories.controller";
 import { BusinessCategoriesService } from "../business-categories.service";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { CreateBusinessCategoryDto } from "../dto/create-business-category.dto";
 import { UpdateBusinessCategoryDto } from "../dto/update-business-category.dto";
 

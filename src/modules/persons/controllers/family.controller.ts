@@ -21,7 +21,7 @@ import {
 import { FamilyService } from "@modules/persons/services/family.service";
 import { CreateFamilyDto } from "@modules/persons/dto/create-family.dto";
 import { UpdateFamilyDto } from "@modules/persons/dto/update-family.dto";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
 

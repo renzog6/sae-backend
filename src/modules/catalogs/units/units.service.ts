@@ -1,9 +1,9 @@
 // filepath: sae-backend/src/modules/catalogs/units/units.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { CreateUnitDto } from "./dto/create-unit.dto";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
+import { CreateUnitDto } from "./dto/create-unit.dto";
 
 @Injectable()
 export class UnitsService extends BaseService<any> {
@@ -18,6 +18,7 @@ export class UnitsService extends BaseService<any> {
   protected buildSearchConditions(q: string) {
     return [
       { name: { contains: q, mode: "insensitive" } },
+      { code: { contains: q, mode: "insensitive" } },
       { abbreviation: { contains: q, mode: "insensitive" } },
     ];
   }

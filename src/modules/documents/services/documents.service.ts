@@ -4,7 +4,7 @@ import { CreateDocumentDto } from "../dto/create-document.dto";
 import { UpdateDocumentDto } from "../dto/update-document.dto";
 import { DocumentQueryDto } from "../dto/document-query.dto";
 import { PrismaService } from "@prisma/prisma.service";
-import { BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class DocumentsService {

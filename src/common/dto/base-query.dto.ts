@@ -1,9 +1,10 @@
-// filepath: sae-backend/src/common/dto/base-query.dto.ts
+// src/common/dto/base-query.dto.ts
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsOptional, IsNumber, IsString, Min, Max } from "class-validator";
+import { SoftDeleteDto } from "./soft-delete.dto";
 
-export class BaseQueryDto {
+export class BaseQueryDto extends SoftDeleteDto {
   @ApiPropertyOptional({
     description: "Page number (1-based)",
     example: 1,
@@ -31,18 +32,12 @@ export class BaseQueryDto {
   private _skip?: number;
   private _take?: number;
 
-  @ApiPropertyOptional({
-    description: "Search query",
-    example: "search term",
-  })
+  @ApiPropertyOptional({ description: "Search query", example: "search term" })
   @IsOptional()
   @IsString()
   q?: string;
 
-  @ApiPropertyOptional({
-    description: "Sort field",
-    example: "createdAt",
-  })
+  @ApiPropertyOptional({ description: "Sort field", example: "createdAt" })
   @IsOptional()
   @IsString()
   sortBy?: string;
@@ -68,28 +63,5 @@ export class BaseQueryDto {
       this._take = this.limit || 10;
     }
     return this._take;
-  }
-}
-
-export class BaseResponseDto<T> {
-  @ApiPropertyOptional()
-  data: T[];
-
-  @ApiPropertyOptional()
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-
-  constructor(data: T[], total: number, page: number, limit: number) {
-    this.data = data;
-    this.meta = {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
   }
 }

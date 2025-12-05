@@ -13,7 +13,7 @@ import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { PersonsService } from "@modules/persons/services/persons.service";
 import { CreatePersonDto } from "@modules/persons/dto/create-person.dto";
 import { UpdatePersonDto } from "@modules/persons/dto/update-person.dto";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 
 @ApiTags("persons")
 @Controller("persons")

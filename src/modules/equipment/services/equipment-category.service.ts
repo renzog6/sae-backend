@@ -4,7 +4,7 @@ import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { CreateEquipmentCategoryDto } from "../dto/create-equipment-category.dto";
 import { UpdateEquipmentCategoryDto } from "../dto/update-equipment-category.dto";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class EquipmentCategoryService extends BaseService<any> {

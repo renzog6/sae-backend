@@ -4,7 +4,7 @@ import { PrismaService } from "@prisma/prisma.service";
 import { CreateTireInspectionDto } from "./dto/create-tire-inspection.dto";
 import { UpdateTireInspectionDto } from "./dto/update-tire-inspection.dto";
 import { TireInspectionsQueryDto } from "./dto/tire-inspections-query.dto";
-import { BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseResponseDto } from "@common/dto";
 import { TireAssignmentEventsService } from "@modules/tires/tire-assignments/tire-events.service";
 
 @Injectable()

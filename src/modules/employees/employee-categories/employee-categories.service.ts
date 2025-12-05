@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateEmployeeCategoryDto } from "./dto/create-employee-category.dto";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class EmployeeCategoriesService extends BaseService<any> {

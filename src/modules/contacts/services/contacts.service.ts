@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/modules/contacts/services/contacts.service.ts
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { CreateContactDto } from "../dto/create-contact.dto";
 import { UpdateContactDto } from "../dto/update-contact.dto";
 

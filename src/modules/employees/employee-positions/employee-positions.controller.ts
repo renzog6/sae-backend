@@ -10,7 +10,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import { EmployeePositionsService } from "./employee-positions.service";
 import { CreateEmployeePositionDto } from "./dto/create-employee-position.dto";
 import { UpdateEmployeePositionDto } from "./dto/update-employee-position.dto";

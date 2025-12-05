@@ -5,7 +5,7 @@ import { HistoryLogService } from "../../history/services/history-log.service";
 import { CreateEmployeeIncidentDto } from "../dto/create-employee-incident.dto";
 import { UpdateEmployeeIncidentDto } from "../../history/dto/update-employee-incident.dto";
 import { EmployeeIncidentsQueryDto } from "../dto/employee-incidents-query.dto";
-import { BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseResponseDto } from "@common/dto";
 import { EmployeeIncidentType, HistoryType } from "@prisma/client";
 
 @Injectable()

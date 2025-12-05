@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { FamilyService } from "@modules/persons/services/family.service";
 import { PrismaService } from "@prisma/prisma.service";
 import { NotFoundException } from "@nestjs/common";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 
 // Mock Prisma Model
 const mockPrismaService = {

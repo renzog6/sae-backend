@@ -14,7 +14,7 @@ import { CreateEmployeeIncidentDto } from "../dto/create-employee-incident.dto";
 import { UpdateEmployeeIncidentDto } from "../../history/dto/update-employee-incident.dto";
 import { EmployeeIncidentsQueryDto } from "../dto/employee-incidents-query.dto";
 import { ApiTags } from "@nestjs/swagger";
-import { BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseResponseDto } from "@common/dto";
 
 @ApiTags("employees-incidents")
 @Controller("employee-incidents")

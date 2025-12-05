@@ -7,15 +7,13 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService extends BaseService<any> {
-  private readonly logger = new Logger(UsersService.name);
-
   constructor(prisma: PrismaService) {
     super(prisma);
   }

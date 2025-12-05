@@ -16,7 +16,7 @@ import { UpdateEquipmentTypeDto } from "../dto/update-equipment-type.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import {
   ApiTags,
   ApiOperation,

@@ -2,14 +2,12 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { CreateCompanyDto } from "../dto/create-company.dto";
 import { UpdateCompanyDto } from "../dto/update-company.dto";
 
 @Injectable()
 export class CompaniesService extends BaseService<any> {
-  private readonly logger = new Logger(CompaniesService.name);
-
   constructor(prisma: PrismaService) {
     super(prisma);
   }

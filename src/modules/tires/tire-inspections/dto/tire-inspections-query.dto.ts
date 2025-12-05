@@ -1,5 +1,5 @@
 // filepath: sae-backend/src/modules/tires/tire-inspections/dto/tire-inspections-query.dto.ts
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 import {
   IsOptional,
   IsNumber,

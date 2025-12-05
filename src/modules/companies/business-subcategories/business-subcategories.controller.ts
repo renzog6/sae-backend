@@ -23,7 +23,7 @@ import { UpdateBusinessSubCategoryDto } from "./dto/update-business-subcategory.
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
-import { BaseQueryDto } from "@common/dto/base-query.dto";
+import { BaseQueryDto } from "@common/dto";
 
 @ApiTags("business-subcategories")
 @Controller("companies/subcategories")
