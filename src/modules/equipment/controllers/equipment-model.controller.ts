@@ -1,90 +1,32 @@
-// filepath: sae-backend/src/modules/equipment/controllers/equipment-model.controller.ts
+import { BaseController } from "@common/controllers/base.controller";
+
+import { Controller, Get, Param, UseGuards } from "@nestjs/common";
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Put,
-  Param,
-  Delete,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from "@nestjs/swagger";
+
 import { EquipmentModelService } from "../services/equipment-model.service";
-import { CreateEquipmentModelDto } from "../dto/create-equipment-model.dto";
-import { UpdateEquipmentModelDto } from "../dto/update-equipment-model.dto";
+import { EquipmentModel } from "../entities/equipment-model.entity";
+
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from "@nestjs/swagger";
-import { BaseQueryDto } from "@common/dto";
 
 @ApiTags("equipment-models")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller("equipments/models")
-export class EquipmentModelController {
-  constructor(private readonly equipmentModelService: EquipmentModelService) {}
-
-  @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
-  @ApiOperation({ summary: "Create a new equipment model" })
-  @ApiResponse({
-    status: 201,
-    description: "The equipment model has been successfully created.",
-  })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  create(@Body() createEquipmentModelDto: CreateEquipmentModelDto) {
-    return this.equipmentModelService.create(createEquipmentModelDto);
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class EquipmentModelController extends BaseController<EquipmentModel> {
+  constructor(private readonly equipmentModelService: EquipmentModelService) {
+    super(equipmentModelService, EquipmentModel, "EquipmentModel");
   }
 
-  @Get()
-  @ApiOperation({ summary: "Get all equipment models with pagination" })
-  @ApiResponse({ status: 200, description: "Return all equipment models." })
-  findAll(@Query() query: BaseQueryDto) {
-    return this.equipmentModelService.findAll(query);
-  }
-
-  @Get(":id")
-  @ApiOperation({ summary: "Get equipment model by id" })
-  @ApiResponse({ status: 200, description: "Return the equipment model." })
-  @ApiResponse({ status: 404, description: "Equipment model not found." })
-  findOne(@Param("id") id: string) {
-    return this.equipmentModelService.findOne(+id);
-  }
-
-  @Put(":id")
-  @Roles(Role.ADMIN, Role.MANAGER)
-  @ApiOperation({ summary: "Update equipment model by id" })
-  @ApiResponse({
-    status: 200,
-    description: "The equipment model has been successfully updated.",
-  })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiResponse({ status: 404, description: "Equipment model not found." })
-  update(
-    @Param("id") id: string,
-    @Body() updateEquipmentModelDto: UpdateEquipmentModelDto
-  ) {
-    return this.equipmentModelService.update(+id, updateEquipmentModelDto);
-  }
-
-  @Delete(":id")
   @Roles(Role.ADMIN)
-  @ApiOperation({ summary: "Delete equipment model by id" })
-  @ApiResponse({
-    status: 200,
-    description: "The equipment model has been successfully deleted.",
-  })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiResponse({ status: 404, description: "Equipment model not found." })
-  remove(@Param("id") id: string) {
-    return this.equipmentModelService.remove(+id);
+  override remove(id: number) {
+    return super.remove(id);
   }
 
   @Get("type/:typeId")

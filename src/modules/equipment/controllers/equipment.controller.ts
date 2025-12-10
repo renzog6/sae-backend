@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/equipment/controllers/equipment.controller.ts
+import { BaseController } from "@common/controllers/base.controller";
 
 import {
   Controller,
@@ -11,12 +11,6 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { EquipmentService } from "../services/equipment.service";
-import { CreateEquipmentDto } from "../dto/create-equipment.dto";
-import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
-import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
-import { RolesGuard } from "@common/guards/roles.guard";
-import { Roles, Role } from "@common/decorators/roles.decorator";
 import {
   ApiTags,
   ApiOperation,
@@ -26,38 +20,29 @@ import {
   ApiParam,
   ApiBody,
 } from "@nestjs/swagger";
-import { BaseQueryDto } from "@common/dto";
+
+import { EquipmentService } from "../services/equipment.service";
+import { Equipment } from "../entities/equipment.entity";
+import { CreateEquipmentDto } from "../dto/create-equipment.dto";
+import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
 import { EquipmentQueryDto } from "../dto/equipment-query.dto";
+
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
+import { RolesGuard } from "@common/guards/roles.guard";
+import { Roles, Role } from "@common/decorators/roles.decorator";
 
 @ApiTags("equipment")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller("equipments")
-export class EquipmentController {
-  constructor(private readonly equipmentService: EquipmentService) {}
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class EquipmentController extends BaseController<Equipment> {
+  constructor(private readonly equipmentService: EquipmentService) {
+    super(equipmentService, Equipment, "Equipment");
+  }
 
-  // -------------------------------------------------------------------------
-  // CREATE
-  // -------------------------------------------------------------------------
-  @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
-  @ApiOperation({
-    summary: "Create a new equipment",
-    description: "Creates a new equipment record with the provided details.",
-  })
-  @ApiBody({
-    type: CreateEquipmentDto,
-    description: "Data required to create a new equipment record.",
-  })
-  @ApiResponse({
-    status: 201,
-    description: "The equipment has been successfully created.",
-  })
-  @ApiResponse({ status: 400, description: "Invalid request data." })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiResponse({ status: 500, description: "Internal server error." })
-  create(@Body() createEquipmentDto: CreateEquipmentDto) {
-    return this.equipmentService.create(createEquipmentDto);
+  @Roles(Role.ADMIN)
+  override remove(id: number) {
+    return super.remove(id);
   }
 
   // -------------------------------------------------------------------------
@@ -69,54 +54,9 @@ export class EquipmentController {
     description:
       "Retrieves all equipment records with optional filters and pagination parameters.",
   })
-  @ApiQuery({
-    name: "typeId",
-    required: false,
-    type: Number,
-    description: "Filter by equipment type ID.",
-  })
-  @ApiQuery({
-    name: "modelId",
-    required: false,
-    type: Number,
-    description: "Filter by equipment model ID.",
-  })
-  @ApiQuery({
-    name: "categoryId",
-    required: false,
-    type: Number,
-    description: "Filter by equipment category ID.",
-  })
-  @ApiQuery({
-    name: "year",
-    required: false,
-    type: Number,
-    description: "Filter by equipment year.",
-  })
-  @ApiQuery({
-    name: "search",
-    required: false,
-    type: String,
-    description:
-      "Search term to filter by license plate, internal code, or description.",
-  })
-  @ApiQuery({
-    name: "skip",
-    required: false,
-    type: Number,
-    example: 0,
-    description: "Number of records to skip for pagination (default: 0).",
-  })
-  @ApiQuery({
-    name: "take",
-    required: false,
-    type: Number,
-    example: 25,
-    description: "Number of records to take for pagination (default: 25).",
-  })
   @ApiResponse({ status: 200, description: "List of equipment with metadata." })
   @ApiResponse({ status: 500, description: "Internal server error." })
-  findAll(
+  override findAll(
     @Query() query: EquipmentQueryDto,
     @Query("typeId") typeId?: number,
     @Query("modelId") modelId?: number,
@@ -130,88 +70,6 @@ export class EquipmentController {
       categoryId,
       year
     );
-  }
-  // -------------------------------------------------------------------------
-  // FIND ONE
-  // -------------------------------------------------------------------------
-  @Get(":id")
-  @ApiOperation({
-    summary: "Get equipment by ID",
-    description:
-      "Retrieves a single equipment record along with its related entities.",
-  })
-  @ApiParam({
-    name: "id",
-    type: Number,
-    description: "Unique identifier of the equipment record.",
-    example: 1,
-  })
-  @ApiResponse({ status: 200, description: "Equipment record found." })
-  @ApiResponse({ status: 404, description: "Equipment not found." })
-  @ApiResponse({ status: 500, description: "Internal server error." })
-  findOne(@Param("id") id: string) {
-    return this.equipmentService.findOne(+id);
-  }
-
-  // -------------------------------------------------------------------------
-  // UPDATE
-  // -------------------------------------------------------------------------
-  @Put(":id")
-  @Roles(Role.ADMIN, Role.MANAGER)
-  @ApiOperation({
-    summary: "Update equipment by ID",
-    description:
-      "Updates an existing equipment record based on the provided ID and data.",
-  })
-  @ApiParam({
-    name: "id",
-    type: Number,
-    description: "Unique identifier of the equipment to update.",
-    example: 1,
-  })
-  @ApiBody({
-    type: UpdateEquipmentDto,
-    description: "Fields to update in the equipment record.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "The equipment has been successfully updated.",
-  })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiResponse({ status: 404, description: "Equipment not found." })
-  @ApiResponse({ status: 500, description: "Internal server error." })
-  update(
-    @Param("id") id: string,
-    @Body() updateEquipmentDto: UpdateEquipmentDto
-  ) {
-    return this.equipmentService.update(+id, updateEquipmentDto);
-  }
-
-  // -------------------------------------------------------------------------
-  // DELETE
-  // -------------------------------------------------------------------------
-  @Delete(":id")
-  @Roles(Role.ADMIN)
-  @ApiOperation({
-    summary: "Delete equipment by ID",
-    description:
-      "Deletes an equipment record permanently based on its unique ID.",
-  })
-  @ApiParam({
-    name: "id",
-    type: Number,
-    description: "Unique identifier of the equipment to delete.",
-    example: 1,
-  })
-  @ApiResponse({
-    status: 200,
-    description: "The equipment has been successfully deleted.",
-  })
-  @ApiResponse({ status: 403, description: "Forbidden." })
-  @ApiResponse({ status: 404, description: "Equipment not found." })
-  @ApiResponse({ status: 500, description: "Internal server error." })
-  remove(@Param("id") id: string) {
-    return this.equipmentService.remove(+id);
   }
 
   // -------------------------------------------------------------------------
