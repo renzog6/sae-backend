@@ -4,8 +4,8 @@
 /build
 /tmp
 /prisma/seeds-data
-/src/uploads/employees
-/src/uploads/companies
+/storage/uploads
+/storage/reports
 
 # Logs
 logs

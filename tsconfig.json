@@ -17,15 +17,37 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "types": ["node", "jest"],
+    "types": [
+      "node",
+      "jest",
+      "express",
+      "multer"
+    ],
     "paths": {
-      "@auth/*": ["src/auth/*"],
-      "@modules/*": ["src/modules/*"],
-      "@common/*": ["src/common/*"],
-      "@prisma/*": ["src/prisma/*"],
-      "@reports/*": ["src/reports/*"]
+      "@auth/*": [
+        "src/auth/*"
+      ],
+      "@modules/*": [
+        "src/modules/*"
+      ],
+      "@common/*": [
+        "src/common/*"
+      ],
+      "@prisma/*": [
+        "src/prisma/*"
+      ],
+      "@reports/*": [
+        "src/reports/*"
+      ]
     }
   },
-  "include": ["src/**/*", "test/**/*", "prisma/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "prisma/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

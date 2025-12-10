@@ -15,7 +15,7 @@ import { InspectionsModule } from "./modules/inspections/inspections.module";
 import { HealthModule } from "./modules/health/health.module";
 import { CatalogsModule } from "./modules/catalogs/catalogs.module";
 import { PersonsModule } from "./modules/persons/persons.module";
-import { DocumentsModule } from "./modules/documents/documents.module";
+import { ServerFilesModule } from "./server-files/server-files.module";
 import { HistoryModule } from "./modules/history/history.module";
 import { TiresModule } from "./modules/tires/tires.module";
 import { LoggerMiddleware } from "@common/logger/logger.middleware";
@@ -51,7 +51,7 @@ import { ReportsModule } from "@reports/reports.module";
     HealthModule,
     CatalogsModule,
     PersonsModule,
-    DocumentsModule,
+    ServerFilesModule,
     HistoryModule,
     TiresModule,
     ReportsModule,
