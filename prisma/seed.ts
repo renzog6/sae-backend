@@ -107,7 +107,10 @@ async function main() {
 
   const documents = loadJson("documents.json");
   if (documents.length)
-    await prisma.document.createMany({ data: documents, skipDuplicates: true });
+    await prisma.serverFile.createMany({
+      data: documents,
+      skipDuplicates: true,
+    });
 
   // Parts system (brands needed for equipmentModels)
   const brands = loadJson("brands.json");

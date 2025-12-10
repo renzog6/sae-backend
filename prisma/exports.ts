@@ -1,8 +1,8 @@
 // filepath: sae-backend/prisma/exports.ts
 
 import { PrismaClient } from "@prisma/client";
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 
 const prisma = new PrismaClient();
 const exportDir = path.join(__dirname, "seeds-data");
@@ -23,7 +23,7 @@ async function main() {
     contactLinks: () => prisma.contactLink.findMany(),
     contacts: () => prisma.contact.findMany(),
     countries: () => prisma.country.findMany(),
-    documents: () => prisma.document.findMany(),
+    documents: () => prisma.serverFile.findMany(),
     employeeCategories: () => prisma.employeeCategory.findMany(),
     employeeIncidents: () => prisma.employeeIncident.findMany(),
     employeePositions: () => prisma.employeePosition.findMany(),
