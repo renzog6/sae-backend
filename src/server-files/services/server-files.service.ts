@@ -84,4 +84,26 @@ export class ServerFilesService {
     });
     return { data: document };
   }
+
+  async findAll(filter?: { employeeId?: number; companyId?: number }) {
+    const where: any = {
+      isActive: true,
+      deletedAt: null,
+    };
+
+    if (filter?.employeeId) {
+      where.employeeId = filter.employeeId;
+    }
+
+    if (filter?.companyId) {
+      where.companyId = filter.companyId;
+    }
+
+    const documents = await this.prisma.serverFile.findMany({
+      where,
+      orderBy: { uploadedAt: "desc" },
+    });
+
+    return { data: documents };
+  }
 }
