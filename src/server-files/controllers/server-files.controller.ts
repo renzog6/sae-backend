@@ -12,7 +12,18 @@ import {
   Query,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiQuery,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+} from "@nestjs/swagger";
 import { diskStorage } from "multer";
 import { extname, join, isAbsolute } from "path";
 import { Response } from "express";
@@ -39,6 +50,49 @@ export class ServerFilesController {
   ) {}
 
   @Get()
+  @ApiOperation({
+    summary: "Get all server files",
+    description:
+      "Retrieves a list of all server files with optional filtering by employee or company.",
+  })
+  @ApiQuery({
+    name: "employeeId",
+    required: false,
+    type: "number",
+    description: "Filter files by employee ID",
+  })
+  @ApiQuery({
+    name: "companyId",
+    required: false,
+    type: "number",
+    description: "Filter files by company ID",
+  })
+  @ApiOkResponse({
+    description: "Successfully retrieved the list of files",
+    schema: {
+      type: "object",
+      properties: {
+        data: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              id: { type: "number" },
+              filename: { type: "string" },
+              mimetype: { type: "string" },
+              size: { type: "number" },
+              path: { type: "string" },
+              description: { type: "string" },
+              employeeId: { type: "number", nullable: true },
+              companyId: { type: "number", nullable: true },
+              uploadedAt: { type: "string", format: "date-time" },
+              isActive: { type: "boolean" },
+            },
+          },
+        },
+      },
+    },
+  })
   async findAll(
     @Query("employeeId") employeeId?: string,
     @Query("companyId") companyId?: string
@@ -52,18 +106,40 @@ export class ServerFilesController {
 
   @Post("upload")
   @ApiConsumes("multipart/form-data")
+  @ApiOperation({
+    summary: "Upload a file",
+    description:
+      "Uploads a file and associates it with an employee or company entity.",
+  })
   @ApiBody({
-    description: "Upload a file associated with an entity",
+    description: "File upload request",
+    type: UploadFileDto,
+  })
+  @ApiOkResponse({
+    description: "File uploaded successfully",
     schema: {
       type: "object",
       properties: {
-        file: { type: "string", format: "binary" },
-        entityType: { type: "string", enum: ["EMPLOYEE", "COMPANY"] },
-        entityId: { type: "integer" },
-        description: { type: "string" },
+        data: {
+          type: "object",
+          properties: {
+            id: { type: "number" },
+            filename: { type: "string" },
+            mimetype: { type: "string" },
+            size: { type: "number" },
+            path: { type: "string" },
+            description: { type: "string" },
+            employeeId: { type: "number", nullable: true },
+            companyId: { type: "number", nullable: true },
+            uploadedAt: { type: "string", format: "date-time" },
+            isActive: { type: "boolean" },
+          },
+        },
       },
-      required: ["file", "entityType", "entityId"],
     },
+  })
+  @ApiBadRequestResponse({
+    description: "Invalid file data or unsupported file type",
   })
   @UseInterceptors(
     FileInterceptor("file", {
@@ -94,6 +170,25 @@ export class ServerFilesController {
   }
 
   @Get(":id/download")
+  @ApiOperation({
+    summary: "Download a file",
+    description: "Downloads a file by its ID.",
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    description: "Unique identifier of the file to download",
+  })
+  @ApiOkResponse({
+    description: "File downloaded successfully",
+    schema: {
+      type: "string",
+      format: "binary",
+    },
+  })
+  @ApiNotFoundResponse({
+    description: "File not found with the specified ID",
+  })
   async download(@Param("id") id: string, @Res() res: Response) {
     const doc = await this.serverFilesService.findOne(+id);
     const filePath = isAbsolute(doc.data.path)

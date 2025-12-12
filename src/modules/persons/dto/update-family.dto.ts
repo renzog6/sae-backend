@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/persons/family/dto/update-family.dto.ts
+// filepath: sae-backend/src/modules/persons/dto/update-family.dto.ts
 import { PartialType, ApiPropertyOptional } from "@nestjs/swagger";
 import { CreateFamilyDto } from "./create-family.dto";
 import {

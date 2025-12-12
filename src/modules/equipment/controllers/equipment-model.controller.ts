@@ -6,6 +6,7 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
+  ApiParam,
 } from "@nestjs/swagger";
 
 import { EquipmentModelService } from "../services/equipment-model.service";
@@ -30,11 +31,21 @@ export class EquipmentModelController extends BaseController<EquipmentModel> {
   }
 
   @Get("type/:typeId")
-  @ApiOperation({ summary: "Get equipment models by type" })
+  @ApiOperation({
+    summary: "Get equipment models by type",
+    description:
+      "Retrieves all equipment models that belong to the specified equipment type.",
+  })
+  @ApiParam({
+    name: "typeId",
+    type: "number",
+    description: "Unique identifier of the equipment type",
+  })
   @ApiResponse({
     status: 200,
-    description: "Return equipment models for the type.",
+    description: "List of equipment models for the specified type.",
   })
+  @ApiResponse({ status: 404, description: "Equipment type not found" })
   findByType(@Param("typeId") typeId: string) {
     return this.equipmentModelService.findByType(+typeId);
   }

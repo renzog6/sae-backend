@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { PaginationMetaDto } from "./pagination-meta.dto";
 
 export class BaseResponseDto<T> {
-  @ApiProperty({ type: [] })
+  @ApiProperty({ isArray: true })
   data: T[];
 
   @ApiProperty({ type: PaginationMetaDto })

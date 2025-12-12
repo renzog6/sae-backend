@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/persons/family/family.controller.ts
+// filepath: sae-backend/src/modules/persons/controllers/family.controller.ts
 import {
   Controller,
   Get,

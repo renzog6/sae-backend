@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/persons/family/dto/create-family.dto.ts
+// filepath: sae-backend/src/modules/persons/dto/create-family.dto.ts
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsInt,
