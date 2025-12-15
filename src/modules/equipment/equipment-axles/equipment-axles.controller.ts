@@ -1,21 +1,23 @@
-// filepath: sae-backend/src/modules/equipment/controllers/equipment-axles.controller.ts
+import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
   Get,
   Post,
   Body,
+  Put,
   Param,
   Delete,
-  Put,
   Query,
+  UseGuards,
+  ParseIntPipe,
 } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiParam,
-  ApiQuery,
   ApiBody,
+  ApiBearerAuth,
+  ApiParam,
 } from "@nestjs/swagger";
 import { EquipmentAxlesService } from "./equipment-axles.service";
 import {
@@ -24,80 +26,66 @@ import {
 } from "./dto/create-equipment-axle.dto";
 import { UpdateEquipmentAxleDto } from "./dto/update-equipment-axle.dto";
 import { EquipmentAxleQueryDto } from "./dto/equipment-axle-query.dto";
+import { EquipmentAxle } from "./entity/equipment-axle.entity";
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
+import { RolesGuard } from "@common/guards/roles.guard";
+import { Roles, Role } from "@common/decorators/roles.decorator";
 
 @ApiTags("equipment-axles")
-@Controller("equipments/axles")
-export class EquipmentAxlesController {
-  constructor(private readonly service: EquipmentAxlesService) {}
+@Controller("equipment-axles")
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
+export class EquipmentAxlesController extends BaseController<EquipmentAxle> {
+  constructor(private readonly equipmentAxlesService: EquipmentAxlesService) {
+    super(equipmentAxlesService, EquipmentAxle, "EquipmentAxle");
+  }
 
   @Post()
+  @Roles(Role.ADMIN)
   @ApiOperation({
     summary: "Create a new equipment axle",
-    description:
-      "Creates a new axle for the specified equipment with the provided configuration.",
+    description: "Creates a new equipment axle with the provided details.",
   })
   @ApiBody({ type: CreateEquipmentAxleDto })
   @ApiResponse({
     status: 201,
     description: "Equipment axle created successfully",
   })
-  @ApiResponse({
-    status: 400,
-    description: "Bad request - Invalid data provided",
-  })
-  @ApiResponse({ status: 404, description: "Equipment not found" })
-  create(@Body() dto: CreateEquipmentAxleDto) {
-    return this.service.create(dto);
+  override create(@Body() createEquipmentAxleDto: CreateEquipmentAxleDto) {
+    return this.equipmentAxlesService.create(createEquipmentAxleDto);
   }
 
   @Get()
   @ApiOperation({
-    summary: "Get all equipment axles with pagination",
-    description:
-      "Retrieves a paginated list of equipment axles based on query parameters.",
-  })
-  @ApiQuery({
-    name: "page",
-    required: false,
-    type: Number,
-    description: "Page number (1-based)",
-  })
-  @ApiQuery({
-    name: "limit",
-    required: false,
-    type: Number,
-    description: "Items per page",
-  })
-  @ApiQuery({
-    name: "q",
-    required: false,
-    type: String,
-    description: "Search query for axle description",
-  })
-  @ApiQuery({
-    name: "equipmentId",
-    required: false,
-    type: Number,
-    description: "Filter by equipment ID",
-  })
-  @ApiQuery({
-    name: "sortBy",
-    required: false,
-    type: String,
-    description: "Sort field",
-  })
-  @ApiQuery({
-    name: "sortOrder",
-    required: false,
-    type: String,
-    description: "Sort order (asc/desc)",
+    summary: "Get all equipment axles with filtering",
+    description: "Retrieves a paginated list of axles with optional filtering.",
   })
   @ApiResponse({
     status: 200,
     description: "Equipment axles retrieved successfully",
   })
-  findAll(@Query() query: EquipmentAxleQueryDto) {
-    return this.service.findAll(query);
+  override findAll(@Query() query: EquipmentAxleQueryDto) {
+    return this.equipmentAxlesService.findAll(query);
+  }
+
+  @Post("with-positions")
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: "Create axle with positions",
+    description: "Creates a new axle and its tire positions in a transaction.",
+  })
+  @ApiBody({ type: CreateEquipmentAxleWithPositionsDto })
+  async createWithPositions(@Body() dto: CreateEquipmentAxleWithPositionsDto) {
+    return this.equipmentAxlesService.createWithPositions(dto);
+  }
+
+  @Put(":id")
+  @Roles(Role.ADMIN)
+  override update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: UpdateEquipmentAxleDto
+  ) {
+    return this.equipmentAxlesService.update(id, dto);
   }
 
   @Get("positions/equipment/:equipmentId")
@@ -115,90 +103,7 @@ export class EquipmentAxlesController {
     description: "Tire positions retrieved successfully",
   })
   @ApiResponse({ status: 404, description: "Equipment not found" })
-  findPositionsByEquipment(@Param("equipmentId") equipmentId: string) {
-    return this.service.findPositionsByEquipment(+equipmentId);
-  }
-
-  @Post("with-positions")
-  @ApiOperation({
-    summary: "Create axle with tire positions",
-    description:
-      "Creates a new axle along with its associated tire positions in a single operation.",
-  })
-  @ApiBody({ type: CreateEquipmentAxleWithPositionsDto })
-  @ApiResponse({
-    status: 201,
-    description: "Equipment axle with positions created successfully",
-  })
-  @ApiResponse({
-    status: 400,
-    description: "Bad request - Invalid data provided",
-  })
-  @ApiResponse({ status: 404, description: "Equipment not found" })
-  createWithPositions(@Body() dto: CreateEquipmentAxleWithPositionsDto) {
-    return this.service.createWithPositions(dto);
-  }
-
-  @Get(":id")
-  @ApiOperation({
-    summary: "Get equipment axle by ID",
-    description:
-      "Retrieves a specific equipment axle by their unique identifier.",
-  })
-  @ApiParam({
-    name: "id",
-    type: "number",
-    description: "Unique identifier of the equipment axle",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Equipment axle retrieved successfully",
-  })
-  @ApiResponse({ status: 404, description: "Equipment axle not found" })
-  findOne(@Param("id") id: string) {
-    return this.service.findOne(+id);
-  }
-
-  @Put(":id")
-  @ApiOperation({
-    summary: "Update equipment axle",
-    description: "Updates an existing equipment axle with the provided data.",
-  })
-  @ApiParam({
-    name: "id",
-    type: "number",
-    description: "Unique identifier of the equipment axle to update",
-  })
-  @ApiBody({ type: UpdateEquipmentAxleDto })
-  @ApiResponse({
-    status: 200,
-    description: "Equipment axle updated successfully",
-  })
-  @ApiResponse({ status: 404, description: "Equipment axle not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Bad request - Invalid data provided",
-  })
-  update(@Param("id") id: string, @Body() dto: UpdateEquipmentAxleDto) {
-    return this.service.update(+id, dto);
-  }
-
-  @Delete(":id")
-  @ApiOperation({
-    summary: "Delete equipment axle",
-    description: "Deletes an equipment axle by their unique identifier.",
-  })
-  @ApiParam({
-    name: "id",
-    type: "number",
-    description: "Unique identifier of the equipment axle to delete",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Equipment axle deleted successfully",
-  })
-  @ApiResponse({ status: 404, description: "Equipment axle not found" })
-  remove(@Param("id") id: string) {
-    return this.service.remove(+id);
+  async findPositionsByEquipment(@Param("equipmentId", ParseIntPipe) equipmentId: number) {
+    return this.equipmentAxlesService.findPositionsByEquipment(equipmentId);
   }
 }

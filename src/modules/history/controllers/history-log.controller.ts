@@ -17,7 +17,7 @@ export class HistoryLogController {
   constructor(
     private employeeIncidentService: EmployeeIncidentService,
     private historyLogService: HistoryLogService
-  ) {}
+  ) { }
 
   @Post("incidents")
   @ApiOperation({
@@ -43,11 +43,12 @@ export class HistoryLogController {
     @Param("employeeId") employeeId: string,
     @Body() createIncidentDto: CreateEmployeeIncidentDto
   ) {
-    return this.employeeIncidentService.createIncident({
+    return this.employeeIncidentService.create({
       ...createIncidentDto,
       employeeId: parseInt(employeeId),
     });
   }
+
 
   @Get()
   @ApiOperation({

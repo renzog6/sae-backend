@@ -1,12 +1,10 @@
-// filepath: sae-backend/src/modules/contacts/controllers/contacts.controller.ts
+import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
   Get,
   Post,
   Body,
-  Put,
   Param,
-  Delete,
   UseGuards,
   Query,
 } from "@nestjs/common";
@@ -19,7 +17,8 @@ import {
 import { BaseQueryDto } from "@common/dto";
 import { ContactsService } from "../services/contacts.service";
 import { CreateContactDto } from "../dto/create-contact.dto";
-import { UpdateContactDto } from "../dto/update-contact.dto";
+// import { UpdateContactDto } from "../dto/update-contact.dto";
+import { Contact } from "../entities/contact.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
@@ -27,29 +26,33 @@ import { Roles, Role } from "@common/decorators/roles.decorator";
 @ApiTags("contacts")
 @Controller("contacts")
 @UseGuards(JwtAuthGuard, RolesGuard)
-export class ContactsController {
-  constructor(private readonly contactsService: ContactsService) {}
+@ApiBearerAuth()
+export class ContactsController extends BaseController<Contact> {
+  constructor(private readonly contactsService: ContactsService) {
+    super(contactsService, Contact, "Contact");
+  }
 
   @Post()
   @Roles(Role.ADMIN, Role.MANAGER)
-  @ApiBearerAuth()
   @ApiOperation({ summary: "Create a new contact" })
   @ApiResponse({ status: 201, description: "Contact created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
-  create(@Body() createContactDto: CreateContactDto) {
+  override create(@Body() createContactDto: CreateContactDto) {
     return this.contactsService.create(createContactDto);
   }
 
-  @Get()
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Get all contacts" })
-  @ApiResponse({ status: 200, description: "Contacts retrieved successfully" })
-  findAll(@Query() query: BaseQueryDto) {
-    return this.contactsService.findAll(query);
-  }
+  // findAll and findOne are standard now. 
+  // BaseController uses 'id' as number. ContactsService now uses 'number'. 
+  // BaseController.findOne(id) calls service.findOne(id). 
+  // BaseController.create(dto) calls service.create(dto).
+  // BaseController.update(id, dto) calls service.update(id, dto).
+  // BaseController.remove(id) calls service.remove(id).
+
+  // ContactsController override `create` had specific decorators. I kept them above.
+
+  // Custom methods:
 
   @Get("company/:companyId(\\d+)")
-  @ApiBearerAuth()
   @ApiOperation({ summary: "Get contacts by company ID" })
   @ApiResponse({ status: 200, description: "Contacts retrieved successfully" })
   findByCompany(
@@ -60,7 +63,6 @@ export class ContactsController {
   }
 
   @Get("person/:personId(\\d+)")
-  @ApiBearerAuth()
   @ApiOperation({ summary: "Get contacts by person ID" })
   @ApiResponse({ status: 200, description: "Contacts retrieved successfully" })
   findByPerson(
@@ -69,33 +71,5 @@ export class ContactsController {
   ) {
     return this.contactsService.findByPerson(personId, query);
   }
-
-  @Get(":id(\\d+)")
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Get a contact by ID" })
-  @ApiResponse({ status: 200, description: "Contact retrieved successfully" })
-  @ApiResponse({ status: 404, description: "Contact not found" })
-  findOne(@Param("id") id: string) {
-    return this.contactsService.findOne(id);
-  }
-
-  @Put(":id(\\d+)")
-  @Roles(Role.ADMIN, Role.MANAGER)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Update a contact" })
-  @ApiResponse({ status: 200, description: "Contact updated successfully" })
-  @ApiResponse({ status: 404, description: "Contact not found" })
-  update(@Param("id") id: string, @Body() updateContactDto: UpdateContactDto) {
-    return this.contactsService.update(id, updateContactDto);
-  }
-
-  @Delete(":id(\\d+)")
-  @Roles(Role.ADMIN)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Delete a contact" })
-  @ApiResponse({ status: 200, description: "Contact deleted successfully" })
-  @ApiResponse({ status: 404, description: "Contact not found" })
-  remove(@Param("id") id: string) {
-    return this.contactsService.remove(id);
-  }
 }
+

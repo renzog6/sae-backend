@@ -1,4 +1,3 @@
-// filepath: sae-backend/src/modules/equipment/services/equipment.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -13,8 +12,8 @@ import { CreateEquipmentDto } from "@modules/equipment/dto/create-equipment.dto"
 import { UpdateEquipmentDto } from "@modules/equipment/dto/update-equipment.dto";
 
 @Injectable()
-export class EquipmentService extends BaseService<any> {
-  constructor(prisma: PrismaService) {
+export class EquipmentService extends BaseService<Equipment> {
+  constructor(protected prisma: PrismaService) {
     super(prisma);
   }
 
@@ -74,23 +73,18 @@ export class EquipmentService extends BaseService<any> {
 
   /**
    * 🔍 Obtiene lista de equipos con filtros dinámicos + paginación
-   *
-   * Soporta filtros: typeId, modelId, categoryId, year, status
    */
-  async findAll(
-    query: EquipmentQueryDto = new EquipmentQueryDto(),
-    typeId?: number,
-    modelId?: number,
-    categoryId?: number,
-    year?: number
+  override async findAll(
+    query: EquipmentQueryDto = new EquipmentQueryDto()
   ): Promise<BaseResponseDto<any>> {
     const additionalWhere: any = {};
+    const { typeId, modelId, categoryId, year, status } = query;
 
-    if (typeId) additionalWhere.model = { typeId };
+    if (typeId) additionalWhere.typeId = typeId;
     if (modelId) additionalWhere.modelId = modelId;
     if (categoryId) additionalWhere.categoryId = categoryId;
     if (year) additionalWhere.year = year;
-    if (query.status) additionalWhere.status = query.status;
+    if (status) additionalWhere.status = status;
 
     return super.findAll(query, additionalWhere, this.equipmentIncludes);
   }
@@ -98,7 +92,7 @@ export class EquipmentService extends BaseService<any> {
   /**
    * 🔎 Obtiene un equipo por ID con sus relaciones
    */
-  async findOne(id: number) {
+  override async findOne(id: number) {
     return super.findOne(id, this.equipmentIncludes);
   }
 
@@ -137,94 +131,5 @@ export class EquipmentService extends BaseService<any> {
       include: this.equipmentIncludes,
     });
     return { data: updatedEquipment };
-  }
-
-  /**
-   * 🗑️ Elimina un equipo por ID
-   */
-  async remove(id: number): Promise<{ message: string }> {
-    return await super.remove(id);
-  }
-
-  // -------------------------------------------------------------------------
-  // CATEGORY METHODS
-  // -------------------------------------------------------------------------
-  async findCategories() {
-    return this.prisma.equipmentCategory.findMany({
-      include: {
-        types: true, // si tu modelo Category tiene relación 1:N con EquipmentType
-      },
-      orderBy: { id: "asc" },
-    });
-  }
-
-  async findCategory(id: number) {
-    const category = await this.prisma.equipmentCategory.findUnique({
-      where: { id },
-      include: {
-        types: {
-          include: { models: true },
-        },
-      },
-    });
-    if (!category)
-      throw new NotFoundException(`Category with id ${id} not found`);
-    return category;
-  }
-
-  // -------------------------------------------------------------------------
-  // TYPE METHODS
-  // -------------------------------------------------------------------------
-  async findTypes(categoryId?: number) {
-    const where = categoryId ? { categoryId } : {};
-    return this.prisma.equipmentType.findMany({
-      where,
-      include: {
-        category: true,
-        models: true,
-      },
-      orderBy: { id: "asc" },
-    });
-  }
-
-  async findType(id: number) {
-    const type = await this.prisma.equipmentType.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        models: true,
-      },
-    });
-    if (!type) throw new NotFoundException(`Type with id ${id} not found`);
-    return type;
-  }
-
-  // -------------------------------------------------------------------------
-  // MODEL METHODS
-  // -------------------------------------------------------------------------
-  async findModels(typeId?: number) {
-    const where = typeId ? { typeId } : {};
-    return this.prisma.equipmentModel.findMany({
-      where,
-      include: {
-        type: {
-          include: { category: true },
-        },
-      },
-      orderBy: { id: "asc" },
-    });
-  }
-
-  async findModel(id: number) {
-    const model = await this.prisma.equipmentModel.findUnique({
-      where: { id },
-      include: {
-        type: {
-          include: { category: true },
-        },
-      },
-    });
-    if (!model) throw new NotFoundException(`Model with id ${id} not found`);
-    return model;
   }
 }

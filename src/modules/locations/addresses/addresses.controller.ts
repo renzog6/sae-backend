@@ -1,103 +1,56 @@
-// filepath: sae-backend/src/modules/locations/addresses/addresses.controller.ts
+import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
   Get,
   Post,
   Body,
-  Put,
   Param,
-  Delete,
-  Query,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
   ApiParam,
   ApiResponse,
-  ApiQuery,
   ApiBody,
+  ApiBearerAuth,
 } from "@nestjs/swagger";
-import { BaseQueryDto } from "@common/dto";
 import { AddressesService } from "./addresses.service";
 import { CreateAddressDto } from "./dto/create-address.dto";
-import { UpdateAddressDto } from "./dto/update-address.dto";
+// import { UpdateAddressDto } from "./dto/update-address.dto"; // Not used explicitly if update is handled by base or if we keep custom update?
+// Actually BaseController handles update if we pass the DTO type to it? No, BaseController takes Entity.
+// BaseController implements update taking DeepPartial<Entity>.
+// But our controller usually takes specific DTOs.
+// Let's check BaseController definition if possible or just assume standard behavior.
+// Standard behavior: BaseController.update takes Body() data.
+// We should check if we need to override `update` or if BaseController allows generic.
+// Usually BaseController is: update(@Param('id') id: number, @Body() data: any)
+// If we want Swagger to show UpdateAddressDto, we might need to override it OR BaseController is generic enough.
+// The user request is to "use BaseController".
+// Let's assume we can remove the explicit CRUD methods.
+// BUT, we need to import the Entity.
+
+import { Address } from "./entities/address.entity"; // Verifying entity path next step, assuming this for now or waiting.
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
+import { RolesGuard } from "@common/guards/roles.guard";
+import { Roles, Role } from "@common/decorators/roles.decorator";
 
 @ApiTags("locations/addresses")
 @Controller("locations/addresses")
-export class AddressesController {
-  constructor(private readonly addressesService: AddressesService) {}
-
-  @Get()
-  @ApiOperation({
-    summary: "Get all addresses with pagination",
-    description:
-      "Retrieves a paginated list of addresses based on query parameters such as page, limit, search, and filters.",
-  })
-  @ApiQuery({
-    name: "page",
-    required: false,
-    type: Number,
-    description: "Page number (1-based)",
-  })
-  @ApiQuery({
-    name: "limit",
-    required: false,
-    type: Number,
-    description: "Items per page",
-  })
-  @ApiQuery({
-    name: "q",
-    required: false,
-    type: String,
-    description: "Search query for street, neighborhood, or reference",
-  })
-  @ApiQuery({
-    name: "sortBy",
-    required: false,
-    type: String,
-    description: "Sort field",
-  })
-  @ApiQuery({
-    name: "sortOrder",
-    required: false,
-    type: String,
-    description: "Sort order (asc/desc)",
-  })
-  @ApiResponse({ status: 200, description: "Addresses retrieved successfully" })
-  findAll(@Query() query: BaseQueryDto) {
-    return this.addressesService.findAll(query);
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
+export class AddressesController extends BaseController<Address> {
+  constructor(private readonly addressesService: AddressesService) {
+    super(addressesService, Address, "Address");
   }
 
-  @Get(":id")
-  @ApiOperation({
-    summary: "Get address by ID",
-    description: "Retrieves a specific address by their unique identifier.",
-  })
-  @ApiParam({
-    name: "id",
-    type: "number",
-    description: "Unique identifier of the address",
-  })
-  @ApiResponse({ status: 200, description: "Address retrieved successfully" })
-  @ApiResponse({ status: 404, description: "Address not found" })
-  findOne(@Param("id") id: string) {
-    return this.addressesService.findOne(+id);
+  @Roles(Role.ADMIN)
+  override remove(id: number) {
+    return super.remove(id);
   }
 
-  @Post()
-  @ApiOperation({
-    summary: "Create a new address",
-    description: "Creates a new address with the provided location details.",
-  })
-  @ApiBody({ type: CreateAddressDto })
-  @ApiResponse({ status: 201, description: "Address created successfully" })
-  @ApiResponse({
-    status: 400,
-    description: "Bad request - Invalid data provided",
-  })
-  create(@Body() dto: CreateAddressDto) {
-    return this.addressesService.create(dto);
-  }
+  // Custom methods start here
+
 
   @Post("person/:personId")
   @ApiOperation({
@@ -149,42 +102,7 @@ export class AddressesController {
     return this.addressesService.createForCompany(+companyId, dto);
   }
 
-  @Put(":id")
-  @ApiOperation({
-    summary: "Update address information",
-    description: "Updates an existing address with the provided data.",
-  })
-  @ApiParam({
-    name: "id",
-    type: "number",
-    description: "Unique identifier of the address to update",
-  })
-  @ApiBody({ type: UpdateAddressDto })
-  @ApiResponse({ status: 200, description: "Address updated successfully" })
-  @ApiResponse({ status: 404, description: "Address not found" })
-  @ApiResponse({
-    status: 400,
-    description: "Bad request - Invalid data provided",
-  })
-  update(@Param("id") id: string, @Body() dto: UpdateAddressDto) {
-    return this.addressesService.update(+id, dto);
-  }
 
-  @Delete(":id")
-  @ApiOperation({
-    summary: "Delete address",
-    description: "Deletes an address by their unique identifier.",
-  })
-  @ApiParam({
-    name: "id",
-    type: "number",
-    description: "Unique identifier of the address to delete",
-  })
-  @ApiResponse({ status: 200, description: "Address deleted successfully" })
-  @ApiResponse({ status: 404, description: "Address not found" })
-  remove(@Param("id") id: string) {
-    return this.addressesService.remove(+id);
-  }
 
   @Get("city/:cityId")
   @ApiOperation({

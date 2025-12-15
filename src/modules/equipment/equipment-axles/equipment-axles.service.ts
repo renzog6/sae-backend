@@ -1,18 +1,27 @@
-// filepath: sae-backend/src/modules/equipment/services/equipment-axles.service.ts
-
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import {
   CreateEquipmentAxleDto,
   CreateEquipmentAxleWithPositionsDto,
 } from "./dto/create-equipment-axle.dto";
-import { UpdateEquipmentAxleDto } from "./dto/update-equipment-axle.dto";
 import { EquipmentAxleQueryDto } from "./dto/equipment-axle-query.dto";
 import { BaseResponseDto } from "@common/dto";
+import { EquipmentAxle } from "./entity/equipment-axle.entity";
 
 @Injectable()
-export class EquipmentAxlesService {
-  constructor(private readonly prisma: PrismaService) {}
+export class EquipmentAxlesService extends BaseService<EquipmentAxle> {
+  constructor(protected prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.equipmentAxle;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [{ description: { contains: q } }];
+  }
 
   async create(data: CreateEquipmentAxleDto) {
     const axle = await this.prisma.equipmentAxle.create({
@@ -25,54 +34,42 @@ export class EquipmentAxlesService {
     return { data: axle };
   }
 
-  async findAll(
+  override async findAll(
     query: EquipmentAxleQueryDto = new EquipmentAxleQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "order", sortOrder = "asc" } = query;
+    const { equipmentId } = query;
+    const additionalWhere: any = {};
+    if (equipmentId) additionalWhere.equipmentId = equipmentId;
 
-    // Build WHERE clause
-    const where: any = {};
-    if (query.equipmentId) where.equipmentId = query.equipmentId;
+    // Use super.findAll but we need to inject our custom where logic
+    // Actually BaseService doesn't accept extra where in arguments easily unless we override.
+    // BaseService findAll signature: findAll(query, where = {}, include = undefined)
 
-    // Add search filter if provided
-    if (q) {
-      where.OR = [{ description: { contains: q } }];
-    }
+    // We construct the where object
+    // Also we need to handle default sort if not provided
+    query.sortBy = query.sortBy ?? "order";
+    query.sortOrder = query.sortOrder ?? "asc";
 
-    // Execute query with transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.equipmentAxle.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-        include: {
-          equipment: true,
-          tirePositions: true,
-        },
-      }),
-      this.prisma.equipmentAxle.count({ where }),
-    ]);
+    const include = {
+      equipment: true,
+      tirePositions: true,
+    };
 
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
+    return super.findAll(query, additionalWhere, include);
   }
 
-  async findOne(id: number) {
-    const axle = await this.prisma.equipmentAxle.findUnique({
-      where: { id },
-      include: {
-        equipment: true,
-        tirePositions: true,
-      },
-    });
+  // Preserve update and remove if they have custom logic (findOne check and include)
+  // BaseService update/remove calls findOne but maybe not with same includes.
+  // The current update logic returns included relations. BaseService update returns specific result if overriden?
+  // BaseService update returns { data: object }.
+  // I'll override to ensure includes.
 
-    if (!axle) throw new NotFoundException("Equipment axle not found");
-    return { data: axle };
-  }
+  // ... (Wait, I can just use BaseService update/remove if I don't care about includes in return for delete)
+  // But Update returns the updated object with includes in current implementation.
 
-  async update(id: number, data: UpdateEquipmentAxleDto) {
-    await this.findOne(id); // Verificar que existe
-
+  override async update(id: number, data: any) { // Type 'any' or DTO
+    // BaseService signature: update(id, data)
+    await this.findOne(id);
     const axle = await this.prisma.equipmentAxle.update({
       where: { id },
       data,
@@ -84,15 +81,15 @@ export class EquipmentAxlesService {
     return { data: axle };
   }
 
-  async remove(id: number) {
-    await this.findOne(id); // Verificar que existe
-
-    await this.prisma.equipmentAxle.delete({
-      where: { id },
-    });
-    return { message: "Equipment axle deleted successfully" };
+  override async findOne(id: number) {
+    const include = {
+      equipment: true,
+      tirePositions: true,
+    };
+    return super.findOne(id, include);
   }
 
+  // Custom methods
   async findPositionsByEquipment(equipmentId: number) {
     return this.prisma.tirePositionConfig.findMany({
       where: {
@@ -142,3 +139,4 @@ export class EquipmentAxlesService {
     return { data: result };
   }
 }
+

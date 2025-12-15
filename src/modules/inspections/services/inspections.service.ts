@@ -1,12 +1,13 @@
-// filepath: sae-backend/src/modules/inspections/services/inspections.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
+import { CreateInspectionDto } from "../dto/create-inspection.dto";
+import { Inspection } from "../entities/inspection.entity";
 
 @Injectable()
-export class InspectionsService extends BaseService<any> {
-  constructor(prisma: PrismaService) {
+export class InspectionsService extends BaseService<Inspection> {
+  constructor(protected prisma: PrismaService) {
     super(prisma);
   }
 
@@ -31,37 +32,31 @@ export class InspectionsService extends BaseService<any> {
     ];
   }
 
-  async findAll(
+  async create(data: CreateInspectionDto) {
+    const inspection = await this.prisma.inspection.create({
+      data,
+      include: {
+        equipment: true,
+        employee: true,
+        inspectionType: true
+      }
+    });
+    return { data: inspection };
+  }
+
+  override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "createdAt", sortOrder = "desc" } = query;
+    query.sortBy = query.sortBy ?? "createdAt";
+    query.sortOrder = query.sortOrder ?? "desc";
 
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = this.buildSearchConditions(q);
-    }
+    const include = {
+      equipment: true,
+      employee: true,
+      inspectionType: true,
+    };
 
-    // Execute query with transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.inspection.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-        include: {
-          equipment: true,
-          employee: true,
-          inspectionType: true,
-        },
-      }),
-      this.prisma.inspection.count({ where }),
-    ]);
-
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
-  }
-
-  async findInspectionTypes() {
-    return this.prisma.inspectionType.findMany();
+    return super.findAll(query, {}, include);
   }
 }
+

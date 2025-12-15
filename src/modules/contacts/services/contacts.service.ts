@@ -1,15 +1,28 @@
-// filepath: sae-backend/src/modules/contacts/services/contacts.service.ts
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { CreateContactDto } from "../dto/create-contact.dto";
 import { UpdateContactDto } from "../dto/update-contact.dto";
 
 @Injectable()
-export class ContactsService {
-  private readonly logger = new Logger(ContactsService.name);
+export class ContactsService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
 
-  constructor(private prisma: PrismaService) {}
+  protected getModel() {
+    return this.prisma.contact;
+  }
+
+  // Optional: buildSearchConditions if needed for super.findAll
+  protected buildSearchConditions(q: string) {
+    return [
+      { type: { contains: q } },
+      { value: { contains: q } },
+      { label: { contains: q } },
+    ];
+  }
 
   async create(createContactDto: CreateContactDto) {
     // Create contact and optional link(s)
@@ -22,15 +35,15 @@ export class ContactsService {
         contactLinks:
           createContactDto.companyId || createContactDto.personId
             ? {
-                create: [
-                  ...(createContactDto.companyId
-                    ? [{ companyId: createContactDto.companyId }]
-                    : []),
-                  ...(createContactDto.personId
-                    ? [{ personId: createContactDto.personId }]
-                    : []),
-                ],
-              }
+              create: [
+                ...(createContactDto.companyId
+                  ? [{ companyId: createContactDto.companyId }]
+                  : []),
+                ...(createContactDto.personId
+                  ? [{ personId: createContactDto.personId }]
+                  : []),
+              ],
+            }
             : undefined,
       },
       include: {
@@ -44,36 +57,9 @@ export class ContactsService {
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "id", sortOrder = "desc" } = query;
-
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [
-        { type: { contains: q } },
-        { value: { contains: q } },
-        { label: { contains: q } },
-      ];
-    }
-
-    // Get total count for pagination
-    const total = await this.prisma.contact.count({ where });
-
-    // Get paginated data
-    const contacts = await this.prisma.contact.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { [sortBy]: sortOrder },
-      include: { contactLinks: { include: { company: true, person: true } } },
-    });
-
-    return new BaseResponseDto(
-      contacts,
-      total,
-      query.page || 1,
-      query.limit || 10
-    );
+    // We can use super.findAll but we need to ensure 'contactLinks' inclusion.
+    const include = { contactLinks: { include: { company: true, person: true } } };
+    return super.findAll(query, {}, include);
   }
 
   async findByPerson(
@@ -87,7 +73,6 @@ export class ContactsService {
       contactLinks: { some: { personId: personIdNum } },
     };
 
-    // Add search filter if provided
     if (q) {
       whereClause.OR = [
         { type: { contains: q } },
@@ -126,7 +111,6 @@ export class ContactsService {
       contactLinks: { some: { companyId: companyIdNum } },
     };
 
-    // Add search filter if provided
     if (q) {
       whereClause.OR = [
         { type: { contains: q } },
@@ -154,9 +138,9 @@ export class ContactsService {
     );
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const contact = await this.prisma.contact.findUnique({
-      where: { id: parseInt(id) },
+      where: { id },
       include: { contactLinks: { include: { company: true, person: true } } },
     });
 
@@ -167,13 +151,13 @@ export class ContactsService {
     return { data: contact };
   }
 
-  async update(id: string, updateContactDto: UpdateContactDto) {
+  async update(id: number, updateContactDto: UpdateContactDto) {
     // Check if contact exists
     await this.findOne(id);
 
     // Update contact core fields
     const contact = await this.prisma.contact.update({
-      where: { id: parseInt(id) },
+      where: { id },
       data: {
         type: updateContactDto.type,
         value: updateContactDto.value,
@@ -186,7 +170,6 @@ export class ContactsService {
     // Manage links if provided
     const ops: Promise<any>[] = [];
     if (typeof updateContactDto.companyId !== "undefined") {
-      // remove existing company links and optionally create new
       ops.push(
         this.prisma.contactLink.deleteMany({
           where: { contactId: contact.id, companyId: { not: null } },
@@ -222,18 +205,18 @@ export class ContactsService {
     }
     if (ops.length) await Promise.all(ops);
 
-    return await this.findOne(String(contact.id));
+    return await this.findOne(contact.id);
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     // Check if contact exists
     await this.findOne(id);
 
-    // Delete links then contact
-    const contactId = parseInt(id);
-    await this.prisma.contactLink.deleteMany({ where: { contactId } });
-    await this.prisma.contact.delete({ where: { id: contactId } });
+    // Delete links then contact (manual cascade)
+    await this.prisma.contactLink.deleteMany({ where: { contactId: id } });
+    await this.prisma.contact.delete({ where: { id } });
 
-    return { id };
+    return { message: "Contact deleted successfully" };
   }
 }
+

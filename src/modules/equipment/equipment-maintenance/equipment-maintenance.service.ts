@@ -1,18 +1,34 @@
-// filepath: sae-backend/src/modules/equipment/services/equipment-maintenance.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { HistoryLogService } from "../../history/services/history-log.service";
 import { CreateEquipmentMaintenanceDto } from "./dto/create-equipment-maintenance.dto";
 import { MaintenanceType, HistoryType } from "@prisma/client";
+import { EquipmentMaintenance } from "./entity/equipment-maintenance.entity";
+import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
-export class EquipmentMaintenanceService {
+export class EquipmentMaintenanceService extends BaseService<EquipmentMaintenance> {
   constructor(
-    private prisma: PrismaService,
+    protected prisma: PrismaService,
     private historyLogService: HistoryLogService
-  ) {}
+  ) {
+    super(prisma);
+  }
 
-  async createMaintenance(createMaintenanceDto: CreateEquipmentMaintenanceDto) {
+  protected getModel() {
+    return this.prisma.equipmentMaintenance;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { description: { contains: q } },
+      { technician: { contains: q } }
+    ];
+  }
+
+  // Renaming createMaintenance to create to match BaseService
+  async create(createMaintenanceDto: CreateEquipmentMaintenanceDto) {
     // Crear mantenimiento
     const maintenance = await this.prisma.equipmentMaintenance.create({
       data: createMaintenanceDto,
@@ -45,6 +61,13 @@ export class EquipmentMaintenanceService {
       ACCIDENT_REPAIR: "EQUIPMENT_ACCIDENT",
       ROUTINE_CHECK: "EQUIPMENT_MAINTENANCE",
     };
-    return mapping[maintenanceType] as HistoryType;
+    return mapping[maintenanceType] as HistoryType || HistoryType.EQUIPMENT_MAINTENANCE;
+  }
+
+  override async findAll(query: BaseQueryDto = new BaseQueryDto()): Promise<BaseResponseDto<any>> {
+    // Include equipment relation by default
+    const include = { equipment: true };
+    return super.findAll(query, {}, include);
   }
 }
+

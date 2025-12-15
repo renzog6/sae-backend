@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/tires/controllers/tires.controller.ts
+import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
   Get,
@@ -8,69 +8,54 @@ import {
   Delete,
   Put,
   Query,
+  UseGuards,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { TiresService } from "./tires.service";
 import { CreateTireDto } from "./dto/create-tire.dto";
 import { UpdateTireDto } from "./dto/update-tire.dto";
 import { TireQueryDto } from "./dto/tire-query.dto";
-import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from "@nestjs/swagger";
+import { Tire } from "./entity/tire.entity";
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
+import { RolesGuard } from "@common/guards/roles.guard";
+import { Roles, Role } from "@common/decorators/roles.decorator";
 
 @ApiTags("tires")
 @Controller("tires")
-export class TiresController {
-  constructor(private readonly tiresService: TiresService) {}
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
+export class TiresController extends BaseController<Tire> {
+  constructor(private readonly tiresService: TiresService) {
+    super(tiresService, Tire, "Tire");
+  }
 
   @Post()
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Create a new tire" })
-  @ApiResponse({
-    status: 201,
-    description: "Tire created successfully",
-    schema: {
-      type: "object",
-      properties: { data: { $ref: "#/components/schemas/Tire" } },
-    },
-  })
-  create(@Body() dto: CreateTireDto) {
+  @ApiBody({ type: CreateTireDto })
+  @ApiResponse({ status: 201, description: "Tire created successfully" })
+  override create(@Body() dto: CreateTireDto) {
     return this.tiresService.create(dto);
   }
 
   @Get()
   @ApiOperation({ summary: "Get all tires with pagination and filters" })
-  findAll(@Query() query: TireQueryDto) {
+  @ApiResponse({ status: 200, description: "List of tires" })
+  override findAll(@Query() query: TireQueryDto) {
     return this.tiresService.findAll(query);
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Get tire by ID" })
-  @ApiResponse({
-    status: 200,
-    description: "Tire retrieved successfully",
-    schema: {
-      type: "object",
-      properties: { data: { $ref: "#/components/schemas/Tire" } },
-    },
-  })
-  findOne(@Param("id") id: string) {
-    return this.tiresService.findOne(+id);
-  }
-
   @Put(":id")
+  @Roles(Role.ADMIN, Role.MANAGER)
   @ApiOperation({ summary: "Update tire information" })
-  @ApiResponse({
-    status: 200,
-    description: "Tire updated successfully",
-    schema: {
-      type: "object",
-      properties: { data: { $ref: "#/components/schemas/Tire" } },
-    },
-  })
-  update(@Param("id") id: string, @Body() dto: UpdateTireDto) {
-    return this.tiresService.update(+id, dto);
-  }
-
-  @Delete(":id")
-  @ApiOperation({ summary: "Delete tire" })
-  remove(@Param("id") id: string) {
-    return this.tiresService.remove(+id);
+  @ApiBody({ type: UpdateTireDto })
+  @ApiResponse({ status: 200, description: "Tire updated successfully" })
+  override update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: UpdateTireDto
+  ) {
+    return this.tiresService.update(id, dto);
   }
 }
+

@@ -1,13 +1,13 @@
-// filepath: sae-backend/src/modules/equipment/services/equipment-category.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { CreateEquipmentCategoryDto } from "./dto/create-equipment-category.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
+import { EquipmentCategory } from "./entity/equipment-category.entity";
 
 @Injectable()
-export class EquipmentCategoryService extends BaseService<any> {
-  constructor(prisma: PrismaService) {
+export class EquipmentCategoryService extends BaseService<EquipmentCategory> {
+  constructor(protected prisma: PrismaService) {
     super(prisma);
   }
 
@@ -27,35 +27,14 @@ export class EquipmentCategoryService extends BaseService<any> {
     return { data: category };
   }
 
-  async findAll(
+  override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+    query.sortBy = query.sortBy ?? "name";
+    query.sortOrder = query.sortOrder ?? "asc";
 
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [{ name: { contains: q } }, { description: { contains: q } }];
-    }
-
-    // Execute query with transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.equipmentCategory.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-        include: { types: true },
-      }),
-      this.prisma.equipmentCategory.count({ where }),
-    ]);
-
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
-  }
-
-  async remove(id: number): Promise<{ message: string }> {
-    await this.findOne(id);
-    await this.prisma.equipmentCategory.delete({ where: { id } });
-    return { message: "Equipment category deleted successfully" };
+    const include = { types: true };
+    return super.findAll(query, {}, include);
   }
 }
+

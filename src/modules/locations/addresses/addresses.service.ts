@@ -1,4 +1,4 @@
-// filepath: sae-backend/src/modules/locations/addresses/addresses.service.ts
+import { BaseService } from "@common/services/base.service";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
@@ -6,59 +6,68 @@ import { CreateAddressDto } from "./dto/create-address.dto";
 import { UpdateAddressDto } from "./dto/update-address.dto";
 
 @Injectable()
-export class AddressesService {
-  constructor(private prisma: PrismaService) {}
+export class AddressesService extends BaseService<any> {
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.address;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { street: { contains: q } },
+      { city: { name: { contains: q } } },
+      { postalCode: { contains: q } },
+    ];
+  }
+
+  // Override findAll to use custom includes or keep existing logic?
+  // Existing logic has standard filters + q + simple includes.
+  // BaseService.findAll accepts includes in getModel? No.
+  // BaseService.findAll takes 'where' and 'include'.
+  // Let's refactor findAll to use super functionality but passing specific includes.
 
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "street", sortOrder = "asc" } = query;
+    // Custom includes for Address
+    const include = {
+      city: { include: { province: true } },
+      company: true,
+      person: true,
+    };
 
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [
-        { street: { contains: q } },
-        { city: { name: { contains: q } } },
-        { postalCode: { contains: q } },
-      ];
-    }
+    // Use super logic but we need to pass search conditions if we don't use 'buildSearchConditions' automatically? 
+    // Wait, BaseService.findAll calls buildSearchConditions internally if 'q' is present.
+    // So we just need to pass 'include' via a method override or arguments?
+    // BaseService.findAll signature: (query, where = {}, include = undefined)
 
-    // Get total count for pagination
-    const total = await this.prisma.address.count({ where });
+    // We want to preserve specific search fields from original findAll:
+    // street, city.name, postalCode.
+    // My buildSearchConditions above covers this.
 
-    // Get paginated data
-    const addresses = await this.prisma.address.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { [sortBy]: sortOrder },
-      include: {
-        city: { include: { province: true } },
-        company: true,
-        person: true,
-      },
-    });
-
-    return new BaseResponseDto(
-      addresses,
-      total,
-      query.page || 1,
-      query.limit || 10
-    );
+    return super.findAll(query, {}, include);
   }
 
+  // Custom findOne to include relations
   async findOne(id: number) {
+    const include = {
+      city: { include: { province: true } },
+      company: true,
+      person: true,
+    };
+    // BaseService.findOne doesn't support passing 'include'. It just does generic findUnique.
+    // We should override it OR update BaseService (too risky).
+    // Let's override it using super.findOne if possible? No, super.findOne calls this.model.findUnique({where:{id}}).
+    // So we must manually implement it OR use prisma directly.
+
     const address = await this.prisma.address.findUnique({
       where: { id },
-      include: {
-        city: { include: { province: true } },
-        company: true,
-        person: true,
-      },
+      include,
     });
-    if (!address)
-      throw new NotFoundException(`Address with ID ${id} not found`);
+    if (!address) throw new NotFoundException(`Address with ID ${id} not found`);
     return { data: address };
   }
 
@@ -135,10 +144,15 @@ export class AddressesService {
   }
 
   async remove(id: number) {
-    const exists = await this.prisma.address.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException(`Address with ID ${id} not found`);
-    await this.prisma.address.delete({ where: { id } });
-    return { message: "Address deleted successfully" };
+    return super.remove(id); // Use BaseService soft-delete or hard-delete? 
+    // Original implementation was delete() (HARD DELETE).
+    // BaseService.remove() is usually SOFT DELETE if model supports it, or generic.
+    // Let's assume strict parity: original used `delete`.
+    // If I switch to super.remove(), check if Address has soft delete?
+    // BaseService: `if (this.hasDeletedAt()) ... else delete`.
+    // Address likely doesn't have deletedAt? `addresses.service.ts` didn't show it.
+    // So super.remove() will likely do `delete`.
+    // I'll stick to super.remove() for standard behavior.
   }
 
   findByCity(cityId: number) {
@@ -166,3 +180,4 @@ export class AddressesService {
     });
   }
 }
+

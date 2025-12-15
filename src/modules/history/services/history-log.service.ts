@@ -1,19 +1,37 @@
-// filepath: sae-backend/src/modules/history/services/history-log.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { CreateHistoryLogDto } from "@modules/history/dto/create-history-log.dto";
+import { HistoryLog } from "../entities/history-log.entity";
 
 @Injectable()
-export class HistoryLogService {
-  constructor(private prisma: PrismaService) {}
+export class HistoryLogService extends BaseService<HistoryLog> {
+  constructor(protected prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.historyLog;
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { title: { contains: q } },
+      { description: { contains: q } },
+    ];
+  }
 
   async createLog(createHistoryLogDto: CreateHistoryLogDto) {
+    return this.create(createHistoryLogDto);
+  }
+
+  async create(data: CreateHistoryLogDto) {
     const log = await this.prisma.historyLog.create({
       data: {
-        ...createHistoryLogDto,
-        metadata: createHistoryLogDto.metadata
-          ? JSON.stringify(createHistoryLogDto.metadata)
-          : null,
+        ...data,
+        metadata: data.metadata && typeof data.metadata !== 'string'
+          ? JSON.stringify(data.metadata)
+          : data.metadata as string,
       },
     });
     return { data: log };
@@ -29,12 +47,9 @@ export class HistoryLogService {
   }
 
   private buildWhereClause(entityType: string, entityId: number) {
-    const whereClause = {
-      employeeId: null,
-      companyId: null,
-      equipmentId: null,
-      personId: null,
-    };
+    // Note: Using explicit any to bypass strict type checks for dynamic where clause construction
+    // in this specific helper.
+    const whereClause: any = {};
 
     switch (entityType) {
       case "employee":
@@ -54,3 +69,4 @@ export class HistoryLogService {
     return whereClause;
   }
 }
+

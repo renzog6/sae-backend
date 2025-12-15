@@ -1,13 +1,13 @@
-// filepath: sae-backend/src/modules/equipment/services/equipment-model.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { CreateEquipmentModelDto } from "./dto/create-equipment-model.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
+import { EquipmentModel } from "./entity/equipment-model.entity";
 
 @Injectable()
-export class EquipmentModelService extends BaseService<any> {
-  constructor(prisma: PrismaService) {
+export class EquipmentModelService extends BaseService<EquipmentModel> {
+  constructor(protected prisma: PrismaService) {
     super(prisma);
   }
 
@@ -30,39 +30,13 @@ export class EquipmentModelService extends BaseService<any> {
     return { data: model };
   }
 
-  async findAll(
+  override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+    query.sortBy = query.sortBy ?? "name";
+    query.sortOrder = query.sortOrder ?? "asc";
 
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [{ name: { contains: q } }, { description: { contains: q } }];
-    }
-
-    // Execute query with transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.equipmentModel.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-        include: {
-          brand: true,
-          type: true,
-        },
-      }),
-      this.prisma.equipmentModel.count({ where }),
-    ]);
-
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
-  }
-
-  async remove(id: number): Promise<{ message: string }> {
-    await this.findOne(id);
-    await this.prisma.equipmentModel.delete({ where: { id } });
-    return { message: "Equipment model deleted successfully" };
+    return super.findAll(query, {}, { brand: true, type: true });
   }
 
   async findByType(typeId: number) {
@@ -75,3 +49,4 @@ export class EquipmentModelService extends BaseService<any> {
     });
   }
 }
+

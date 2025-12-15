@@ -1,22 +1,48 @@
-// filepath: sae-backend/src/modules/employees/employee-vacations/employee-vacations.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateEmployeeVacationDto } from "./dto/create-employee-vacation.dto";
 import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { formatDateOnly } from "@common/utils/date.util";
 import { PDFDocument } from "pdf-lib";
 import * as fs from "fs";
 import * as path from "path";
 import { HistoryLogService } from "../../history/services/history-log.service";
-import { HistoryType, SeverityLevel } from "@prisma/client";
+import { HistoryType, SeverityLevel, EmployeeVacation } from "@prisma/client";
 
 @Injectable()
-export class EmployeeVacationsService {
+export class EmployeeVacationsService extends BaseService<EmployeeVacation> {
   constructor(
-    private prisma: PrismaService,
+    protected prisma: PrismaService,
     private historyLogService: HistoryLogService
-  ) {}
+  ) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.employeeVacation;
+  }
+
+  protected buildSearchConditions(q: string) {
+    // Check if q is a number for year search
+    const yearSearch = !isNaN(parseInt(q)) ? parseInt(q) : undefined;
+
+    return [
+      { detail: { contains: q } },
+      {
+        employee: {
+          person: { firstName: { contains: q } },
+        },
+      },
+      {
+        employee: {
+          person: { lastName: { contains: q } },
+        },
+      },
+      ...(yearSearch ? [{ year: { equals: yearSearch } }] : []),
+    ];
+  }
 
   async create(dto: CreateEmployeeVacationDto) {
     const start = new Date(dto.startDate);
@@ -78,40 +104,8 @@ export class EmployeeVacationsService {
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "createdAt", sortOrder = "desc" } = query;
-
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [
-        { detail: { contains: q } },
-        {
-          employee: {
-            person: { firstName: { contains: q } },
-          },
-        },
-        {
-          employee: {
-            person: { lastName: { contains: q } },
-          },
-        },
-        { year: { equals: parseInt(q) } },
-      ];
-    }
-
-    // Get paginated data and total count in a single transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.employeeVacation.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-        include: { employee: true },
-      }),
-      this.prisma.employeeVacation.count({ where }),
-    ]);
-
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
+    const include = { employee: true };
+    return super.findAll(query, {}, include);
   }
 
   async findOne(id: number) {
@@ -161,7 +155,7 @@ export class EmployeeVacationsService {
   async remove(id: number) {
     await this.findOne(id);
     await this.prisma.employeeVacation.delete({ where: { id } });
-    return { id };
+    return { message: "Vacation record deleted successfully" };
   }
 
   async generateVacationPdf(id: number): Promise<Buffer> {
@@ -238,3 +232,5 @@ export class EmployeeVacationsService {
     return Buffer.from(pdfBytes);
   }
 }
+
+

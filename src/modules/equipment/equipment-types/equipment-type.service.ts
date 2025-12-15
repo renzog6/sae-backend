@@ -1,13 +1,13 @@
-// filepath: sae-backend/src/modules/equipment/services/equipment-type.services.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { CreateEquipmentTypeDto } from "./dto/create-equipment-type.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
+import { EquipmentType } from "./entity/equipment-type.entity";
 
 @Injectable()
-export class EquipmentTypeService extends BaseService<any> {
-  constructor(prisma: PrismaService) {
+export class EquipmentTypeService extends BaseService<EquipmentType> {
+  constructor(protected prisma: PrismaService) {
     super(prisma);
   }
 
@@ -27,30 +27,14 @@ export class EquipmentTypeService extends BaseService<any> {
     return { data: type };
   }
 
-  async findAll(
+  override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+    query.sortBy = query.sortBy ?? "name";
+    query.sortOrder = query.sortOrder ?? "asc";
 
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [{ name: { contains: q } }, { description: { contains: q } }];
-    }
-
-    // Execute query with transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.equipmentType.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-        include: { category: true },
-      }),
-      this.prisma.equipmentType.count({ where }),
-    ]);
-
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
+    // Include category relation
+    return super.findAll(query, {}, { category: true });
   }
 
   async findByCategory(categoryId: number) {
@@ -60,3 +44,4 @@ export class EquipmentTypeService extends BaseService<any> {
     });
   }
 }
+
