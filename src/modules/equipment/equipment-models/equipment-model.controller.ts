@@ -9,8 +9,8 @@ import {
   ApiParam,
 } from "@nestjs/swagger";
 
-import { EquipmentModelService } from "../services/equipment-model.service";
-import { EquipmentModel } from "../entities/equipment-model.entity";
+import { EquipmentModelService } from "./equipment-model.service";
+import { EquipmentModel } from "./entity/equipment-model.entity";
 
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";

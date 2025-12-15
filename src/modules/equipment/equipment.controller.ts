@@ -21,11 +21,11 @@ import {
   ApiBody,
 } from "@nestjs/swagger";
 
-import { EquipmentService } from "../services/equipment.service";
-import { Equipment } from "../entities/equipment.entity";
-import { CreateEquipmentDto } from "../dto/create-equipment.dto";
-import { UpdateEquipmentDto } from "../dto/update-equipment.dto";
-import { EquipmentQueryDto } from "../dto/equipment-query.dto";
+import { EquipmentService } from "./equipment.service";
+import { Equipment } from "./entities/equipment.entity";
+import { CreateEquipmentDto } from "./dto/create-equipment.dto";
+import { UpdateEquipmentDto } from "./dto/update-equipment.dto";
+import { EquipmentQueryDto } from "./dto/equipment-query.dto";
 
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";

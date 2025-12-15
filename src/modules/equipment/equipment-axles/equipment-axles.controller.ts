@@ -17,13 +17,13 @@ import {
   ApiQuery,
   ApiBody,
 } from "@nestjs/swagger";
-import { EquipmentAxlesService } from "../services/equipment-axles.service";
+import { EquipmentAxlesService } from "./equipment-axles.service";
 import {
   CreateEquipmentAxleDto,
   CreateEquipmentAxleWithPositionsDto,
-} from "../dto/create-equipment-axle.dto";
-import { UpdateEquipmentAxleDto } from "../dto/update-equipment-axle.dto";
-import { EquipmentAxleQueryDto } from "../dto/equipment-axle-query.dto";
+} from "./dto/create-equipment-axle.dto";
+import { UpdateEquipmentAxleDto } from "./dto/update-equipment-axle.dto";
+import { EquipmentAxleQueryDto } from "./dto/equipment-axle-query.dto";
 
 @ApiTags("equipment-axles")
 @Controller("equipments/axles")

@@ -7,6 +7,7 @@ import {
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseResponseDto } from "@common/dto";
+import { Equipment } from "./entities/equipment.entity";
 import { EquipmentQueryDto } from "@modules/equipment/dto/equipment-query.dto";
 import { CreateEquipmentDto } from "@modules/equipment/dto/create-equipment.dto";
 import { UpdateEquipmentDto } from "@modules/equipment/dto/update-equipment.dto";

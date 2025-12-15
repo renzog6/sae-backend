@@ -1,44 +1,33 @@
 import { Module, forwardRef } from "@nestjs/common";
-import { EquipmentService } from "./services/equipment.service";
-import { EquipmentController } from "./controllers/equipment.controller";
-import { EquipmentCategoryService } from "./services/equipment-category.service";
-import { EquipmentCategoryController } from "./controllers/equipment-category.controller";
-import { EquipmentTypeService } from "./services/equipment-type.services";
-import { EquipmentTypeController } from "./controllers/equipment-type.controller";
-import { EquipmentModelService } from "./services/equipment-model.service";
-import { EquipmentModelController } from "./controllers/equipment-model.controller";
+import { EquipmentService } from "./equipment.service";
+import { EquipmentController } from "./equipment.controller";
 import { PrismaModule } from "@prisma/prisma.module";
-import { EquipmentAxlesController } from "./controllers/equipment-axles.controller";
-import { EquipmentAxlesService } from "./services/equipment-axles.service";
-import { EquipmentMaintenanceController } from "./controllers/equipment-maintenance.controller";
-import { EquipmentMaintenanceService } from "./services/equipment-maintenance.service";
 import { HistoryModule } from "../history/history.module";
+import { EquipmentAxlesModule } from "./equipment-axles/equipment-axles.module";
+import { EquipmentCategoriesModule } from "./equipment-categories/equipment-categories.module";
+import { EquipmentMaintenanceModule } from "./equipment-maintenance/equipment-maintenance.module";
+import { EquipmentModelsModule } from "./equipment-models/equipment-models.module";
+import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => HistoryModule)],
-  controllers: [
-    EquipmentMaintenanceController,
-    EquipmentAxlesController,
-    EquipmentCategoryController,
-    EquipmentTypeController,
-    EquipmentModelController,
-    EquipmentController,
+  imports: [
+    PrismaModule,
+    forwardRef(() => HistoryModule),
+    EquipmentAxlesModule,
+    EquipmentCategoriesModule,
+    EquipmentMaintenanceModule,
+    EquipmentModelsModule,
+    EquipmentTypesModule,
   ],
-  providers: [
-    EquipmentMaintenanceService,
-    EquipmentAxlesService,
-    EquipmentCategoryService,
-    EquipmentTypeService,
-    EquipmentModelService,
-    EquipmentService,
-  ],
+  controllers: [EquipmentController],
+  providers: [EquipmentService],
   exports: [
-    EquipmentMaintenanceService,
-    EquipmentAxlesService,
-    EquipmentCategoryService,
-    EquipmentTypeService,
-    EquipmentModelService,
     EquipmentService,
+    EquipmentAxlesModule,
+    EquipmentCategoriesModule,
+    EquipmentMaintenanceModule,
+    EquipmentModelsModule,
+    EquipmentTypesModule,
   ],
 })
-export class EquipmentModule {}
+export class EquipmentModule { }

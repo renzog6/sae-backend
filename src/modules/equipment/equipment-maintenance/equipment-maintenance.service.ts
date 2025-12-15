@@ -2,7 +2,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { HistoryLogService } from "../../history/services/history-log.service";
-import { CreateEquipmentMaintenanceDto } from "../dto/create-equipment-maintenance.dto";
+import { CreateEquipmentMaintenanceDto } from "./dto/create-equipment-maintenance.dto";
 import { MaintenanceType, HistoryType } from "@prisma/client";
 
 @Injectable()

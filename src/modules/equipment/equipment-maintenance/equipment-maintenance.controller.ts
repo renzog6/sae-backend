@@ -7,9 +7,9 @@ import {
   ApiParam,
   ApiBody,
 } from "@nestjs/swagger";
-import { EquipmentMaintenanceService } from "../services/equipment-maintenance.service";
+import { EquipmentMaintenanceService } from "./equipment-maintenance.service";
 import { HistoryLogService } from "../../history/services/history-log.service";
-import { CreateEquipmentMaintenanceDto } from "../dto/create-equipment-maintenance.dto";
+import { CreateEquipmentMaintenanceDto } from "./dto/create-equipment-maintenance.dto";
 
 @ApiTags("equipment-maintenance")
 @Controller("equipment/:id/history-maintenance")

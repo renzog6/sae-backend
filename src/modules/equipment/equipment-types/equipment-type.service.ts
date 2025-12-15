@@ -2,7 +2,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { CreateEquipmentTypeDto } from "../dto/create-equipment-type.dto";
+import { CreateEquipmentTypeDto } from "./dto/create-equipment-type.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()

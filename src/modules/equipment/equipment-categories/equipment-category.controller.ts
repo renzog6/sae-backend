@@ -4,8 +4,8 @@ import { BaseController } from "@common/controllers/base.controller";
 import { Controller, UseGuards } from "@nestjs/common";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 
-import { EquipmentCategoryService } from "../services/equipment-category.service";
-import { EquipmentCategory } from "../entities/equipment-category.entity";
+import { EquipmentCategoryService } from "./equipment-category.service";
+import { EquipmentCategory } from "./entity/equipment-category.entity";
 
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
