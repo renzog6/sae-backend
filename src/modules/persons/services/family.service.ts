@@ -18,11 +18,11 @@ export class FamilyService extends BaseService<any> {
 
   protected buildSearchConditions(q: string): any[] {
     return [
-      { relationship: { contains: q, mode: "insensitive" } },
-      { person: { firstName: { contains: q, mode: "insensitive" } } },
-      { person: { lastName: { contains: q, mode: "insensitive" } } },
-      { relative: { firstName: { contains: q, mode: "insensitive" } } },
-      { relative: { lastName: { contains: q, mode: "insensitive" } } },
+      { relationship: { contains: q } },
+      { person: { firstName: { contains: q } } },
+      { person: { lastName: { contains: q } } },
+      { relative: { firstName: { contains: q } } },
+      { relative: { lastName: { contains: q } } },
     ];
   }
 

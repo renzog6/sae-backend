@@ -1,5 +1,5 @@
 // filepath: sae-backend/src/modules/companies/services/companies.service.ts
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
@@ -18,9 +18,9 @@ export class CompaniesService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { name: { contains: q, mode: "insensitive" } },
-      { businessName: { contains: q, mode: "insensitive" } },
-      { cuit: { contains: q, mode: "insensitive" } },
+      { name: { contains: q } },
+      { businessName: { contains: q } },
+      { cuit: { contains: q } },
     ];
   }
 

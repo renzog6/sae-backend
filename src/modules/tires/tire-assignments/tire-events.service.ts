@@ -14,7 +14,7 @@ export class TireAssignmentEventsService extends BaseService<any> {
   }
 
   protected buildSearchConditions(q: string) {
-    return [{ description: { contains: q, mode: "insensitive" } }];
+    return [{ description: { contains: q } }];
   }
 
   async createEvent(data: {

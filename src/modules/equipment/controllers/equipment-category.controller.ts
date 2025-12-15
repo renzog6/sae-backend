@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/modules/equipment/controllers/equipment-category.controller.ts
 import { BaseController } from "@common/controllers/base.controller";
 
 import { Controller, UseGuards } from "@nestjs/common";

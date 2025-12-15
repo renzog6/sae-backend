@@ -1,8 +1,7 @@
 // filepath: sae-backend/src/common/services/base.service.ts
 import { NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
-import { BaseQueryDto } from "../dto/base-query.dto";
-
+import { BaseQueryDto, BaseResponseDto, SingleResponseDto } from "@common/dto";
 /**
  * BaseService abstracto pensado para trabajar con PrismaService.
  *
@@ -49,10 +48,7 @@ export abstract class BaseService<T extends { id: number | string }> {
     query: BaseQueryDto = new BaseQueryDto(),
     additionalWhere: any = {},
     include?: any
-  ): Promise<{
-    data: T[];
-    meta: { total: number; page: number; limit: number; totalPages: number };
-  }> {
+  ): Promise<BaseResponseDto<T>> {
     const { skip, take, q, sortBy, sortOrder, page, limit, deleted } = query;
     const hasDeletedAt = await this.hasDeletedAt();
 
@@ -78,11 +74,14 @@ export abstract class BaseService<T extends { id: number | string }> {
 
     const orderBy = sortBy ? { [sortBy]: sortOrder } : { id: "desc" };
 
+    // Detectar "no pagination"
+    const noPagination = Number(limit) === 0;
+
     const findManyOptions: any = {
       where,
-      skip,
-      take,
       orderBy,
+      skip: noPagination ? undefined : skip,
+      take: noPagination ? undefined : take,
     };
 
     if (include) {
@@ -98,15 +97,13 @@ export abstract class BaseService<T extends { id: number | string }> {
       this.getModel().count({ where }),
     ]);
 
-    return {
+    // Si limit=0 => devolver todos los resultados y page=1
+    return new BaseResponseDto<T>(
       data,
-      meta: {
-        total,
-        page: page || 1,
-        limit: limit || take || 10,
-        totalPages: Math.ceil(total / (limit || take || 10)),
-      },
-    };
+      total,
+      noPagination ? 1 : page || 1,
+      noPagination ? total : limit || take || 10
+    );
   }
 
   // --- Buscar uno (respetando soft delete)
@@ -114,7 +111,7 @@ export abstract class BaseService<T extends { id: number | string }> {
     id: number | string,
     include?: any,
     { includeDeleted = false } = {}
-  ): Promise<{ data: T }> {
+  ): Promise<SingleResponseDto<T>> {
     const hasDeletedAt = await this.hasDeletedAt();
 
     const findOptions: any = {
@@ -134,7 +131,7 @@ export abstract class BaseService<T extends { id: number | string }> {
       throw new NotFoundException(`${entityName} with ID ${id} not found`);
     }
 
-    return { data: record };
+    return new SingleResponseDto<T>(record);
   }
 
   // --- Create

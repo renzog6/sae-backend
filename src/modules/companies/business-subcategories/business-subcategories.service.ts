@@ -17,9 +17,9 @@ export class BusinessSubcategoriesService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { name: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-      { businessCategory: { name: { contains: q, mode: "insensitive" } } },
+      { name: { contains: q } },
+      { description: { contains: q } },
+      { businessCategory: { name: { contains: q } } },
     ];
   }
 

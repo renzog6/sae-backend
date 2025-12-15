@@ -18,9 +18,9 @@ export class AddressesService {
     const where: any = {};
     if (q) {
       where.OR = [
-        { street: { contains: q, mode: "insensitive" } },
-        { city: { name: { contains: q, mode: "insensitive" } } },
-        { postalCode: { contains: q, mode: "insensitive" } },
+        { street: { contains: q } },
+        { city: { name: { contains: q } } },
+        { postalCode: { contains: q } },
       ];
     }
 

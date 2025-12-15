@@ -16,7 +16,7 @@ export class TireModelsService extends BaseService<any> {
   }
 
   protected buildSearchConditions(q: string) {
-    return [{ name: { contains: q, mode: "insensitive" } }];
+    return [{ name: { contains: q } }];
   }
 
   async create(data: CreateTireModelDto) {

@@ -1,14 +1,13 @@
 // src/common/dto/soft-delete.dto.ts
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsIn, IsOptional } from "class-validator";
-
+import { IsOptional, IsIn } from "class-validator";
 export class SoftDeleteDto {
   @ApiPropertyOptional({
-    description: "Filter soft deleted records",
+    description: "Soft delete filter",
     enum: ["exclude", "only", "include"],
     default: "exclude",
   })
   @IsOptional()
   @IsIn(["exclude", "only", "include"])
-  deleted?: "exclude" | "only" | "include" = "exclude";
+  deleted: "exclude" | "only" | "include" = "exclude";
 }

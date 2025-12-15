@@ -1,10 +1,9 @@
 // filepath: sae-backend/src/modules/locations/countries/countries.service.ts
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { CreateCountryDto } from "./dto/create-country.dto";
-import { UpdateCountryDto } from "./dto/update-country.dto";
 
 @Injectable()
 export class CountriesService extends BaseService<any> {
@@ -17,10 +16,7 @@ export class CountriesService extends BaseService<any> {
   }
 
   protected buildSearchConditions(q: string) {
-    return [
-      { name: { contains: q, mode: "insensitive" } },
-      { isoCode: { contains: q, mode: "insensitive" } },
-    ];
+    return [{ name: { contains: q } }, { isoCode: { contains: q } }];
   }
 
   async findAll(
@@ -31,10 +27,7 @@ export class CountriesService extends BaseService<any> {
     // Build search filter
     const where: any = {};
     if (q) {
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { isoCode: { contains: q, mode: "insensitive" } },
-      ];
+      where.OR = [{ name: { contains: q } }, { isoCode: { contains: q } }];
     }
 
     // Get total count for pagination

@@ -1,9 +1,8 @@
 // filepath: sae-backend/src/modules/equipment/services/equipment-model.service.ts
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { CreateEquipmentModelDto } from "../dto/create-equipment-model.dto";
-import { UpdateEquipmentModelDto } from "../dto/update-equipment-model.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
@@ -17,10 +16,7 @@ export class EquipmentModelService extends BaseService<any> {
   }
 
   protected buildSearchConditions(q: string) {
-    return [
-      { name: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-    ];
+    return [{ name: { contains: q } }, { description: { contains: q } }];
   }
 
   async create(createEquipmentModelDto: CreateEquipmentModelDto) {
@@ -42,10 +38,7 @@ export class EquipmentModelService extends BaseService<any> {
     // Build search filter
     const where: any = {};
     if (q) {
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-      ];
+      where.OR = [{ name: { contains: q } }, { description: { contains: q } }];
     }
 
     // Execute query with transaction

@@ -84,15 +84,15 @@ export class EmployeeVacationsService {
     const where: any = {};
     if (q) {
       where.OR = [
-        { detail: { contains: q, mode: "insensitive" } },
+        { detail: { contains: q } },
         {
           employee: {
-            person: { firstName: { contains: q, mode: "insensitive" } },
+            person: { firstName: { contains: q } },
           },
         },
         {
           employee: {
-            person: { lastName: { contains: q, mode: "insensitive" } },
+            person: { lastName: { contains: q } },
           },
         },
         { year: { equals: parseInt(q) } },

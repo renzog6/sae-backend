@@ -20,10 +20,10 @@ export class PersonsService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { firstName: { contains: q, mode: "insensitive" } },
-      { lastName: { contains: q, mode: "insensitive" } },
-      { dni: { contains: q, mode: "insensitive" } },
-      { cuil: { contains: q, mode: "insensitive" } },
+      { firstName: { contains: q } },
+      { lastName: { contains: q } },
+      { dni: { contains: q } },
+      { cuil: { contains: q } },
     ];
   }
 

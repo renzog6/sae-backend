@@ -63,7 +63,7 @@ export class EmployeeIncidentService {
     // Add search filter if provided
     if (q) {
       where.OR = [
-        { description: { contains: q, mode: "insensitive" } },
+        { description: { contains: q } },
         { type: { equals: q as any } },
       ];
     }

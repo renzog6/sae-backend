@@ -17,10 +17,35 @@ export class BrandsService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { name: { contains: q, mode: "insensitive" } },
-      { code: { contains: q, mode: "insensitive" } },
-      { information: { contains: q, mode: "insensitive" } },
+      { name: { contains: q } },
+      { code: { contains: q } },
+      { information: { contains: q } },
     ];
+  }
+
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    // Extract search query
+    const q = query.q;
+
+    // Default sort
+    query.sortBy = query.sortBy ?? "name";
+    query.sortOrder = query.sortOrder ?? "asc";
+
+    // Build search conditions
+    const where: any = {
+      deletedAt: null, // Only return non-deleted brands
+    };
+
+    if (q) {
+      where.OR = this.buildSearchConditions(q);
+    }
+
+    console.log("query >>>>>>>>>>>>", query);
+    console.log("q >>>>>>>>>>>>>>>>", q);
+    console.log("where >>>>>>>>>>>>", where);
+    return super.findAll(query, where);
   }
 
   async create(createBrandDto: CreateBrandDto) {
@@ -33,34 +58,6 @@ export class BrandsService extends BaseService<any> {
       },
     });
     return { data: brand };
-  }
-
-  async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
-  ): Promise<BaseResponseDto<any>> {
-    // For compatibility with client-side filtering, get all brands (no pagination)
-    // This matches the pattern used in other modules like equipment
-    const q = query.q;
-
-    // Build search conditions
-    const where: any = {
-      deletedAt: null, // Only return non-deleted brands
-    };
-
-    if (q) {
-      where.OR = this.buildSearchConditions(q);
-    }
-
-    // Get all brands without pagination for client-side filtering
-    const brands = await this.prisma.brand.findMany({
-      where,
-      orderBy: {
-        name: "asc", // Always sort by name ascending
-      },
-    });
-
-    // Return in a compatible format
-    return new BaseResponseDto(brands, brands.length, 1, brands.length);
   }
 
   async remove(id: number): Promise<{ message: string }> {

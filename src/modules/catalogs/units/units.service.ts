@@ -17,10 +17,31 @@ export class UnitsService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { name: { contains: q, mode: "insensitive" } },
-      { code: { contains: q, mode: "insensitive" } },
-      { abbreviation: { contains: q, mode: "insensitive" } },
+      { name: { contains: q } },
+      { code: { contains: q } },
+      { abbreviation: { contains: q } },
     ];
+  }
+
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    // Extract search query
+    const q = query.q;
+
+    // Default sort
+    query.sortBy = query.sortBy ?? "name";
+    query.sortOrder = query.sortOrder ?? "asc";
+
+    // Build search conditions
+    const where: any = {
+      deletedAt: null, // Only return non-deleted units
+    };
+
+    if (q) {
+      where.OR = [{ name: { contains: q } }, { abbreviation: { contains: q } }];
+    }
+    return super.findAll(query, where);
   }
 
   async create(createUnitDto: CreateUnitDto) {
@@ -29,44 +50,6 @@ export class UnitsService extends BaseService<any> {
       data: { name, abbreviation },
     });
     return { data: unit };
-  }
-
-  async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
-  ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
-
-    // Build search conditions
-    const where: any = {
-      deletedAt: null, // Only return non-deleted units
-    };
-
-    if (q) {
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { abbreviation: { contains: q, mode: "insensitive" } },
-      ];
-    }
-
-    // Get total count for pagination
-    const total = await this.prisma.unit.count({ where });
-
-    // Get units with pagination and sorting
-    const units = await this.prisma.unit.findMany({
-      where,
-      skip,
-      take,
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
-    });
-
-    return new BaseResponseDto(
-      units,
-      total,
-      query.page || 1,
-      query.limit || 10
-    );
   }
 
   async remove(id: number): Promise<{ message: string }> {

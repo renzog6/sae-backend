@@ -17,15 +17,15 @@ export class BaseQueryDto extends SoftDeleteDto {
   page?: number = 1;
 
   @ApiPropertyOptional({
-    description: "Items per page",
+    description: "Items per page. If set to 0, pagination is disabled",
     example: 10,
-    minimum: 1,
+    minimum: 0,
     maximum: 100,
   })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  @Min(1)
+  @Min(0)
   @Max(100)
   limit?: number = 10;
 

@@ -62,8 +62,8 @@ export class TireEventsService {
     // Add search filter if provided
     if (q) {
       where.OR = [
-        { description: { contains: q, mode: "insensitive" } },
-        { tire: { serialNumber: { contains: q, mode: "insensitive" } } },
+        { description: { contains: q } },
+        { tire: { serialNumber: { contains: q } } },
       ];
     }
 

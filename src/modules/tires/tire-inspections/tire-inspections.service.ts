@@ -128,19 +128,19 @@ export class TireInspectionsService {
     // Add search filter if provided
     if (q) {
       where.OR = [
-        { tire: { serialNumber: { contains: q, mode: "insensitive" } } },
-        { observation: { contains: q, mode: "insensitive" } },
+        { tire: { serialNumber: { contains: q } } },
+        { observation: { contains: q } },
         {
           tire: {
             model: {
-              brand: { name: { contains: q, mode: "insensitive" } },
+              brand: { name: { contains: q } },
             },
           },
         },
         {
           tire: {
             model: {
-              size: { mainCode: { contains: q, mode: "insensitive" } },
+              size: { mainCode: { contains: q } },
             },
           },
         },

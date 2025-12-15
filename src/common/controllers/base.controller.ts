@@ -11,11 +11,10 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
 } from "@nestjs/common";
 import {
-  ApiTags,
   ApiOperation,
-  ApiResponse,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
@@ -23,9 +22,12 @@ import {
   ApiNotFoundResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
+
 import { BaseService } from "../services/base.service";
 import { BaseQueryDto } from "../dto/base-query.dto";
 import { PaginationResponseDto } from "../dto/pagination-response.dto";
+import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
+import { RolesGuard } from "@common/guards/roles.guard";
 
 /**
  * BaseController genérico.
@@ -48,6 +50,9 @@ import { PaginationResponseDto } from "../dto/pagination-response.dto";
  *   }
  * }
  */
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiBearerAuth()
 export class BaseController<T> {
   constructor(
     protected readonly service: BaseService<any>,

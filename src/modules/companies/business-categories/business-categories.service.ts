@@ -17,10 +17,32 @@ export class BusinessCategoriesService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { name: { contains: q, mode: "insensitive" } },
-      { code: { contains: q, mode: "insensitive" } },
-      { information: { contains: q, mode: "insensitive" } },
+      { name: { contains: q } },
+      { code: { contains: q } },
+      { information: { contains: q } },
     ];
+  }
+
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    // Extract search query
+    const q = query.q;
+
+    // Default sort
+    query.sortBy = query.sortBy ?? "name";
+    query.sortOrder = query.sortOrder ?? "asc";
+
+    // Build search conditions
+    const where: any = {
+      deletedAt: null, // Only return non-deleted brands
+    };
+
+    if (q) {
+      where.OR = this.buildSearchConditions(q);
+    }
+
+    return super.findAll(query, where);
   }
 
   async create(createDto: CreateBusinessCategoryDto) {
@@ -33,40 +55,6 @@ export class BusinessCategoriesService extends BaseService<any> {
       },
     });
     return { data: category };
-  }
-
-  async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
-  ): Promise<BaseResponseDto<any>> {
-    // For compatibility with client-side filtering, get all business categories (no pagination)
-    // This matches the pattern used in other modules like equipment
-    const q = query.q;
-
-    // Build search conditions
-    const where: any = {
-      deletedAt: null, // Only return non-deleted business categories
-    };
-
-    if (q) {
-      where.OR = this.buildSearchConditions(q);
-    }
-
-    // Get all business categories without pagination for client-side filtering
-    const categories = await this.prisma.businessCategory.findMany({
-      where,
-      include: { subCategories: true },
-      orderBy: {
-        name: "asc", // Always sort by name ascending
-      },
-    });
-
-    // Return in a compatible format
-    return new BaseResponseDto(
-      categories,
-      categories.length,
-      1,
-      categories.length
-    );
   }
 
   async remove(id: number): Promise<{ message: string }> {

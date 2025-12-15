@@ -16,10 +16,25 @@ export class EmployeeCategoriesService extends BaseService<any> {
   }
 
   protected buildSearchConditions(q: string) {
-    return [
-      { name: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-    ];
+    return [{ name: { contains: q } }, { description: { contains: q } }];
+  }
+
+  async findAll(
+    query: BaseQueryDto = new BaseQueryDto()
+  ): Promise<BaseResponseDto<any>> {
+    // Extract search query
+    const q = query.q;
+
+    // Build search conditions
+    const where: any = {
+      //deletedAt: null, // Only return non-deleted brands
+    };
+
+    if (q) {
+      where.OR = this.buildSearchConditions(q);
+    }
+
+    return super.findAll(query, where);
   }
 
   async create(dto: CreateEmployeeCategoryDto) {
@@ -27,34 +42,6 @@ export class EmployeeCategoriesService extends BaseService<any> {
       data: dto as any,
     });
     return { data: category };
-  }
-
-  async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
-  ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
-
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } },
-      ];
-    }
-
-    // Get paginated data and total count in a single transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.employeeCategory.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
-      }),
-      this.prisma.employeeCategory.count({ where }),
-    ]);
-
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
   }
 
   async remove(id: number): Promise<{ message: string }> {

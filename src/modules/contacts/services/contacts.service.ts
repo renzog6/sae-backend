@@ -50,9 +50,9 @@ export class ContactsService {
     const where: any = {};
     if (q) {
       where.OR = [
-        { type: { contains: q, mode: "insensitive" } },
-        { value: { contains: q, mode: "insensitive" } },
-        { label: { contains: q, mode: "insensitive" } },
+        { type: { contains: q } },
+        { value: { contains: q } },
+        { label: { contains: q } },
       ];
     }
 
@@ -90,9 +90,9 @@ export class ContactsService {
     // Add search filter if provided
     if (q) {
       whereClause.OR = [
-        { type: { contains: q, mode: "insensitive" } },
-        { value: { contains: q, mode: "insensitive" } },
-        { label: { contains: q, mode: "insensitive" } },
+        { type: { contains: q } },
+        { value: { contains: q } },
+        { label: { contains: q } },
       ];
     }
 
@@ -129,9 +129,9 @@ export class ContactsService {
     // Add search filter if provided
     if (q) {
       whereClause.OR = [
-        { type: { contains: q, mode: "insensitive" } },
-        { value: { contains: q, mode: "insensitive" } },
-        { label: { contains: q, mode: "insensitive" } },
+        { type: { contains: q } },
+        { value: { contains: q } },
+        { label: { contains: q } },
       ];
     }
 

@@ -16,18 +16,18 @@ export class InspectionsService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { equipment: { name: { contains: q, mode: "insensitive" } } },
+      { equipment: { name: { contains: q } } },
       {
         employee: {
-          person: { firstName: { contains: q, mode: "insensitive" } },
+          person: { firstName: { contains: q } },
         },
       },
       {
         employee: {
-          person: { lastName: { contains: q, mode: "insensitive" } },
+          person: { lastName: { contains: q } },
         },
       },
-      { inspectionType: { name: { contains: q, mode: "insensitive" } } },
+      { inspectionType: { name: { contains: q } } },
     ];
   }
 

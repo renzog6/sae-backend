@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
-  Logger,
 } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
@@ -24,9 +23,9 @@ export class UsersService extends BaseService<any> {
 
   protected buildSearchConditions(q: string) {
     return [
-      { email: { contains: q, mode: "insensitive" } },
-      { name: { contains: q, mode: "insensitive" } },
-      { username: { contains: q, mode: "insensitive" } },
+      { email: { contains: q } },
+      { name: { contains: q } },
+      { username: { contains: q } },
     ];
   }
 
@@ -59,6 +58,7 @@ export class UsersService extends BaseService<any> {
     companyId?: number
   ): Promise<BaseResponseDto<any>> {
     const additionalWhere: any = {};
+
     if (companyId) {
       additionalWhere.companyId = companyId;
     }

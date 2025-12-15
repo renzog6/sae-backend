@@ -36,7 +36,7 @@ export class EquipmentAxlesService {
 
     // Add search filter if provided
     if (q) {
-      where.OR = [{ description: { contains: q, mode: "insensitive" } }];
+      where.OR = [{ description: { contains: q } }];
     }
 
     // Execute query with transaction
