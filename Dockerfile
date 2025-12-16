@@ -45,6 +45,9 @@ COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nestjs:nodejs /app/src ./src
 COPY --from=builder --chown=nestjs:nodejs /app/assets ./assets
+# Copiar entrypoint
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Variables de entorno
 USER nestjs
@@ -52,9 +55,12 @@ ENV NODE_ENV=production
 ENV PORT=3005
 EXPOSE 3005
 
-# Healthcheck
+# Healthcheck (mejor si apunta a /api/health)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3005', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+    CMD node -e "require('http').get('http://localhost:3005/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+
+# ENTRYPOINT
+ENTRYPOINT ["entrypoint.sh"]
 
 # Comando de inicio
 CMD ["node", "dist/src/main.js"]
