@@ -292,7 +292,19 @@ export class EmployeesService extends BaseService<any> {
       company: true,
       category: true,
       position: true,
-      person: true,
+      person: {
+        include: {
+          address: {
+            include: {
+              city: {
+                include: {
+                  province: true,
+                },
+              },
+            },
+          },
+        },
+      },
       vacations: true,
     };
 
