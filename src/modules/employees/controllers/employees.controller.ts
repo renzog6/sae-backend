@@ -9,9 +9,10 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
+  Delete,
 } from "@nestjs/common";
 import { Roles, Role } from "@common/decorators/roles.decorator";
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiParam } from "@nestjs/swagger";
 
 import { EmployeesService } from "../services/employees.service";
 import { Employee } from "../entities/employee.entity";
@@ -59,8 +60,11 @@ export class EmployeesController extends BaseController<Employee> {
     return this.employeesService.update(id, dto);
   }
 
+  @Delete(":id")
   @Roles(Role.ADMIN)
-  override remove(id: number) {
+  @ApiOperation({ summary: "Delete employee" })
+  @ApiParam({ name: "id", type: "number" })
+  override remove(@Param("id", ParseIntPipe) id: number) {
     return super.remove(id);
   }
 }

@@ -2,21 +2,19 @@ import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
   Get,
-  Post,
-  Body,
   Param,
   UseGuards,
+  Delete,
+  ParseIntPipe,
 } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
   ApiParam,
   ApiResponse,
-  ApiBody,
   ApiBearerAuth,
 } from "@nestjs/swagger";
 import { CountriesService } from "./countries.service";
-import { CreateCountryDto } from "./dto/create-country.dto";
 // import { UpdateCountryDto } from "./dto/update-country.dto";
 import { Country } from "./entities/country.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
@@ -32,8 +30,11 @@ export class CountriesController extends BaseController<Country> {
     super(countriesService, Country, "Country");
   }
 
+  @Delete(":id")
   @Roles(Role.ADMIN)
-  override remove(id: number) {
+  @ApiOperation({ summary: "Delete country" })
+  @ApiParam({ name: "id", type: "number" })
+  override remove(@Param("id", ParseIntPipe) id: number) {
     return super.remove(id);
   }
 

@@ -1,8 +1,8 @@
 // filepath: sae-backend/src/modules/catalogs/units/units.controller.ts
 import { BaseController } from "@common/controllers/base.controller";
 
-import { Controller } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Controller, Delete, Param, ParseIntPipe } from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiParam } from "@nestjs/swagger";
 
 import { UnitsService } from "./units.service";
 import { Unit } from "./entities/unit.entity";
@@ -16,8 +16,11 @@ export class UnitsController extends BaseController<Unit> {
     super(unitsService, Unit, "Unit");
   }
 
+  @Delete(":id")
   @Roles(Role.ADMIN)
-  override remove(id: number) {
+  @ApiOperation({ summary: "Delete unit" })
+  @ApiParam({ name: "id", type: "number" })
+  override remove(@Param("id", ParseIntPipe) id: number) {
     return super.remove(id);
   }
 }

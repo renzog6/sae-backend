@@ -1,13 +1,8 @@
 import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Put,
-  Param,
-  Delete,
-  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
