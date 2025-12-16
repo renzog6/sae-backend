@@ -1,24 +1,17 @@
+// filepath: sae-backend/src/modules/locations/provinces/provinces.controller.ts
 import { BaseController } from "@common/controllers/base.controller";
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, Param, UseGuards } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
   ApiParam,
   ApiResponse,
-  ApiBody,
   ApiBearerAuth,
 } from "@nestjs/swagger";
+
 import { ProvincesService } from "./provinces.service";
-import { CreateProvinceDto } from "./dto/create-province.dto";
-// import { UpdateProvinceDto } from "./dto/update-province.dto";
 import { Province } from "./entities/province.entity";
+
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
@@ -38,7 +31,6 @@ export class ProvincesController extends BaseController<Province> {
   }
 
   // Custom methods start here
-
 
   @Get("code/:code")
   @ApiOperation({

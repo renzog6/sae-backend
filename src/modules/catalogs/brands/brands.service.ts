@@ -42,9 +42,6 @@ export class BrandsService extends BaseService<any> {
       where.OR = this.buildSearchConditions(q);
     }
 
-    console.log("query >>>>>>>>>>>>", query);
-    console.log("q >>>>>>>>>>>>>>>>", q);
-    console.log("where >>>>>>>>>>>>", where);
     return super.findAll(query, where);
   }
 

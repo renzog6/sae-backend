@@ -10,7 +10,7 @@ import { BusinessSubCategory } from "./entities/business-subcategory.entity";
 import { Roles, Role } from "@common/decorators/roles.decorator";
 
 @ApiTags("business-subcategories")
-@Controller("companies-subcategories")
+@Controller("business-subcategories")
 export class BusinessSubcategoriesController extends BaseController<BusinessSubCategory> {
   constructor(protected readonly service: BusinessSubcategoriesService) {
     super(service, BusinessSubCategory, "BusinessSubCategory");

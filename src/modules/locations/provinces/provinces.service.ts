@@ -22,7 +22,8 @@ export class ProvincesService extends BaseService<any> {
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+    // Extract search query
+    const q = query.q;
 
     // Build search filter
     const where: any = {};
@@ -33,21 +34,7 @@ export class ProvincesService extends BaseService<any> {
     // Get total count for pagination
     const total = await this.prisma.province.count({ where });
 
-    // Get paginated data
-    const provinces = await this.prisma.province.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { [sortBy]: sortOrder },
-      include: { country: true, cities: true },
-    });
-
-    return new BaseResponseDto(
-      provinces,
-      total,
-      query.page || 1,
-      query.limit || 10
-    );
+    return super.findAll(query, where);
   }
 
   async create(dto: CreateProvinceDto) {
