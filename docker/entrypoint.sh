@@ -9,11 +9,11 @@ done
 echo "✅ MySQL is ready"
 
 if [ "$NODE_ENV" = "production" ]; then
-  echo "📦 Running Prisma migrations"
-  npx prisma migrate deploy
+  echo "📦 Skipping Prisma migrations (user request)"
+  # npx prisma migrate deploy
 else
-  echo "🧪 Syncing schema (dev)"
-  npx prisma db push
+  echo "🧪 Skipping schema sync (user request)"
+  # npx prisma db push
 fi
 
 echo "🚀 Starting backend"
