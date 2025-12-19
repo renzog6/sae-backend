@@ -1,3 +1,4 @@
+//filepath: sae-backend/src/modules/equipment/equipment.module.ts
 import { Module, forwardRef } from "@nestjs/common";
 import { EquipmentService } from "./equipment.service";
 import { EquipmentController } from "./equipment.controller";
@@ -30,4 +31,4 @@ import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
     EquipmentTypesModule,
   ],
 })
-export class EquipmentModule { }
+export class EquipmentModule {}

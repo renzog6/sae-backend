@@ -1,12 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import {
-  IsBoolean,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from "class-validator";
-import { EquipmentStatus } from "@prisma/client";
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { EquipmentStatus, FuelType } from "@prisma/client";
 
 export class CreateEquipmentDto {
   @ApiPropertyOptional({ description: "Internal equipment code" })
@@ -54,10 +48,13 @@ export class CreateEquipmentDto {
   @IsOptional()
   color?: string;
 
-  @ApiPropertyOptional({ description: "Whether the equipment uses diesel" })
-  @IsBoolean()
+  @ApiPropertyOptional({
+    description: "Equipment fuel type",
+    enum: FuelType,
+  })
+  @IsEnum(FuelType)
   @IsOptional()
-  diesel?: boolean;
+  fuelType?: FuelType;
 
   @ApiPropertyOptional({
     description: "Equipment status",

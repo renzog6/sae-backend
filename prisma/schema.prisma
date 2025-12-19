@@ -660,7 +660,7 @@ model Equipment {
   chassis      String?         @unique
   engine       String?         @unique
   color        String?
-  diesel       Boolean?
+  fuelType     FuelType        @default(NONE)
   status       EquipmentStatus @default(ACTIVE)
   isActive     Boolean         @default(true)
   deletedAt    DateTime?
@@ -700,6 +700,17 @@ enum EquipmentStatus {
   INACTIVE
   MAINTENANCE
   RETIRED
+  SOLD
+}
+
+enum FuelType {
+  DIESEL
+  GASOLINE
+  ELECTRIC
+  HYBRID
+  LPG
+  CNG
+  NONE
 }
 
 // --------------------
