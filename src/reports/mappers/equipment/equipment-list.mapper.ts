@@ -38,13 +38,20 @@ export class EquipmentListMapper {
 
       return equipment.map((item) => ({
         id: item.id,
+        category: item.category?.name || "N/A",
         name: item.name || "N/A",
+        type: item.type?.name || "N/A",
+        year: item.year || "N/A",
         brand: item.model?.brand?.name || "N/A",
         model: item.model?.name || "N/A",
-        category: item.category?.name || "N/A",
+        description: item.description || "N/A",
+        chassis: item.chassis || "N/A",
+        engine: item.engine || "N/A",
+        licensePlate: item.licensePlate || "N/A",
+        observation: item.observation || "N/A",
+        fuelType: item.fuelType || "N/A",
         status: item.status,
         active: item.isActive ? "Yes" : "No",
-        year: item.year || "N/A",
       }));
     } catch (error) {
       throw new InternalServerErrorException(

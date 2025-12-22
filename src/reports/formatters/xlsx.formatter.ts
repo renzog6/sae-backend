@@ -29,10 +29,14 @@ export class XLSXFormatter implements ReportFormatter {
     context.columns.forEach((col, index) => {
       const cell = sheet.getRow(1).getCell(index + 1);
 
-      if (col.style?.header) {
-        if (col.style.header.bold) cell.font = { bold: true };
-        if (col.style.header.alignment)
-          cell.alignment = { horizontal: col.style.header.alignment };
+      const style = resolveColumnStyle(col, context.styles);
+
+      if (style.header?.bold) {
+        cell.font = { bold: true };
+      }
+
+      if (style.header?.alignment) {
+        cell.alignment = { horizontal: style.header.alignment };
       }
     });
 
@@ -76,8 +80,10 @@ export class XLSXFormatter implements ReportFormatter {
           cell.numFmt = col.format;
         }
 
-        if (col.style?.data?.alignment) {
-          cell.alignment = { horizontal: col.style.data.alignment };
+        const style = resolveColumnStyle(col, context.styles);
+
+        if (style.data?.alignment) {
+          cell.alignment = { horizontal: style.data.alignment };
         }
       });
     });
@@ -95,4 +101,23 @@ export class XLSXFormatter implements ReportFormatter {
       metadata: context.metadata ?? {},
     };
   }
+}
+
+function resolveColumnStyle(
+  col: any,
+  defaults?: {
+    header?: { bold?: boolean; alignment?: "left" | "center" | "right" };
+    data?: { alignment?: "left" | "center" | "right" };
+  }
+) {
+  return {
+    header: {
+      ...defaults?.header,
+      ...col.style?.header,
+    },
+    data: {
+      ...defaults?.data,
+      ...col.style?.data,
+    },
+  };
 }

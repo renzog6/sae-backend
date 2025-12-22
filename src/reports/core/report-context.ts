@@ -17,12 +17,18 @@ export interface ReportColumn {
   };
 }
 
+export interface ReportStyleDefaults {
+  header?: Record<string, any>;
+  data?: Record<string, any>;
+}
+
 export interface ReportContext {
   title: string;
   columns: ReportColumn[];
   rows: any[];
 
   metadata?: Record<string, any>;
+  styles?: ReportStyleDefaults;
 }
 
 export function createReportContext(ctx: ReportContext): ReportContext {

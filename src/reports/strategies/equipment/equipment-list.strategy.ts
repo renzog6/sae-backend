@@ -47,6 +47,13 @@ export class EquipmentListStrategy implements ReportStrategy {
       title: dto.title ?? "Equipment List",
       rows,
 
+      styles: {
+        header: {
+          bold: true,
+          alignment: "center",
+        },
+      },
+
       columns: [
         {
           key: "id",
@@ -54,15 +61,33 @@ export class EquipmentListStrategy implements ReportStrategy {
           width: 10,
           type: "number",
           style: {
-            header: { bold: true, alignment: "center" },
             data: { alignment: "center" },
           },
         },
         {
+          key: "category",
+          header: "Category",
+          type: "string",
+        },
+        {
           key: "name",
           header: "Name",
-          width: 25,
+          width: 15,
           type: "string",
+        },
+        {
+          key: "type",
+          header: "Type",
+          type: "string",
+        },
+        {
+          key: "year",
+          header: "Year",
+          width: 10,
+          type: "number",
+          style: {
+            data: { alignment: "center" },
+          },
         },
         {
           key: "brand",
@@ -77,10 +102,16 @@ export class EquipmentListStrategy implements ReportStrategy {
           type: "string",
         },
         {
-          key: "category",
-          header: "Category",
+          key: "description",
+          header: "Description",
+          width: 30,
           type: "string",
         },
+        { key: "chassis", header: "Chassis", width: 25, type: "string" },
+        { key: "engine", header: "Engine", type: "string" },
+        { key: "licensePlate", header: "License Plate", type: "string" },
+        { key: "observation", header: "Observation", type: "string" },
+        { key: "fuelType", header: "Fuel Type", type: "string" },
         {
           key: "status",
           header: "Status",
@@ -91,11 +122,6 @@ export class EquipmentListStrategy implements ReportStrategy {
           header: "Active",
           width: 10,
           type: "string",
-        },
-        {
-          key: "year",
-          header: "Year",
-          type: "number",
         },
       ],
 
