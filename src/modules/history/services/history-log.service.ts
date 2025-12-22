@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+// filepath: sae-backend/src/modules/history/services/history-log.service.ts
+import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { CreateHistoryLogDto } from "@modules/history/dto/create-history-log.dto";
@@ -15,10 +16,7 @@ export class HistoryLogService extends BaseService<HistoryLog> {
   }
 
   protected buildSearchConditions(q: string) {
-    return [
-      { title: { contains: q } },
-      { description: { contains: q } },
-    ];
+    return [{ title: { contains: q } }, { description: { contains: q } }];
   }
 
   async createLog(createHistoryLogDto: CreateHistoryLogDto) {
@@ -29,9 +27,10 @@ export class HistoryLogService extends BaseService<HistoryLog> {
     const log = await this.prisma.historyLog.create({
       data: {
         ...data,
-        metadata: data.metadata && typeof data.metadata !== 'string'
-          ? JSON.stringify(data.metadata)
-          : data.metadata as string,
+        metadata:
+          data.metadata && typeof data.metadata !== "string"
+            ? JSON.stringify(data.metadata)
+            : (data.metadata as string),
       },
     });
     return { data: log };
@@ -69,4 +68,3 @@ export class HistoryLogService extends BaseService<HistoryLog> {
     return whereClause;
   }
 }
-

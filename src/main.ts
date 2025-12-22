@@ -4,11 +4,13 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { ValidationPipe, ClassSerializerInterceptor } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
+import { AllExceptionsFilter } from "@common/filters/prisma-exception.filter";
 import { Reflector } from "@nestjs/core";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
+
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
@@ -55,6 +57,9 @@ async function bootstrap() {
 
     logger.log(`Swagger documentation available at /${apiPrefix}/docs`);
   }
+
+  // Usar el filtro global
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Start the server
   await app.listen(port);
