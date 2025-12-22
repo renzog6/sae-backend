@@ -8,6 +8,7 @@ import { EquipmentAxlesModule } from "./equipment-axles/equipment-axles.module";
 import { EquipmentCategoriesModule } from "./equipment-categories/equipment-categories.module";
 import { EquipmentMaintenanceModule } from "./equipment-maintenance/equipment-maintenance.module";
 import { EquipmentModelsModule } from "./equipment-models/equipment-models.module";
+import { EquipmentTransactionModule } from "./equipment-transaction/equipment-transaction.module";
 import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
 
 @Module({
@@ -18,6 +19,7 @@ import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
     EquipmentCategoriesModule,
     EquipmentMaintenanceModule,
     EquipmentModelsModule,
+    EquipmentTransactionModule,
     EquipmentTypesModule,
   ],
   controllers: [EquipmentController],
@@ -28,6 +30,7 @@ import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
     EquipmentCategoriesModule,
     EquipmentMaintenanceModule,
     EquipmentModelsModule,
+    EquipmentTransactionModule,
     EquipmentTypesModule,
   ],
 })

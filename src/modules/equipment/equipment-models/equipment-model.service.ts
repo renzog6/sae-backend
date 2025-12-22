@@ -1,3 +1,4 @@
+// filepath: sae-backend/src/modules/equipment/equipment-models/equipment-model.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
@@ -49,4 +50,3 @@ export class EquipmentModelService extends BaseService<EquipmentModel> {
     });
   }
 }
-

@@ -57,16 +57,17 @@ model Company {
   updatedAt DateTime  @updatedAt
 
   // Relations
-  businessCategoryId Int?
-  businessCategory   BusinessCategory?  @relation(fields: [businessCategoryId], references: [id])
-  contacts           ContactLink[]
-  addresses          Address[]
-  employees          Employee[]
-  serverFiles        ServerFile[]
-  equipment          Equipment[]
-  products           ProductCompany[]
-  parts              PartOrderCompany[]
-  historyLog         HistoryLog[]
+  businessCategoryId    Int?
+  businessCategory      BusinessCategory?      @relation(fields: [businessCategoryId], references: [id])
+  contacts              ContactLink[]
+  addresses             Address[]
+  employees             Employee[]
+  serverFiles           ServerFile[]
+  equipment             Equipment[]
+  products              ProductCompany[]
+  parts                 PartOrderCompany[]
+  historyLog            HistoryLog[]
+  equipmentTransactions EquipmentTransaction[]
 
   @@index([businessName])
   @@index([deletedAt])
@@ -680,11 +681,12 @@ model Equipment {
   modelId Int?            @map("model_id")
   model   EquipmentModel? @relation(fields: [modelId], references: [id])
 
-  parts                EquipmentPart[]
-  inspections          Inspection[]
-  EquipmentMaintenance EquipmentMaintenance[]
-  historyLog           HistoryLog[]
-  EquipmentAxle        EquipmentAxle[]
+  parts                 EquipmentPart[]
+  inspections           Inspection[]
+  EquipmentMaintenance  EquipmentMaintenance[]
+  historyLog            HistoryLog[]
+  EquipmentAxle         EquipmentAxle[]
+  equipmentTransactions EquipmentTransaction[]
 
   @@index([companyId])
   @@index([categoryId])
@@ -713,9 +715,52 @@ enum FuelType {
   NONE
 }
 
-// --------------------
-// Categorías / Tipos / Modelos
-// --------------------
+enum EquipmentTransactionType {
+  PURCHASE
+  SALE
+}
+
+enum Currency {
+  ARS
+  USD
+  EUR
+}
+
+model EquipmentTransaction {
+  id Int @id @default(autoincrement())
+
+  // Tipo de operación
+  type EquipmentTransactionType
+
+  // Fechas
+  transactionDate DateTime @default(now())
+
+  // Importes
+  amount       Decimal  @db.Decimal(15, 2) // importe en moneda original
+  currency     Currency @default(ARS)
+  exchangeRate Decimal? @db.Decimal(15, 6) // obligatorio si currency != ARS
+  amountARS    Decimal? @db.Decimal(15, 2) // denormalizado (muy útil)
+
+  observation String?
+
+  // Relaciones
+  equipmentId Int
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+
+  companyId Int
+  company   Company @relation(fields: [companyId], references: [id])
+  // 👉 company = proveedor (compra) o cliente (venta)
+
+  // BaseModel
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([equipmentId])
+  @@index([companyId])
+  @@index([type])
+  @@index([transactionDate])
+  @@map("equipment_transactions")
+}
 
 model EquipmentCategory {
   id          Int     @id @default(autoincrement())
