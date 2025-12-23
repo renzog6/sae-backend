@@ -2,8 +2,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { CreateEquipmentModelDto } from "./dto/create-equipment-model.dto";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
+import { CreateEquipmentModelDto } from "./dto/create-equipment-model.dto";
 import { EquipmentModel } from "./entity/equipment-model.entity";
 
 @Injectable()

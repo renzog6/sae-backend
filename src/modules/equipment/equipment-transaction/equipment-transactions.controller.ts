@@ -1,4 +1,5 @@
 // filepath: sae-backend/src/modules/equipment/equipment-transaction/equipment-transactions.controller.ts
+import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
   Get,
@@ -7,6 +8,7 @@ import {
   Param,
   UseGuards,
   ParseIntPipe,
+  Query,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -18,18 +20,26 @@ import {
 } from "@nestjs/swagger";
 import { EquipmentTransactionsService } from "./equipment-transactions.service";
 import { CreateEquipmentTransactionDto } from "./dto/create-equipment-transaction.dto";
+import { EquipmentTransactionQueryDto } from "./dto/equipment-transaction-query.dto";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { EquipmentTransaction } from "./entity/equipment-transaction.entity";
 
 @ApiTags("equipment-transactions")
 @Controller("equipment-transactions")
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
-export class EquipmentTransactionsController {
+export class EquipmentTransactionsController extends BaseController<EquipmentTransaction> {
   constructor(
     private readonly equipmentTransactionsService: EquipmentTransactionsService
-  ) {}
+  ) {
+    super(
+      equipmentTransactionsService,
+      EquipmentTransaction,
+      "EquipmentTransaction"
+    );
+  }
 
   @Post()
   @Roles(Role.ADMIN)
@@ -43,12 +53,26 @@ export class EquipmentTransactionsController {
     status: 201,
     description: "Equipment transaction created successfully",
   })
-  async create(
+  override async create(
     @Body() createEquipmentTransactionDto: CreateEquipmentTransactionDto
   ) {
     return this.equipmentTransactionsService.create(
       createEquipmentTransactionDto
     );
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: "Get all equipment transactions with filtering",
+    description:
+      "Get all equipment transactions with pagination and optional filtering by type",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "List of equipment transactions",
+  })
+  override async findAll(@Query() query: EquipmentTransactionQueryDto) {
+    return this.equipmentTransactionsService.findAll(query);
   }
 
   @Get("by-equipment/:equipmentId")

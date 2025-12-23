@@ -34,4 +34,18 @@ export class EquipmentTransaction {
 
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({ required: false })
+  equipment?: {
+    id: number;
+    name?: string;
+    internalCode?: string;
+  };
+
+  @ApiProperty({ required: false })
+  company?: {
+    id: number;
+    name: string;
+    businessName?: string;
+  };
 }

@@ -1,16 +1,6 @@
-// filepath: sae-backend/src/modules/equipment/controllers/equipment-category.controller.ts
+// filepath: sae-backend/src/modules/equipment/equipment-categories/equipment-category.controller.ts
 import { BaseController } from "@common/controllers/base.controller";
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Put,
-  Param,
-  Delete,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Post, Body, UseGuards } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
@@ -38,14 +28,17 @@ export class EquipmentCategoryController extends BaseController<EquipmentCategor
   @Roles(Role.ADMIN)
   @ApiOperation({
     summary: "Create a new equipment category",
-    description: "Creates a new equipment category with the provided name and details.",
+    description:
+      "Creates a new equipment category with the provided name and details.",
   })
   @ApiBody({ type: CreateEquipmentCategoryDto })
   @ApiResponse({
     status: 201,
     description: "Equipment category created successfully",
   })
-  override create(@Body() createEquipmentCategoryDto: CreateEquipmentCategoryDto) {
+  override create(
+    @Body() createEquipmentCategoryDto: CreateEquipmentCategoryDto
+  ) {
     return this.categoryService.create(createEquipmentCategoryDto);
   }
 }

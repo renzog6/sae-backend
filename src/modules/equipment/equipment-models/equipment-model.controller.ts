@@ -1,13 +1,11 @@
+// filepath: sae-backend/src/modules/equipment/equipment-models/equipment-model.controller.ts
 import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
   Get,
   Post,
   Body,
-  Put,
   Param,
-  Delete,
-  Query,
   UseGuards,
   ParseIntPipe,
 } from "@nestjs/common";
@@ -39,7 +37,8 @@ export class EquipmentModelController extends BaseController<EquipmentModel> {
   @Roles(Role.ADMIN)
   @ApiOperation({
     summary: "Create a new equipment model",
-    description: "Creates a new equipment model with the provided name and details.",
+    description:
+      "Creates a new equipment model with the provided name and details.",
   })
   @ApiBody({ type: CreateEquipmentModelDto })
   @ApiResponse({

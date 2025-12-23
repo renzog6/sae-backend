@@ -26,7 +26,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 - **Versión**: 1.1.0
 - **Autor**: Renzo O. Gorosito
 - **Licencia**: MIT
-- **Última Actualización**: Noviembre 2025
+- **Última Actualización**: Diciembre 2024
 - **Lenguaje**: TypeScript 5.1+ (strict mode)
 - **Framework**: NestJS 10.x con arquitectura modular
 - **Base de Datos**: MySQL 8.0+ con 50+ modelos
@@ -207,12 +207,13 @@ graph TB
     A --> G[🔧 Equipment Module<br/>Fleet Management]
     A --> H[📍 Locations Module<br/>Geographic Data]
     A --> I[👤 Persons Module<br/>Physical Persons]
-    A --> J[📄 Documents Module<br/>File Management]
+    A --> J[📄 Server Files Module<br/>File Management]
     A --> K[📊 History Module<br/>Audit Logs]
     A --> L[🔍 Inspections Module<br/>Technical Control]
     A --> M[🏥 Health Module<br/>System Health]
     A --> N[🏷️ Catalogs Module<br/>System Catalogs]
-    A --> O[🛞 Tires Module<br/>Tire Lifecycle<br/>⭐ SPECIALIZED]
+    A --> O[✅ Validators Module<br/>Custom Validators]
+    A --> P[🛞 Tires Module<br/>Tire Lifecycle<br/>⭐ SPECIALIZED]
 
     %% Submodules with detailed breakdown
     D --> D1[📂 Business Categories<br/>Industry Classification]
@@ -241,16 +242,16 @@ graph TB
     N --> N2[📏 Units<br/>Measurements]
 
     %% Tires Module - Highly Specialized
-    O --> O1[📏 Tire Sizes<br/>Technical Measures]
-    O --> O2[🏷️ Tire Models<br/>Commercial Models]
-    O --> O3[🔗 Tire Assignments<br/>Mount/Unmount<br/>📊 Km Tracking]
-    O --> O4[🔄 Tire Rotations<br/>Position Changes<br/>📍 Equipment Transfer]
-    O --> O5[🔧 Tire Recaps<br/>Retreading<br/>💰 Cost Tracking]
-    O --> O6[🔍 Tire Inspections<br/>Technical Control<br/>📊 Metrics]
-    O --> O7[📊 Tire Reports<br/>Analytics<br/>📈 Excel Export]
-    O --> O8[🕐 Tire Events<br/>Timeline<br/>🔍 Audit Trail]
-    O --> O9[🛠️ Equipment Axles<br/>Chassis Config]
-    O --> O10[📍 Tire Positions<br/>Mounting Points]
+    P --> P1[📏 Tire Sizes<br/>Technical Measures]
+    P --> P2[🏷️ Tire Models<br/>Commercial Models]
+    P --> P3[🔗 Tire Assignments<br/>Mount/Unmount<br/>📊 Km Tracking]
+    P --> P4[🔄 Tire Rotations<br/>Position Changes<br/>📍 Equipment Transfer]
+    P --> P5[🔧 Tire Recaps<br/>Retreading<br/>💰 Cost Tracking]
+    P --> P6[🔍 Tire Inspections<br/>Technical Control<br/>📊 Metrics]
+    P --> P7[📊 Tire Reports<br/>Analytics<br/>📈 Excel Export]
+    P --> P8[🕐 Tire Events<br/>Timeline<br/>🔍 Audit Trail]
+    P --> P9[🛠️ Equipment Axles<br/>Chassis Config]
+    P --> P10[📍 Tire Positions<br/>Mounting Points]
 
     %% Styling for emphasis
     style O fill:#e1f5fe,stroke:#01579b,stroke-width:3px
@@ -340,11 +341,13 @@ src/
 │   ├── inspections.controller.ts       # 🌐 Control técnico
 │   ├── inspections.service.ts          # 🔍 Lógica de inspecciones
 │   └── inspections.module.ts           # 📦 Módulo inspections
-├── 📁 documents/                       # 📄 Gestión documental con uploads
-│   ├── documents.controller.ts         # 🌐 Upload/download archivos
-│   ├── documents.service.ts            # 📄 Lógica documental
-│   ├── dto/                            # 📝 DocumentDtos
-│   └── documents.module.ts             # 📦 Módulo documents
+├── 📁 server-files/                    # 📄 Gestión documental avanzada con estrategia
+│   ├── server-files.controller.ts      # 🌐 Upload/download archivos
+│   ├── server-files.service.ts         # 📄 Lógica con factory pattern
+│   ├── factory/                        # 🏭 Storage factory
+│   ├── strategies/                     # 🎯 Estrategias por entidad
+│   ├── dto/                            # 📝 File upload DTOs
+│   └── server-files.module.ts          # 📦 Módulo server-files
 ├── 📁 history/                         # 📊 Historial auditado
 │   ├── history.module.ts               # 📦 Módulo history
 │   ├── controllers/                    # 🌐 Logs polimórficos
@@ -396,9 +399,17 @@ src/
 │   ├── tire-reports/                   # 📊 Reportes Excel
 │   ├── tire-events/                    # 🕐 Timeline auditado
 │   └── tire-positions/                 # 📍 Posiciones en chasis
-└── 📁 uploads/                         # 📁 Archivos organizados por entidad
-    ├── employees/                      # 👷 Documentos de empleados
-    └── companies/                      # 🏢 Documentos de empresas
+├── 📁 modules/validators/              # ✅ Validadores personalizados
+│   ├── validators.module.ts            # 📦 Módulo de validadores
+│   ├── validators.controller.ts        # 🌐 Endpoints de validación
+│   ├── validators.service.ts           # ✅ Lógica de validación
+│   ├── validators.config.ts            # ⚙️ Configuración
+│   └── dto/                            # 📝 DTOs de validación
+└── 📁 storage/                         #  Archivos organizados por entidad
+    ├── uploads/                        # 📁 Archivos subidos
+    │   ├── employees/                  # 👷 Documentos de empleados
+    │   └── companies/                  # 🏢 Documentos de empresas
+    └── reports/                        # 📊 Reportes generados
 ```
 
 ## 🌐 API y Documentación
@@ -1088,14 +1099,16 @@ stateDiagram-v2
 - `GET /inspections/:id` - Obtener inspección
 - `GET /inspections/types` - Listar tipos de inspección
 
-### 📄 Documentos (`/documents`)
+### 📄 Server Files (`/server-files`)
 
-- `POST /documents/upload` - Subir archivo
-- `GET /documents` - Listar documentos
-- `GET /documents/:id` - Obtener documento
-- `GET /documents/:id/download` - Descargar archivo
-- `PUT /documents/:id` - Actualizar documento
-- `DELETE /documents/:id` - Eliminar documento
+- `POST /server-files/upload` - Subir archivo con estrategia por entidad
+- `GET /server-files` - Listar archivos (con filtros)
+- `GET /server-files/:id` - Obtener metadatos del archivo
+- `GET /server-files/:id/download` - Descargar archivo
+- `PUT /server-files/:id` - Actualizar metadatos
+- `DELETE /server-files/:id` - Eliminar archivo y registro
+
+**Entidades soportadas:** EMPLOYEE, COMPANY
 
 ### 🏷️ Catálogos (`/catalogs`)
 
@@ -1112,6 +1125,11 @@ stateDiagram-v2
 - `POST /units` - Crear unidad _(ADMIN/MANAGER)_
 - `PATCH /units/:id` - Actualizar unidad _(ADMIN/MANAGER)_
 - `DELETE /units/:id` - Eliminar unidad _(ADMIN)_
+
+### ✅ Validadores (`/validators`)
+
+- `POST /validators/unique` - Validar unicidad de campos
+- `GET /validators/config` - Obtener configuración de validadores
 
 ### 📊 Reportes (`/reports`)
 
@@ -1177,20 +1195,30 @@ Authorization: Bearer <token>
 
 - `GET /health` - Health check _(público)_
 
-## 📄 Sistema de Gestión Documental
+## 📄 Sistema de Gestión Documental Avanzada
 
 ### Características Principales
 
-- **Subida de archivos**: Soporte para múltiples formatos
-- **Organización automática**: Carpetas por entidad (empleados/empresas)
-- **Descarga segura**: Control de acceso por autenticación
-- **Metadatos**: Descripción, tipo MIME, tamaño, fecha de subida
-- **Límite de tamaño**: 10MB por archivo por defecto
+- **Arquitectura por Estrategias**: Patrón Strategy para diferentes tipos de entidades
+- **Subida de archivos**: Soporte para múltiples formatos con validación extensible
+- **Organización automática**: Carpetas por entidad con estrategia personalizable
+- **Descarga segura**: Control de acceso por autenticación y roles
+- **Metadatos completos**: Descripción, tipo MIME, tamaño, fecha de subida, entidad relacionada
+- **Límite de tamaño**: 10MB por archivo por defecto (configurable)
+- **Factory Pattern**: Fácil extensión para nuevas entidades
+
+### Arquitectura de Estrategias
+
+El sistema utiliza el patrón Strategy para desacoplar la lógica de almacenamiento:
+
+- **StorageStrategy Interface**: Contrato común para todas las estrategias
+- **StorageFactory**: Fábrica que selecciona la estrategia según `entityType`
+- **Estrategias concretas**: `EmployeeFileStrategy`, `CompanyFileStrategy`
 
 ### Endpoint de Subida
 
 ```
-POST /api/documents/upload
+POST /api/server-files/upload
 ```
 
 **Headers requeridos:**
@@ -1203,25 +1231,26 @@ Content-Type: multipart/form-data
 **Campos del formulario:**
 
 - `file` _(requerido)_: Archivo binario
-- `description` _(opcional)_: Descripción del documento (máx. 500 caracteres)
-- `employeeId` _(opcional)_: ID del empleado
-- `companyId` _(opcional)_: ID de la empresa
+- `entityType` _(requerido)_: Tipo de entidad (`EMPLOYEE` o `COMPANY`)
+- `entityId` _(requerido)_: ID de la entidad
+- `description` _(opcional)_: Descripción del archivo (máx. 500 caracteres)
 
 **Reglas de validación:**
 
-- ✅ Debe especificarse exactamente uno: `employeeId` O `companyId`
+- ✅ `entityType` y `entityId` requeridos
 - ✅ Archivo requerido
 - ✅ Tamaño máximo: 10MB
 - ✅ Tipos de archivo permitidos: Todos (validación extensible)
+- ✅ Entidad debe existir en la base de datos
 
 ### Estructura de Organización
 
-Los archivos se organizan automáticamente en carpetas por entidad:
+Los archivos se organizan automáticamente en `storage/` (fuera de `src/`):
 
-**Empleados:** `src/uploads/employees/<apellido>_<nombre>_<dni>/`
+**Empleados:** `storage/uploads/employees/<apellido>_<nombre>_<dni>/`
 
 ```
-src/uploads/employees/
+storage/uploads/employees/
 ├── gomez_juan_12345678/
 │   ├── 1730000000000-12345.pdf
 │   └── 1730000000001-67890.docx
@@ -1229,10 +1258,10 @@ src/uploads/employees/
     └── 1730000000002-11111.jpg
 ```
 
-**Empresas:** `src/uploads/companies/<nombre>_<cuit>/`
+**Empresas:** `storage/uploads/companies/<nombre>_<cuit>/`
 
 ```
-src/uploads/companies/
+storage/uploads/companies/
 ├── acme_sa_30-12345678-9/
 │   ├── 1730000000003-22222.pdf
 │   └── 1730000000004-33333.xlsx
@@ -1242,38 +1271,40 @@ src/uploads/companies/
 
 ### Endpoints CRUD
 
-- `GET /api/documents` - Listar documentos (con filtros)
-- `GET /api/documents/:id` - Obtener metadatos del documento
-- `GET /api/documents/:id/download` - Descargar archivo
-- `PUT /api/documents/:id` - Actualizar metadatos
-- `DELETE /api/documents/:id` - Eliminar documento y archivo
+- `GET /api/server-files` - Listar archivos (con filtros por entidad)
+- `GET /api/server-files/:id` - Obtener metadatos del archivo
+- `GET /api/server-files/:id/download` - Descargar archivo
+- `PUT /api/server-files/:id` - Actualizar metadatos
+- `DELETE /api/server-files/:id` - Eliminar archivo y registro
 
 ### Ejemplos de Uso
 
 **Subida con cURL (PowerShell):**
 
 ```powershell
-curl.exe -X POST "http://localhost:3000/api/documents/upload" `
+curl.exe -X POST "http://localhost:3000/api/server-files/upload" `
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." `
   -F "file=@C:\path\to\document.pdf" `
-  -F "description=Contrato de trabajo firmado" `
-  -F "employeeId=1"
+  -F "entityType=EMPLOYEE" `
+  -F "entityId=1" `
+  -F "description=Contrato de trabajo firmado"
 ```
 
 **Subida con cURL (Bash):**
 
 ```bash
-curl -X POST "http://localhost:3000/api/documents/upload" \
+curl -X POST "http://localhost:3000/api/server-files/upload" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -F "file=@/path/to/document.pdf" \
-  -F "description=Contrato de servicios" \
-  -F "companyId=1"
+  -F "entityType=COMPANY" \
+  -F "entityId=1" \
+  -F "description=Contrato de servicios"
 ```
 
 **Descarga de archivo:**
 
 ```bash
-curl -X GET "http://localhost:3000/api/documents/123/download" \
+curl -X GET "http://localhost:3000/api/server-files/123/download" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   --output downloaded_file.pdf
 ```
