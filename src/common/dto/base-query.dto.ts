@@ -37,19 +37,7 @@ export class BaseQueryDto extends SoftDeleteDto {
   @IsString()
   q?: string;
 
-  @ApiPropertyOptional({ description: "Sort field", example: "createdAt" })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
 
-  @ApiPropertyOptional({
-    description: "Sort order",
-    example: "desc",
-    enum: ["asc", "desc"],
-  })
-  @IsOptional()
-  @IsString()
-  sortOrder?: "asc" | "desc" = "desc";
 
   get skip(): number {
     if (this._skip === undefined) {

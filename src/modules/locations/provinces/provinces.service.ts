@@ -19,22 +19,21 @@ export class ProvincesService extends BaseService<any> {
     return [{ name: { contains: q } }, { code: { contains: q } }];
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
     // Extract search query
     const q = query.q;
 
-    // Build search filter
-    const where: any = {};
-    if (q) {
-      where.OR = [{ name: { contains: q } }, { code: { contains: q } }];
-    }
+    // Build search filter (though base service builds OR, this explicit override is fine or we can rely on buildSearchConditions + q inside base)
+    // Actually BaseService handles q -> buildSearchConditions -> OR.
+    // So we can just delegate.
 
-    // Get total count for pagination
-    const total = await this.prisma.province.count({ where });
-
-    return super.findAll(query, where);
+    return super.findAll(query);
   }
 
   async create(dto: CreateProvinceDto) {

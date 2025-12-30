@@ -26,12 +26,13 @@ export class EquipmentTransactionsService extends BaseService<EquipmentTransacti
     return [{ observation: { contains: q } }];
   }
 
+  protected override getDefaultOrderBy() {
+    return { transactionDate: "desc" };
+  }
+
   override async findAll(
     query: EquipmentTransactionQueryDto = new EquipmentTransactionQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    query.sortBy = query.sortBy ?? "transactionDate";
-    query.sortOrder = query.sortOrder ?? "desc";
-
     const { type } = query;
     const additionalWhere: any = {};
     if (type) {

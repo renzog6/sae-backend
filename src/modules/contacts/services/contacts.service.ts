@@ -54,6 +54,10 @@ export class ContactsService extends BaseService<any> {
     return { data: contact };
   }
 
+  protected override getDefaultOrderBy() {
+    return { id: "desc" };
+  }
+
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
@@ -66,7 +70,7 @@ export class ContactsService extends BaseService<any> {
     personId: string,
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "id", sortOrder = "desc" } = query;
+    const { skip, take, q } = query;
     const personIdNum = parseInt(personId);
 
     const whereClause: any = {
@@ -86,7 +90,7 @@ export class ContactsService extends BaseService<any> {
         where: whereClause,
         skip,
         take,
-        orderBy: { [sortBy]: sortOrder },
+        orderBy: { id: "desc" },
         include: { contactLinks: { include: { person: true } } },
       }),
       this.prisma.contact.count({ where: whereClause }),
@@ -104,7 +108,7 @@ export class ContactsService extends BaseService<any> {
     companyId: string,
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "id", sortOrder = "desc" } = query;
+    const { skip, take, q } = query;
     const companyIdNum = parseInt(companyId);
 
     const whereClause: any = {
@@ -124,7 +128,7 @@ export class ContactsService extends BaseService<any> {
         where: whereClause,
         skip,
         take,
-        orderBy: { [sortBy]: sortOrder },
+        orderBy: { id: "desc" },
         include: { contactLinks: { include: { company: true } } },
       }),
       this.prisma.contact.count({ where: whereClause }),

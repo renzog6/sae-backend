@@ -19,34 +19,23 @@ export class CitiesService extends BaseService<any> {
     return [{ name: { contains: q } }, { postalCode: { contains: q } }];
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
-
-    // Build search filter
+    const q = query.q;
     const where: any = {};
     if (q) {
-      where.OR = [{ name: { contains: q } }, { postalCode: { contains: q } }];
+      where.OR = this.buildSearchConditions(q);
     }
 
-    // Get total count for pagination
-    const total = await this.prisma.city.count({ where });
-
-    // Get paginated data
-    const cities = await this.prisma.city.findMany({
+    return super.findAll(
+      query,
       where,
-      skip,
-      take,
-      orderBy: { [sortBy]: sortOrder },
-      include: { province: true, addresses: true },
-    });
-
-    return new BaseResponseDto(
-      cities,
-      total,
-      query.page || 1,
-      query.limit || 10
+      { province: true, addresses: true }
     );
   }
 

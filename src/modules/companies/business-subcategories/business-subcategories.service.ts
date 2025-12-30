@@ -36,6 +36,10 @@ export class BusinessSubcategoriesService extends BaseService<any> {
     return { data: subcategory };
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" } as any;
+  }
+
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
@@ -64,9 +68,7 @@ export class BusinessSubcategoriesService extends BaseService<any> {
           },
         },
       },
-      orderBy: {
-        name: "asc", // Always sort by name ascending
-      },
+      orderBy: this.getDefaultOrderBy(),
     });
 
     // Return in a compatible format

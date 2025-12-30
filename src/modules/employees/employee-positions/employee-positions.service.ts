@@ -18,13 +18,13 @@ export class EmployeePositionsService extends BaseService<EmployeePosition> {
     return [{ name: { contains: q } }, { description: { contains: q } }];
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    // Default sort
-    query.sortBy = query.sortBy ?? "name";
-    query.sortOrder = query.sortOrder ?? "asc";
-
     return super.findAll(query);
   }
 }

@@ -44,12 +44,13 @@ export class InspectionsService extends BaseService<Inspection> {
     return { data: inspection };
   }
 
+  protected override getDefaultOrderBy() {
+    return { createdAt: "desc" };
+  }
+
   override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    query.sortBy = query.sortBy ?? "createdAt";
-    query.sortOrder = query.sortOrder ?? "desc";
-
     const include = {
       equipment: true,
       employee: true,

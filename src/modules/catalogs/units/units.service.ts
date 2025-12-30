@@ -23,15 +23,15 @@ export class UnitsService extends BaseService<any> {
     ];
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
     // Extract search query
     const q = query.q;
-
-    // Default sort
-    query.sortBy = query.sortBy ?? "name";
-    query.sortOrder = query.sortOrder ?? "asc";
 
     // Build search conditions
     const where: any = {

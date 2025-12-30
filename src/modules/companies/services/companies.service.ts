@@ -42,6 +42,10 @@ export class CompaniesService extends BaseService<any> {
     return { data: company };
   }
 
+  protected override getDefaultOrderBy() {
+    return { businessName: "asc" };
+  }
+
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {

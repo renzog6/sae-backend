@@ -12,7 +12,7 @@ export class TireInspectionsService {
   constructor(
     private prisma: PrismaService,
     private events: TireAssignmentEventsService
-  ) {}
+  ) { }
 
   async create(createDto: CreateTireInspectionDto, userId?: number) {
     // Validar que el neumático existe
@@ -82,8 +82,6 @@ export class TireInspectionsService {
       skip,
       take,
       q,
-      sortBy = "inspectionDate",
-      sortOrder = "desc",
     } = query;
 
     // Build search filter
@@ -153,7 +151,7 @@ export class TireInspectionsService {
         where,
         skip,
         take,
-        orderBy: { [sortBy]: sortOrder },
+        orderBy: { inspectionDate: "desc" },
         include: {
           tire: {
             include: {

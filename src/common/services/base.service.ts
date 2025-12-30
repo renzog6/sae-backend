@@ -17,7 +17,7 @@ export abstract class BaseService<T extends { id: number | string }> {
   protected readonly logger = new Logger(this.constructor.name);
   private _hasDeletedAt?: boolean | null = undefined;
 
-  constructor(protected readonly prisma: PrismaService) {}
+  constructor(protected readonly prisma: PrismaService) { }
 
   // --- Cada servicio concreto debe devolver el model prisma: e.g. return this.prisma.user;
   protected abstract getModel(): any;
@@ -43,13 +43,18 @@ export abstract class BaseService<T extends { id: number | string }> {
     return this._hasDeletedAt;
   }
 
+  // --- Default OrderBy (override in concrete services)
+  protected getDefaultOrderBy(): any {
+    return { id: "desc" };
+  }
+
   // --- Buscar muchos con paginación, search y soft-delete handling
   async findAll(
     query: BaseQueryDto = new BaseQueryDto(),
     additionalWhere: any = {},
     include?: any
   ): Promise<BaseResponseDto<T>> {
-    const { skip, take, q, sortBy, sortOrder, page, limit, deleted } = query;
+    const { skip, take, q, page, limit, deleted } = query;
     const hasDeletedAt = await this.hasDeletedAt();
 
     // Base where object
@@ -72,7 +77,10 @@ export abstract class BaseService<T extends { id: number | string }> {
       }
     }
 
-    const orderBy = sortBy ? { [sortBy]: sortOrder } : { id: "desc" };
+    // Order By Determination
+    // Priority: Default Service Order
+    // TODO: In the future, support query.sort parsing here if needed
+    const orderBy = this.getDefaultOrderBy();
 
     // Detectar "no pagination"
     const noPagination = Number(limit) === 0;

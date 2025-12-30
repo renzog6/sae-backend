@@ -19,35 +19,23 @@ export class CountriesService extends BaseService<any> {
     return [{ name: { contains: q } }, { isoCode: { contains: q } }];
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "name", sortOrder = "asc" } = query;
+    // Extract search query
+    const q = query.q;
 
-    // Build search filter
+    // Build search conditions
     const where: any = {};
     if (q) {
-      where.OR = [{ name: { contains: q } }, { isoCode: { contains: q } }];
+      where.OR = this.buildSearchConditions(q);
     }
 
-    // Get total count for pagination
-    const total = await this.prisma.country.count({ where });
-
-    // Get paginated data
-    const countries = await this.prisma.country.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { [sortBy]: sortOrder },
-      include: { provinces: true },
-    });
-
-    return new BaseResponseDto(
-      countries,
-      total,
-      query.page || 1,
-      query.limit || 10
-    );
+    return super.findAll(query, where, { provinces: true });
   }
 
   async create(dto: CreateCountryDto) {

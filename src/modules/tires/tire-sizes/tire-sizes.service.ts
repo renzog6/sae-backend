@@ -37,12 +37,13 @@ export class TireSizesService extends BaseService<TireSize> {
     return { data: size };
   }
 
+  protected override getDefaultOrderBy() {
+    return { mainCode: "asc" };
+  }
+
   override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    query.sortBy = query.sortBy ?? "mainCode";
-    query.sortOrder = query.sortOrder ?? "asc";
-
     return super.findAll(query, {}, { aliases: true });
   }
 

@@ -1,14 +1,32 @@
 // filepath: sae-backend/src/modules/tires/tire-events/tire-events.service.ts
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
+import { BaseService } from "@common/services/base.service";
 import { CreateTireEventDto } from "./dto/create-tire-event.dto";
 import { TireEventsQueryDto } from "./dto/tire-events-query.dto";
 import { BaseResponseDto } from "@common/dto";
 import { TireEventType } from "@prisma/client";
 
 @Injectable()
-export class TireEventsService {
-  constructor(private readonly prisma: PrismaService) {}
+export class TireEventsService extends BaseService<any> {
+  constructor(protected prisma: PrismaService) {
+    super(prisma);
+  }
+
+  protected getModel() {
+    return this.prisma.tireEvent;
+  }
+
+  protected override getDefaultOrderBy() {
+    return { eventDate: "desc" };
+  }
+
+  protected buildSearchConditions(q: string) {
+    return [
+      { description: { contains: q } },
+      { tire: { serialNumber: { contains: q } } },
+    ];
+  }
 
   async create(createTireEventDto: CreateTireEventDto) {
     const event = await this.prisma.tireEvent.create({
@@ -28,10 +46,9 @@ export class TireEventsService {
   async findAll(
     query: TireEventsQueryDto = new TireEventsQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy = "eventDate", sortOrder = "desc" } = query;
-
-    // Build search filter
+    // Build specialized filters in additionalWhere
     const where: any = {};
+
     if (query.tireId) where.tireId = query.tireId;
     if (query.eventType) where.eventType = query.eventType;
     if (query.equipmentId) {
@@ -59,38 +76,20 @@ export class TireEventsService {
       }
     }
 
-    // Add search filter if provided
-    if (q) {
-      where.OR = [
-        { description: { contains: q } },
-        { tire: { serialNumber: { contains: q } } },
-      ];
-    }
-
-    // Get paginated data and total count in a single transaction
-    const [data, total] = await this.prisma.$transaction([
-      this.prisma.tireEvent.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { [sortBy]: sortOrder },
+    const include = {
+      tire: {
         include: {
-          tire: {
+          model: {
             include: {
-              model: {
-                include: {
-                  brand: true,
-                  size: true,
-                },
-              },
+              brand: true,
+              size: true,
             },
           },
         },
-      }),
-      this.prisma.tireEvent.count({ where }),
-    ]);
+      },
+    };
 
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
+    return super.findAll(query, where, include);
   }
 
   async findAllByTire(tireId: number) {
@@ -114,6 +113,9 @@ export class TireEventsService {
     fromDate?: Date;
     toDate?: Date;
   }) {
+    // TODO: This method duplicates findAll logic but with a different signature.
+    // Consider deprecating or unifying.
+
     const page = filters?.page || 1;
     const limit = filters?.limit || 10;
     const skip = (page - 1) * limit;
@@ -187,6 +189,8 @@ export class TireEventsService {
     };
   }
 
+  // Preserve existing methods...
+
   async findOne(id: number) {
     const event = await this.prisma.tireEvent.findUnique({
       where: { id },
@@ -209,11 +213,9 @@ export class TireEventsService {
     });
   }
 
+  // BaseService has remove, but here we can override or just alias
   async remove(id: number) {
-    await this.prisma.tireEvent.delete({
-      where: { id },
-    });
-    return { message: "Tire event deleted successfully" };
+    return super.remove(id);
   }
 
   // Método para registrar eventos automáticamente

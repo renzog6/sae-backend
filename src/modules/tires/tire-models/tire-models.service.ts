@@ -31,12 +31,13 @@ export class TireModelsService extends BaseService<TireModel> {
     return { data: model };
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    query.sortBy = query.sortBy ?? "name";
-    query.sortOrder = query.sortOrder ?? "asc";
-
     const include = {
       brand: true,
       size: { include: { aliases: true } },

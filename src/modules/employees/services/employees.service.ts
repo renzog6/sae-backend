@@ -173,109 +173,61 @@ export class EmployeesService extends BaseService<any> {
    *   sortOrder: 'asc'
    * });
    */
+  // --- Default OrderBy for Employees
+  protected override getDefaultOrderBy() {
+    return { person: { lastName: "asc" } };
+  }
+
+  /**
+   * Retrieves all employees with optional filtering and pagination
+   * Supports status-based filtering and includes related employee data
+   * @param query - Query parameters for filtering, pagination, and sorting
+   * @returns {Promise<BaseResponseDto<any>>} Paginated employee list with metadata
+   */
   async findAll(
     query: EmployeeQueryDto = new EmployeeQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    const { skip, take, q, sortBy, sortOrder } = query;
-
-    // ✅ Build additional filters
-    const additionalWhere: any = {};
-    if (query.status) {
-      additionalWhere.status = query.status;
-    }
-
-    // ✅ Check for soft deletes
-    const modelFields = this.getModel().fields || {};
-    const hasDeletedAt = "deletedAt" in modelFields;
-
-    // ✅ Build WHERE clause
-    const where: any = {
-      ...(hasDeletedAt ? { deletedAt: null } : {}),
-      ...additionalWhere,
-    };
-
-    // ✅ Add search filter if provided
-    if (q) {
-      const searchConditions = this.buildSearchConditions(q);
-      if (searchConditions && searchConditions.length > 0) {
-        where.OR = searchConditions;
-      }
-    }
-
-    // ✅ Build ORDER BY with proper relation field handling
-    const orderBy = this.buildOrderBy(sortBy, sortOrder);
-
-    // ✅ Include relations
     const include = {
       company: true,
       category: true,
       position: true,
-      person: true,
+      person: {
+        include: {
+          address: {
+            include: {
+              city: {
+                include: {
+                  province: true,
+                },
+              },
+            },
+          },
+        },
+      },
       vacations: true,
     };
 
-    // ✅ Execute query with transaction
-    const findManyOptions: any = {
-      where,
-      skip,
-      take,
-      orderBy,
-      include,
-    };
-
-    const [data, total] = await this.prisma.$transaction([
-      this.getModel().findMany(findManyOptions),
-      this.getModel().count({ where }),
-    ]);
-
-    return new BaseResponseDto(data, total, query.page || 1, query.limit || 10);
-  }
-
-  /**
-   * Build orderBy object for Prisma with proper relation field handling
-   * @protected
-   * @param sortBy - Field to sort by
-   * @param sortOrder - Sort direction
-   * @returns {Object} Prisma orderBy object
-   */
-  protected buildOrderBy(sortBy?: string, sortOrder?: "asc" | "desc") {
-    if (!sortBy) {
-      return { createdAt: sortOrder || "desc" };
+    /**
+     * Handle filtering by position if 'positionId' is present in query.
+     * Since BaseService.findAll accepts 'additionalWhere', we can construct it here.
+     */
+    const additionalWhere: any = {};
+    if (query.positionId) {
+      additionalWhere.positions = {
+        some: {
+          positionId: query.positionId,
+          isActive: true, // Optional: only active positions
+        },
+      };
+    }
+    if (query.status) {
+      additionalWhere.status = query.status;
+    }
+    if (query.categoryId) {
+      additionalWhere.categoryId = query.categoryId;
     }
 
-    // ✅ MANEJAR campos de relación correctamente
-    switch (sortBy) {
-      case "person.lastName":
-        return {
-          person: {
-            lastName: sortOrder || "asc",
-          },
-        };
-      case "person.firstName":
-        return {
-          person: {
-            firstName: sortOrder || "asc",
-          },
-        };
-      case "person.cuil":
-        return {
-          person: {
-            cuil: sortOrder || "asc",
-          },
-        };
-      // Para campos directos del empleado
-      case "employeeCode":
-      case "hireDate":
-      case "status":
-      case "createdAt":
-      case "updatedAt":
-        return {
-          [sortBy]: sortOrder || "asc",
-        };
-      // Campo por defecto
-      default:
-        return { createdAt: sortOrder || "desc" };
-    }
+    return super.findAll(query, additionalWhere, include);
   }
 
   /**
@@ -354,10 +306,10 @@ export class EmployeesService extends BaseService<any> {
           : {}),
         ...(typeof dto.companyId !== "undefined"
           ? {
-              company: dto.companyId
-                ? { connect: { id: dto.companyId } }
-                : { disconnect: true },
-            }
+            company: dto.companyId
+              ? { connect: { id: dto.companyId } }
+              : { disconnect: true },
+          }
           : {}),
         ...(typeof dto.categoryId !== "undefined"
           ? { category: { connect: { id: dto.categoryId! } } }

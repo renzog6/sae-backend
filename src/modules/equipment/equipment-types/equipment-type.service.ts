@@ -27,12 +27,13 @@ export class EquipmentTypeService extends BaseService<EquipmentType> {
     return { data: type };
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    query.sortBy = query.sortBy ?? "name";
-    query.sortOrder = query.sortOrder ?? "asc";
-
     // Include category relation
     return super.findAll(query, {}, { category: true });
   }

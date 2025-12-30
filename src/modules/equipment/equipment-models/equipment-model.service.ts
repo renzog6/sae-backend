@@ -31,12 +31,13 @@ export class EquipmentModelService extends BaseService<EquipmentModel> {
     return { data: model };
   }
 
+  protected override getDefaultOrderBy() {
+    return { name: "asc" };
+  }
+
   override async findAll(
     query: BaseQueryDto = new BaseQueryDto()
   ): Promise<BaseResponseDto<any>> {
-    query.sortBy = query.sortBy ?? "name";
-    query.sortOrder = query.sortOrder ?? "asc";
-
     return super.findAll(query, {}, { brand: true, type: true });
   }
 

@@ -34,21 +34,16 @@ export class EquipmentAxlesService extends BaseService<EquipmentAxle> {
     return { data: axle };
   }
 
+  protected override getDefaultOrderBy() {
+    return { order: "asc" };
+  }
+
   override async findAll(
     query: EquipmentAxleQueryDto = new EquipmentAxleQueryDto()
   ): Promise<BaseResponseDto<any>> {
     const { equipmentId } = query;
     const additionalWhere: any = {};
     if (equipmentId) additionalWhere.equipmentId = equipmentId;
-
-    // Use super.findAll but we need to inject our custom where logic
-    // Actually BaseService doesn't accept extra where in arguments easily unless we override.
-    // BaseService findAll signature: findAll(query, where = {}, include = undefined)
-
-    // We construct the where object
-    // Also we need to handle default sort if not provided
-    query.sortBy = query.sortBy ?? "order";
-    query.sortOrder = query.sortOrder ?? "asc";
 
     const include = {
       equipment: true,
