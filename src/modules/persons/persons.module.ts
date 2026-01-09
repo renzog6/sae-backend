@@ -6,10 +6,12 @@ import { FamilyService } from "./services/family.service";
 import { PersonsController } from "./controllers/persons.controller";
 import { FamilyController } from "./controllers/family.controller";
 
+import { PersonsResolver } from "./persons.resolver";
+
 @Module({
   imports: [PrismaModule],
-  providers: [PersonsService, FamilyService],
+  providers: [PersonsService, FamilyService, PersonsResolver],
   controllers: [PersonsController, FamilyController],
   exports: [PersonsService, FamilyService],
 })
-export class PersonsModule {}
+export class PersonsModule { }

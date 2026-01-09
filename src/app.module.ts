@@ -3,6 +3,8 @@ import { join } from "path";
 import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { GraphQLModule } from "@nestjs/graphql";
+import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
@@ -39,6 +41,14 @@ import { ValidatorsModule } from "@modules/validators/validators.module";
 
     // Database module
     PrismaModule,
+
+    // GraphQL
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), "src/schema.gql"),
+      sortSchema: true,
+      playground: true, // Habilitar Playground para pruebas
+    }),
 
     // Feature modules
     AuthModule,

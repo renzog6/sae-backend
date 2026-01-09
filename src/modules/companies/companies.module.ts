@@ -5,6 +5,8 @@ import { PrismaModule } from "@prisma/prisma.module";
 import { BusinessSubcategoriesModule } from "./business-subcategories/business-subcategories.module";
 import { BusinessCategoriesModule } from "./business-categories/business-categories.module";
 
+import { CompaniesResolver } from "./companies.resolver";
+
 @Module({
   imports: [
     PrismaModule,
@@ -12,7 +14,7 @@ import { BusinessCategoriesModule } from "./business-categories/business-categor
     BusinessCategoriesModule,
   ],
   controllers: [CompaniesController],
-  providers: [CompaniesService],
+  providers: [CompaniesService, CompaniesResolver],
   exports: [CompaniesService],
 })
-export class CompaniesModule {}
+export class CompaniesModule { }

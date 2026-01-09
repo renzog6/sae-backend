@@ -1,0 +1,194 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type BusinessCategory {
+  code: String
+  createdAt: DateTime!
+  id: Int!
+  information: String
+  isActive: Boolean!
+  name: String!
+  subCategories: [BusinessSubCategory!]
+  updatedAt: DateTime!
+}
+
+type BusinessSubCategory {
+  businessCategoryId: Int!
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  isActive: Boolean!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type Company {
+  businessCategory: BusinessCategory
+  businessCategoryId: Float
+  businessName: String
+  createdAt: DateTime!
+  cuit: String!
+  id: Int!
+  information: String
+  isActive: Boolean!
+  name: String!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Employee {
+  category: EmployeeCategory
+  company: Company
+  companyId: Int!
+  employeeCode: String!
+  hireDate: DateTime!
+  id: Int!
+  person: Person!
+  personId: Int!
+  position: EmployeePosition
+  status: EmployeeStatus!
+}
+
+type EmployeeCategory {
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type EmployeePosition {
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  name: String!
+  updatedAt: DateTime!
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+enum Gender {
+  FEMALE
+  MALE
+  OTHER
+}
+
+enum MaritalStatus {
+  DIVORCED
+  MARRIED
+  SINGLE
+  WIDOWED
+}
+
+type Mutation {
+  hardDeleteBusinessCategory(id: Int!): BusinessCategory!
+  hardDeleteBusinessSubCategory(id: Int!): BusinessSubCategory!
+  hardDeleteCompany(id: Int!): Company!
+  hardDeleteEmployee(id: Int!): Employee!
+  hardDeleteEmployeeCategory(id: Int!): EmployeeCategory!
+  hardDeleteEmployeePosition(id: Int!): EmployeePosition!
+  hardDeletePerson(id: Int!): Person!
+  removeBusinessCategory(id: Int!): BusinessCategory!
+  removeBusinessSubCategory(id: Int!): BusinessSubCategory!
+  removeCompany(id: Int!): Company!
+  removeEmployee(id: Int!): Employee!
+  removeEmployeeCategory(id: Int!): EmployeeCategory!
+  removeEmployeePosition(id: Int!): EmployeePosition!
+  removePerson(id: Int!): Person!
+  restoreBusinessCategory(id: Int!): BusinessCategory!
+  restoreBusinessSubCategory(id: Int!): BusinessSubCategory!
+  restoreCompany(id: Int!): Company!
+  restoreEmployee(id: Int!): Employee!
+  restoreEmployeeCategory(id: Int!): EmployeeCategory!
+  restoreEmployeePosition(id: Int!): EmployeePosition!
+  restorePerson(id: Int!): Person!
+}
+
+type PaginatedBusinessCategory {
+  data: [BusinessCategory!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedBusinessSubCategory {
+  data: [BusinessSubCategory!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedCompany {
+  data: [Company!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedEmployee {
+  data: [Employee!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedEmployeeCategory {
+  data: [EmployeeCategory!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedEmployeePosition {
+  data: [EmployeePosition!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedPerson {
+  data: [Person!]!
+  meta: PaginationMeta!
+}
+
+type PaginationMeta {
+  limit: Int!
+  page: Int!
+  total: Int!
+}
+
+type Person {
+  birthDate: DateTime
+  cuil: String
+  dni: String!
+  firstName: String!
+  gender: Gender
+  id: Int!
+  information: String
+  lastName: String!
+  maritalStatus: MaritalStatus
+  status: PersonStatus!
+}
+
+enum PersonStatus {
+  ACTIVE
+  INACTIVE
+}
+
+type Query {
+  findAllBusinessCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedBusinessCategory!
+  findAllBusinessCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [BusinessCategory!]!
+  findAllBusinessSubCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedBusinessSubCategory!
+  findAllBusinessSubCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [BusinessSubCategory!]!
+  findAllCompanies(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedCompany!
+  findAllCompanys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Company!]!
+  findAllEmployeeCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployeeCategory!
+  findAllEmployeeCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [EmployeeCategory!]!
+  findAllEmployeePositions(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployeePosition!
+  findAllEmployees(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployee!
+  findAllPersons(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedPerson!
+  findOneBusinessCategory(id: Int!): BusinessCategory!
+  findOneBusinessSubCategory(id: Int!): BusinessSubCategory!
+  findOneCompany(id: Int!): Company!
+  findOneEmployee(id: Int!): Employee!
+  findOneEmployeeCategory(id: Int!): EmployeeCategory!
+  findOneEmployeePosition(id: Int!): EmployeePosition!
+  findOnePerson(id: Int!): Person!
+}
