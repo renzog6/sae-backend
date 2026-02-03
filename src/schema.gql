@@ -2,6 +2,28 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Address {
+  apartment: String
+  city: City
+  company: Company
+  floor: String
+  id: Int!
+  isActive: Boolean!
+  latitude: Float
+  longitude: Float
+  neighborhood: String
+  number: String
+  person: Person
+  reference: String
+  street: String
+}
+
+input AddressFilterInput {
+  cityId: Int
+  companyId: Int
+  personId: Int
+}
+
 type BusinessCategory {
   code: String
   createdAt: DateTime!
@@ -23,10 +45,19 @@ type BusinessSubCategory {
   updatedAt: DateTime!
 }
 
+type City {
+  addresses: [Address!]
+  id: Int!
+  name: String!
+  postalCode: String!
+  province: Province
+}
+
 type Company {
   businessCategory: BusinessCategory
   businessCategoryId: Float
   businessName: String
+  contacts: [Contact!]
   createdAt: DateTime!
   cuit: String!
   id: Int!
@@ -34,6 +65,65 @@ type Company {
   isActive: Boolean!
   name: String!
   updatedAt: DateTime!
+}
+
+type Contact {
+  id: Int!
+  information: String
+  label: String
+  type: ContactType!
+  value: String!
+}
+
+input ContactFilterInput {
+  companyId: Int
+  personId: Int
+}
+
+enum ContactType {
+  EMAIL
+  INSTAGRAM
+  LINKEDIN
+  OTHER
+  PHONE
+  TELEGRAM
+  WHATSAPP
+}
+
+type Country {
+  id: Int!
+  name: String!
+  provinces: [Province!]
+}
+
+input CreateAddressInput {
+  apartment: String
+  cityId: Int!
+  companyId: Int
+  floor: String
+  isActive: Boolean = true
+  latitude: Float
+  longitude: Float
+  neighborhood: String
+  number: String
+  personId: Int
+  reference: String
+  street: String
+}
+
+input CreateCityInput {
+  name: String!
+  postalCode: String!
+  provinceId: Int!
+}
+
+input CreateContactInput {
+  companyId: Int
+  information: String
+  label: String
+  personId: Int
+  type: ContactType!
+  value: String!
 }
 
 """
@@ -90,27 +180,56 @@ enum MaritalStatus {
 }
 
 type Mutation {
+  createAddress(input: CreateAddressInput!): Address!
+  createCity(input: CreateCityInput!): City!
+  createContact(input: CreateContactInput!): Contact!
+  deleteAddress(id: Int!): Address!
+  deleteCity(id: Int!): City!
+  deleteContact(id: Int!): Contact!
+  hardDeleteAddress(id: Int!): Address!
   hardDeleteBusinessCategory(id: Int!): BusinessCategory!
   hardDeleteBusinessSubCategory(id: Int!): BusinessSubCategory!
+  hardDeleteCity(id: Int!): City!
   hardDeleteCompany(id: Int!): Company!
+  hardDeleteContact(id: Int!): Contact!
+  hardDeleteCountry(id: Int!): Country!
   hardDeleteEmployee(id: Int!): Employee!
   hardDeleteEmployeeCategory(id: Int!): EmployeeCategory!
   hardDeleteEmployeePosition(id: Int!): EmployeePosition!
   hardDeletePerson(id: Int!): Person!
+  hardDeleteProvince(id: Int!): Province!
+  removeAddress(id: Int!): Address!
   removeBusinessCategory(id: Int!): BusinessCategory!
   removeBusinessSubCategory(id: Int!): BusinessSubCategory!
+  removeCity(id: Int!): City!
   removeCompany(id: Int!): Company!
+  removeContact(id: Int!): Contact!
+  removeCountry(id: Int!): Country!
   removeEmployee(id: Int!): Employee!
   removeEmployeeCategory(id: Int!): EmployeeCategory!
   removeEmployeePosition(id: Int!): EmployeePosition!
   removePerson(id: Int!): Person!
+  removeProvince(id: Int!): Province!
+  restoreAddress(id: Int!): Address!
   restoreBusinessCategory(id: Int!): BusinessCategory!
   restoreBusinessSubCategory(id: Int!): BusinessSubCategory!
+  restoreCity(id: Int!): City!
   restoreCompany(id: Int!): Company!
+  restoreContact(id: Int!): Contact!
+  restoreCountry(id: Int!): Country!
   restoreEmployee(id: Int!): Employee!
   restoreEmployeeCategory(id: Int!): EmployeeCategory!
   restoreEmployeePosition(id: Int!): EmployeePosition!
   restorePerson(id: Int!): Person!
+  restoreProvince(id: Int!): Province!
+  updateAddress(id: Int!, input: UpdateAddressInput!): Address!
+  updateCity(id: Int!, input: UpdateCityInput!): City!
+  updateContact(id: Int!, input: UpdateContactInput!): Contact!
+}
+
+type PaginatedAddress {
+  data: [Address!]!
+  meta: PaginationMeta!
 }
 
 type PaginatedBusinessCategory {
@@ -123,8 +242,23 @@ type PaginatedBusinessSubCategory {
   meta: PaginationMeta!
 }
 
+type PaginatedCity {
+  data: [City!]!
+  meta: PaginationMeta!
+}
+
 type PaginatedCompany {
   data: [Company!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedContact {
+  data: [Contact!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedCountry {
+  data: [Country!]!
   meta: PaginationMeta!
 }
 
@@ -148,6 +282,11 @@ type PaginatedPerson {
   meta: PaginationMeta!
 }
 
+type PaginatedProvince {
+  data: [Province!]!
+  meta: PaginationMeta!
+}
+
 type PaginationMeta {
   limit: Int!
   page: Int!
@@ -156,6 +295,7 @@ type PaginationMeta {
 
 type Person {
   birthDate: DateTime
+  contacts: [Contact!]
   cuil: String
   dni: String!
   firstName: String!
@@ -172,23 +312,73 @@ enum PersonStatus {
   INACTIVE
 }
 
+type Province {
+  cities: [City!]
+  country: Country
+  id: Int!
+  name: String!
+}
+
 type Query {
+  findAddresses(filter: AddressFilterInput, orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedAddress!
+  findAllAddresss(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Address!]!
   findAllBusinessCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedBusinessCategory!
   findAllBusinessCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [BusinessCategory!]!
   findAllBusinessSubCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedBusinessSubCategory!
   findAllBusinessSubCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [BusinessSubCategory!]!
+  findAllCitys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [City!]!
   findAllCompanies(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedCompany!
   findAllCompanys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Company!]!
+  findAllContacts(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Contact!]!
+  findAllCountrys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Country!]!
   findAllEmployeeCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployeeCategory!
   findAllEmployeeCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [EmployeeCategory!]!
   findAllEmployeePositions(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployeePosition!
   findAllEmployees(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployee!
   findAllPersons(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedPerson!
+  findAllProvinces(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Province!]!
+  findCities(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedCity!
+  findContacts(filter: ContactFilterInput, orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedContact!
+  findCountries(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedCountry!
+  findOneAddress(id: Int!): Address!
   findOneBusinessCategory(id: Int!): BusinessCategory!
   findOneBusinessSubCategory(id: Int!): BusinessSubCategory!
+  findOneCity(id: Int!): City!
   findOneCompany(id: Int!): Company!
+  findOneContact(id: Int!): Contact!
+  findOneCountry(id: Int!): Country!
   findOneEmployee(id: Int!): Employee!
   findOneEmployeeCategory(id: Int!): EmployeeCategory!
   findOneEmployeePosition(id: Int!): EmployeePosition!
   findOnePerson(id: Int!): Person!
+  findOneProvince(id: Int!): Province!
+  findProvinces(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedProvince!
+}
+
+input UpdateAddressInput {
+  apartment: String
+  cityId: Int
+  companyId: Int
+  floor: String
+  isActive: Boolean
+  latitude: Float
+  longitude: Float
+  neighborhood: String
+  number: String
+  personId: Int
+  reference: String
+  street: String
+}
+
+input UpdateCityInput {
+  name: String
+  postalCode: String
+  provinceId: Int
+}
+
+input UpdateContactInput {
+  information: String
+  label: String
+  type: ContactType
+  value: String
 }

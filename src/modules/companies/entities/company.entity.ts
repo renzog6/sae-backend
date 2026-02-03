@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Company as PrismaCompany } from "@prisma/client";
 import { ObjectType, Field, Int } from "@nestjs/graphql";
 import { BusinessCategory } from "../business-categories/entities/business-category.entity";
+import { Contact } from "@modules/contacts/entities/contact.entity";
 
 @ObjectType()
 export class Company implements Partial<PrismaCompany> {
@@ -43,4 +44,7 @@ export class Company implements Partial<PrismaCompany> {
     @Field()
     @ApiProperty()
     updatedAt: Date;
+
+    @Field(() => [Contact], { nullable: true })
+    contacts?: Contact[];
 }

@@ -1,4 +1,4 @@
-// src/common/dto/base-query.dto.ts
+// filepath: sae-backend/src/common/dto/base-query.dto.ts
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsOptional, IsNumber, IsString, Min, Max } from "class-validator";

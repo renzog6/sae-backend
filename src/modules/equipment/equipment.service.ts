@@ -27,6 +27,9 @@ export class EquipmentService extends BaseService<Equipment> {
       { internalCode: { contains: q } },
       { description: { contains: q } },
       { name: { contains: q } },
+      { type: { name: { contains: q } } },
+      { model: { name: { contains: q } } },
+      { model: { brand: { name: { contains: q } } } },
     ];
   }
 

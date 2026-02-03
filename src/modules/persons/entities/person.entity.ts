@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Person as PrismaPerson, Gender, MaritalStatus, PersonStatus } from "@prisma/client";
 import { ObjectType, Field, registerEnumType, Int } from "@nestjs/graphql";
+import { Contact } from "@modules/contacts/entities/contact.entity";
 
 registerEnumType(Gender, { name: 'Gender' });
 registerEnumType(MaritalStatus, { name: 'MaritalStatus' });
@@ -48,8 +49,6 @@ export class Person implements Partial<PrismaPerson> {
     @ApiProperty({ enum: PersonStatus })
     status: PersonStatus;
 
-    // Relations typically handled via separate Resolver or FieldResolver, 
-    // but if we want to expose them directly if loaded:
-    // @Field(() => Employee, { nullable: true })
-    // employee?: Employee; 
+    @Field(() => [Contact], { nullable: true })
+    contacts?: Contact[];
 }

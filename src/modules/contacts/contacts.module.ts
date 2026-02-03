@@ -4,10 +4,12 @@ import { ContactsService } from "./services/contacts.service";
 import { ContactsController } from "./controllers/contacts.controller";
 import { PrismaModule } from "@prisma/prisma.module";
 
+import { ContactsResolver } from "./contacts.resolver";
+
 @Module({
   imports: [PrismaModule],
   controllers: [ContactsController],
-  providers: [ContactsService],
+  providers: [ContactsService, ContactsResolver],
   exports: [ContactsService],
 })
-export class ContactsModule {}
+export class ContactsModule { }
