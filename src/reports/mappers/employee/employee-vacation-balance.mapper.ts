@@ -3,6 +3,7 @@ import { calculateTenure } from "@common/utils/date.util";
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { calculateAvailableVacationDays } from "../utils/vacationDays.util";
+import { mapEmployeeStatus } from "../utils/status.util";
 
 /**
  * Maps employee vacation balance data for reports.
@@ -13,12 +14,13 @@ import { calculateAvailableVacationDays } from "../utils/vacationDays.util";
 
 @Injectable()
 export class EmployeeVacationBalanceMapper {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
   async map(filters: Record<string, any>): Promise<any[]> {
     try {
-      const { categoryId, positionId } = filters;
+      const { status, categoryId, positionId } = filters;
 
       const whereClause: any = {};
+      if (status) whereClause.status = mapEmployeeStatus(status);
       if (categoryId) whereClause.categoryId = Number(categoryId);
       if (positionId) whereClause.positionId = Number(positionId);
 
@@ -37,7 +39,10 @@ export class EmployeeVacationBalanceMapper {
         employeeCode: employee.employeeCode,
         name: `${employee.person.lastName} ${employee.person.firstName}`,
         hireDate: employee.hireDate.toISOString().split("T")[0],
-        seniority: calculateTenure(employee.hireDate),
+        seniority: calculateTenure(
+          employee.hireDate,
+          employee.status === "TERMINATED" ? employee.endDate : undefined
+        ),
         days: calculateAvailableVacationDays(employee.vacations), // vacation days available
         position: employee.position.name,
         category: employee.category.name,
