@@ -18,29 +18,31 @@ export const formatDateOnly = (value: Date | string): string => {
 };
 
 /**
- * Calculates the tenure (years and months) from a start date to the current date.
+ * Calculates the tenure (years and months) from a start date to an end date (or current date).
  *
  * @param start - The start date as a Date object or string
+ * @param end - Optional end date as a Date object or string (defaults to current date)
  * @returns A string representing years and months in "years,months" format (e.g., "5,8" for 5 years and 8 months)
- *
- * @example
- * ```typescript
- * calculateTenure('2020-01-15') // Returns "5,8" for 5 years and 8 months from 2025
- * calculateTenure(new Date('2020-01-15')) // Same result
- * ```
  */
-export const calculateTenure = (start: Date | string): string => {
+export const calculateTenure = (start: Date | string, end?: Date | string): string => {
+  if (!start) return "0,0";
   const startDate = new Date(start);
-  const now = new Date();
+  const endDate = end ? new Date(end) : new Date();
 
-  let years = now.getFullYear() - startDate.getFullYear();
-  let months = now.getMonth() - startDate.getMonth();
+  if (isNaN(startDate.getTime())) return "0,0";
 
-  if (months < 0) {
-    years--;
-    months += 12;
-  }
+  let totalMonths =
+    (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+    (endDate.getMonth() - startDate.getMonth());
 
-  //Años ,  Meses
+  // Ajuste si el día actual es menor que el día de ingreso
+  if (endDate.getDate() < startDate.getDate()) totalMonths--;
+
+  // Nunca devolver valores negativos
+  totalMonths = Math.max(totalMonths, 0);
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+
   return `${years},${months}`;
 };

@@ -202,6 +202,11 @@ export class EmployeesService extends BaseService<any> {
               },
             },
           },
+          contacts: {
+            include: {
+              contact: true,
+            },
+          },
         },
       },
       vacations: true,
@@ -253,6 +258,11 @@ export class EmployeesService extends BaseService<any> {
                   province: true,
                 },
               },
+            },
+          },
+          contacts: {
+            include: {
+              contact: true,
             },
           },
         },

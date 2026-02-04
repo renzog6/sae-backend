@@ -12,7 +12,7 @@ import { mapEmployeeStatus } from "../utils/status.util";
  */
 @Injectable()
 export class EmployeeListMapper {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async map(filters: Record<string, any>) {
     const { status, categoryId, positionId } = filters;
@@ -58,7 +58,10 @@ export class EmployeeListMapper {
         age: calculateTenure(employee.person.birthDate),
         cuil: employee.person.cuil,
         hireDate: employee.hireDate.toISOString().split("T")[0],
-        seniority: calculateTenure(employee.hireDate),
+        seniority: calculateTenure(
+          employee.hireDate,
+          employee.status === "TERMINATED" ? employee.endDate : undefined
+        ),
         position: employee.position.name,
         category: employee.category.name,
         address: formatAddress(employee.person.address),
