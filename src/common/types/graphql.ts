@@ -16,6 +16,8 @@ export type Scalars = {
   Float: { input: number; output: number; }
   /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: any; output: any; }
+  /** The `JSON` scalar type represents JSON values as specified by ECMA-404 */
+  JSON: { input: any; output: any; }
 };
 
 export type Address = {
@@ -40,6 +42,13 @@ export type AddressFilterInput = {
   companyId?: InputMaybe<Scalars['Int']['input']>;
   personId?: InputMaybe<Scalars['Int']['input']>;
 };
+
+export enum AxleType {
+  Drive = 'DRIVE',
+  Front = 'FRONT',
+  Tag = 'TAG',
+  Trailer = 'TRAILER'
+}
 
 export type Brand = {
   __typename?: 'Brand';
@@ -161,6 +170,56 @@ export type CreateContactInput = {
   value: Scalars['String']['input'];
 };
 
+export type CreateTireEventDto = {
+  data?: InputMaybe<Scalars['JSON']['input']>;
+  date?: InputMaybe<Scalars['DateTime']['input']>;
+  description: Scalars['String']['input'];
+  kmAtEvent?: InputMaybe<Scalars['Int']['input']>;
+  tireId: Scalars['Int']['input'];
+  type: TireEventType;
+};
+
+export type CreateTireInspectionDto = {
+  inspectionDate?: InputMaybe<Scalars['DateTime']['input']>;
+  observation?: InputMaybe<Scalars['String']['input']>;
+  pressure?: InputMaybe<Scalars['Float']['input']>;
+  tireId: Scalars['Int']['input'];
+  treadDepth?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type CreateTirePositionDto = {
+  axleId: Scalars['Int']['input'];
+  isDual: Scalars['Boolean']['input'];
+  positionKey: Scalars['String']['input'];
+  side: TireSide;
+};
+
+export type CreateTireRecapDto = {
+  cost?: InputMaybe<Scalars['Float']['input']>;
+  kmAtRecap?: InputMaybe<Scalars['Int']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<Scalars['String']['input']>;
+  recapType?: InputMaybe<Scalars['String']['input']>;
+  tireId: Scalars['Int']['input'];
+};
+
+export type CreateTireRotationDto = {
+  fromEquipmentId?: InputMaybe<Scalars['Int']['input']>;
+  fromPosition?: InputMaybe<TirePosition>;
+  kmAtRotation?: InputMaybe<Scalars['Int']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  rotationDate?: InputMaybe<Scalars['DateTime']['input']>;
+  tireId: Scalars['Int']['input'];
+  toEquipmentId?: InputMaybe<Scalars['Int']['input']>;
+  toPosition?: InputMaybe<TirePosition>;
+};
+
+export enum Currency {
+  Ars = 'ARS',
+  Eur = 'EUR',
+  Usd = 'USD'
+}
+
 export type Employee = {
   __typename?: 'Employee';
   category?: Maybe<EmployeeCategory>;
@@ -199,8 +258,20 @@ export enum EmployeeStatus {
   Terminated = 'TERMINATED'
 }
 
+export type EmployeeVacation = {
+  __typename?: 'EmployeeVacation';
+  days: Scalars['Int']['output'];
+  employee?: Maybe<Employee>;
+  endDate: Scalars['DateTime']['output'];
+  id: Scalars['Int']['output'];
+  startDate: Scalars['DateTime']['output'];
+  type: VacationType;
+  year?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Equipment = {
   __typename?: 'Equipment';
+  axles?: Maybe<Array<EquipmentAxle>>;
   category?: Maybe<EquipmentCategory>;
   categoryId?: Maybe<Scalars['Int']['output']>;
   chassis?: Maybe<Scalars['String']['output']>;
@@ -216,15 +287,29 @@ export type Equipment = {
   internalCode?: Maybe<Scalars['String']['output']>;
   isActive: Scalars['Boolean']['output'];
   licensePlate?: Maybe<Scalars['String']['output']>;
+  maintenances?: Maybe<Array<EquipmentMaintenance>>;
   model?: Maybe<EquipmentModel>;
   modelId?: Maybe<Scalars['Int']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   observation?: Maybe<Scalars['String']['output']>;
   status: EquipmentStatus;
+  transactions?: Maybe<Array<EquipmentTransaction>>;
   type?: Maybe<EquipmentType>;
   typeId?: Maybe<Scalars['Int']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   year?: Maybe<Scalars['Int']['output']>;
+};
+
+export type EquipmentAxle = {
+  __typename?: 'EquipmentAxle';
+  axleType: AxleType;
+  description?: Maybe<Scalars['String']['output']>;
+  equipment?: Maybe<Equipment>;
+  equipmentId: Scalars['Int']['output'];
+  id: Scalars['Int']['output'];
+  order: Scalars['Int']['output'];
+  tirePositions?: Maybe<Array<TirePositionConfig>>;
+  wheelCount: Scalars['Int']['output'];
 };
 
 export type EquipmentCategory = {
@@ -241,6 +326,22 @@ export type EquipmentFilterInput = {
   status?: InputMaybe<EquipmentStatus>;
   typeId?: InputMaybe<Scalars['Int']['input']>;
   year?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type EquipmentMaintenance = {
+  __typename?: 'EquipmentMaintenance';
+  cost?: Maybe<Scalars['Float']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  equipment?: Maybe<Equipment>;
+  equipmentId: Scalars['Int']['output'];
+  id: Scalars['Int']['output'];
+  startDate: Scalars['DateTime']['output'];
+  technician?: Maybe<Scalars['String']['output']>;
+  type: MaintenanceType;
+  updatedAt: Scalars['DateTime']['output'];
+  warranty?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type EquipmentModel = {
@@ -264,6 +365,28 @@ export enum EquipmentStatus {
   Maintenance = 'MAINTENANCE',
   Retired = 'RETIRED',
   Sold = 'SOLD'
+}
+
+export type EquipmentTransaction = {
+  __typename?: 'EquipmentTransaction';
+  amount: Scalars['Float']['output'];
+  company?: Maybe<Company>;
+  companyId: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Currency;
+  equipment?: Maybe<Equipment>;
+  equipmentId: Scalars['Int']['output'];
+  exchangeRate?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['Int']['output'];
+  observation?: Maybe<Scalars['String']['output']>;
+  transactionDate: Scalars['DateTime']['output'];
+  type: EquipmentTransactionType;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum EquipmentTransactionType {
+  Purchase = 'PURCHASE',
+  Sale = 'SALE'
 }
 
 export type EquipmentType = {
@@ -345,6 +468,13 @@ export type Inspection = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export enum MaintenanceType {
+  AccidentRepair = 'ACCIDENT_REPAIR',
+  Corrective = 'CORRECTIVE',
+  Preventive = 'PREVENTIVE',
+  RoutineCheck = 'ROUTINE_CHECK'
+}
+
 export enum MaritalStatus {
   Divorced = 'DIVORCED',
   Married = 'MARRIED',
@@ -352,37 +482,74 @@ export enum MaritalStatus {
   Widowed = 'WIDOWED'
 }
 
+export type MountTireDto = {
+  equipmentId?: InputMaybe<Scalars['Int']['input']>;
+  kmAtStart?: InputMaybe<Scalars['Int']['input']>;
+  mountDate?: InputMaybe<Scalars['DateTime']['input']>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['String']['input']>;
+  positionConfigId: Scalars['Int']['input'];
+  tireId: Scalars['Int']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAddress: Address;
   createCity: City;
   createContact: Contact;
+  createEmployeeVacation: EmployeeVacation;
+  createEquipment: Equipment;
+  createEquipmentAxle: EquipmentAxle;
+  createEquipmentCategory: EquipmentCategory;
+  createEquipmentMaintenance: EquipmentMaintenance;
+  createEquipmentModel: EquipmentModel;
+  createEquipmentTransaction: EquipmentTransaction;
+  createEquipmentType: EquipmentType;
+  createHistoryLog: HistoryLog;
+  createInspection: Inspection;
+  createTire: Tire;
+  createTireEvent: TireEvent;
+  createTireInspection: TireInspection;
+  createTireModel: TireModel;
+  createTirePosition: TirePositionConfig;
+  createTireRecap: TireRecap;
+  createTireRotation: TireRotation;
+  createTireSize: TireSize;
+  createUnit: Unit;
+  createUser: User;
   deleteAddress: Address;
   deleteCity: City;
   deleteContact: Contact;
-  hardDeleteAddress: Address;
-  hardDeleteBrand: Brand;
-  hardDeleteBusinessCategory: BusinessCategory;
-  hardDeleteBusinessSubCategory: BusinessSubCategory;
-  hardDeleteCity: City;
-  hardDeleteCompany: Company;
-  hardDeleteContact: Contact;
-  hardDeleteCountry: Country;
-  hardDeleteEmployee: Employee;
-  hardDeleteEmployeeCategory: EmployeeCategory;
-  hardDeleteEmployeePosition: EmployeePosition;
-  hardDeleteEquipment: Equipment;
-  hardDeleteEquipmentCategory: EquipmentCategory;
-  hardDeleteEquipmentModel: EquipmentModel;
-  hardDeleteEquipmentType: EquipmentType;
-  hardDeleteHistoryLog: HistoryLog;
-  hardDeleteInspection: Inspection;
-  hardDeletePerson: Person;
-  hardDeleteProvince: Province;
-  hardDeleteTire: Tire;
-  hardDeleteTireModel: TireModel;
-  hardDeleteTireSize: TireSize;
-  hardDeleteUnit: Unit;
+  hardDeleteAddress?: Maybe<Address>;
+  hardDeleteBrand?: Maybe<Brand>;
+  hardDeleteBusinessCategory?: Maybe<BusinessCategory>;
+  hardDeleteBusinessSubCategory?: Maybe<BusinessSubCategory>;
+  hardDeleteCity?: Maybe<City>;
+  hardDeleteCompany?: Maybe<Company>;
+  hardDeleteContact?: Maybe<Contact>;
+  hardDeleteCountry?: Maybe<Country>;
+  hardDeleteEmployee?: Maybe<Employee>;
+  hardDeleteEmployeeCategory?: Maybe<EmployeeCategory>;
+  hardDeleteEmployeePosition?: Maybe<EmployeePosition>;
+  hardDeleteEmployeeVacation?: Maybe<EmployeeVacation>;
+  hardDeleteEquipment?: Maybe<Equipment>;
+  hardDeleteEquipmentAxle?: Maybe<EquipmentAxle>;
+  hardDeleteEquipmentCategory?: Maybe<EquipmentCategory>;
+  hardDeleteEquipmentMaintenance?: Maybe<EquipmentMaintenance>;
+  hardDeleteEquipmentModel?: Maybe<EquipmentModel>;
+  hardDeleteEquipmentTransaction?: Maybe<EquipmentTransaction>;
+  hardDeleteEquipmentType?: Maybe<EquipmentType>;
+  hardDeleteHistoryLog?: Maybe<HistoryLog>;
+  hardDeleteInspection?: Maybe<Inspection>;
+  hardDeletePerson?: Maybe<Person>;
+  hardDeleteProvince?: Maybe<Province>;
+  hardDeleteTire?: Maybe<Tire>;
+  hardDeleteTireModel?: Maybe<TireModel>;
+  hardDeleteTireSize?: Maybe<TireSize>;
+  hardDeleteUnit?: Maybe<Unit>;
+  hardDeleteUser?: Maybe<User>;
+  mountTire: TireAssignment;
+  registerTireEvent: TireEvent;
   removeAddress: Address;
   removeBrand: Brand;
   removeBusinessCategory: BusinessCategory;
@@ -394,18 +561,28 @@ export type Mutation = {
   removeEmployee: Employee;
   removeEmployeeCategory: EmployeeCategory;
   removeEmployeePosition: EmployeePosition;
+  removeEmployeeVacation: EmployeeVacation;
   removeEquipment: Equipment;
+  removeEquipmentAxle: EquipmentAxle;
   removeEquipmentCategory: EquipmentCategory;
+  removeEquipmentMaintenance: EquipmentMaintenance;
   removeEquipmentModel: EquipmentModel;
+  removeEquipmentTransaction: EquipmentTransaction;
   removeEquipmentType: EquipmentType;
   removeHistoryLog: HistoryLog;
   removeInspection: Inspection;
   removePerson: Person;
   removeProvince: Province;
   removeTire: Tire;
+  removeTireEvent: Scalars['Boolean']['output'];
+  removeTireInspection: Scalars['Boolean']['output'];
   removeTireModel: TireModel;
+  removeTirePosition: Scalars['Boolean']['output'];
+  removeTireRecap: Scalars['Boolean']['output'];
+  removeTireRotation: Scalars['Boolean']['output'];
   removeTireSize: TireSize;
   removeUnit: Unit;
+  removeUser: User;
   restoreAddress: Address;
   restoreBrand: Brand;
   restoreBusinessCategory: BusinessCategory;
@@ -417,9 +594,13 @@ export type Mutation = {
   restoreEmployee: Employee;
   restoreEmployeeCategory: EmployeeCategory;
   restoreEmployeePosition: EmployeePosition;
+  restoreEmployeeVacation: EmployeeVacation;
   restoreEquipment: Equipment;
+  restoreEquipmentAxle: EquipmentAxle;
   restoreEquipmentCategory: EquipmentCategory;
+  restoreEquipmentMaintenance: EquipmentMaintenance;
   restoreEquipmentModel: EquipmentModel;
+  restoreEquipmentTransaction: EquipmentTransaction;
   restoreEquipmentType: EquipmentType;
   restoreHistoryLog: HistoryLog;
   restoreInspection: Inspection;
@@ -429,9 +610,31 @@ export type Mutation = {
   restoreTireModel: TireModel;
   restoreTireSize: TireSize;
   restoreUnit: Unit;
+  restoreUser: User;
+  unmountTire: Scalars['Boolean']['output'];
   updateAddress: Address;
   updateCity: City;
   updateContact: Contact;
+  updateEmployeeVacation: EmployeeVacation;
+  updateEquipment: Equipment;
+  updateEquipmentAxle: EquipmentAxle;
+  updateEquipmentCategory: EquipmentCategory;
+  updateEquipmentMaintenance: EquipmentMaintenance;
+  updateEquipmentModel: EquipmentModel;
+  updateEquipmentTransaction: EquipmentTransaction;
+  updateEquipmentType: EquipmentType;
+  updateHistoryLog: HistoryLog;
+  updateInspection: Inspection;
+  updateLastLogin: Scalars['Boolean']['output'];
+  updateTire: Tire;
+  updateTireInspection: TireInspection;
+  updateTireModel: TireModel;
+  updateTirePosition: TirePositionConfig;
+  updateTireRecap: TireRecap;
+  updateTireRotation: TireRotation;
+  updateTireSize: TireSize;
+  updateUnit: Unit;
+  updateUser: User;
 };
 
 
@@ -447,6 +650,31 @@ export type MutationCreateCityArgs = {
 
 export type MutationCreateContactArgs = {
   input: CreateContactInput;
+};
+
+
+export type MutationCreateTireEventArgs = {
+  input: CreateTireEventDto;
+};
+
+
+export type MutationCreateTireInspectionArgs = {
+  input: CreateTireInspectionDto;
+};
+
+
+export type MutationCreateTirePositionArgs = {
+  input: CreateTirePositionDto;
+};
+
+
+export type MutationCreateTireRecapArgs = {
+  input: CreateTireRecapDto;
+};
+
+
+export type MutationCreateTireRotationArgs = {
+  input: CreateTireRotationDto;
 };
 
 
@@ -520,7 +748,17 @@ export type MutationHardDeleteEmployeePositionArgs = {
 };
 
 
+export type MutationHardDeleteEmployeeVacationArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationHardDeleteEquipmentArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationHardDeleteEquipmentAxleArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -530,7 +768,17 @@ export type MutationHardDeleteEquipmentCategoryArgs = {
 };
 
 
+export type MutationHardDeleteEquipmentMaintenanceArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationHardDeleteEquipmentModelArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationHardDeleteEquipmentTransactionArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -577,6 +825,25 @@ export type MutationHardDeleteTireSizeArgs = {
 
 export type MutationHardDeleteUnitArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type MutationHardDeleteUserArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationMountTireArgs = {
+  input: MountTireDto;
+};
+
+
+export type MutationRegisterTireEventArgs = {
+  data?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  kmAtEvent?: InputMaybe<Scalars['Int']['input']>;
+  tireId: Scalars['Int']['input'];
+  type: TireEventType;
 };
 
 
@@ -635,7 +902,17 @@ export type MutationRemoveEmployeePositionArgs = {
 };
 
 
+export type MutationRemoveEmployeeVacationArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveEquipmentArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveEquipmentAxleArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -645,7 +922,17 @@ export type MutationRemoveEquipmentCategoryArgs = {
 };
 
 
+export type MutationRemoveEquipmentMaintenanceArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveEquipmentModelArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveEquipmentTransactionArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -680,7 +967,32 @@ export type MutationRemoveTireArgs = {
 };
 
 
+export type MutationRemoveTireEventArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveTireInspectionArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveTireModelArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveTirePositionArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveTireRecapArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveTireRotationArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -691,6 +1003,11 @@ export type MutationRemoveTireSizeArgs = {
 
 
 export type MutationRemoveUnitArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveUserArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -750,7 +1067,17 @@ export type MutationRestoreEmployeePositionArgs = {
 };
 
 
+export type MutationRestoreEmployeeVacationArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationRestoreEquipmentArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRestoreEquipmentAxleArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -760,7 +1087,17 @@ export type MutationRestoreEquipmentCategoryArgs = {
 };
 
 
+export type MutationRestoreEquipmentMaintenanceArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type MutationRestoreEquipmentModelArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationRestoreEquipmentTransactionArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -810,6 +1147,16 @@ export type MutationRestoreUnitArgs = {
 };
 
 
+export type MutationRestoreUserArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type MutationUnmountTireArgs = {
+  input: UnmountTireDto;
+};
+
+
 export type MutationUpdateAddressArgs = {
   id: Scalars['Int']['input'];
   input: UpdateAddressInput;
@@ -825,6 +1172,35 @@ export type MutationUpdateCityArgs = {
 export type MutationUpdateContactArgs = {
   id: Scalars['Int']['input'];
   input: UpdateContactInput;
+};
+
+
+export type MutationUpdateLastLoginArgs = {
+  userId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateTireInspectionArgs = {
+  id: Scalars['Int']['input'];
+  input: UpdateTireInspectionDto;
+};
+
+
+export type MutationUpdateTirePositionArgs = {
+  id: Scalars['Int']['input'];
+  input: UpdateTirePositionDto;
+};
+
+
+export type MutationUpdateTireRecapArgs = {
+  id: Scalars['Int']['input'];
+  input: UpdateTireRecapDto;
+};
+
+
+export type MutationUpdateTireRotationArgs = {
+  id: Scalars['Int']['input'];
+  input: UpdateTireRotationDto;
 };
 
 export type PaginatedAddress = {
@@ -917,18 +1293,6 @@ export type PaginatedEquipmentType = {
   meta: PaginationMeta;
 };
 
-export type PaginatedHistoryLog = {
-  __typename?: 'PaginatedHistoryLog';
-  data: Array<HistoryLog>;
-  meta: PaginationMeta;
-};
-
-export type PaginatedInspection = {
-  __typename?: 'PaginatedInspection';
-  data: Array<Inspection>;
-  meta: PaginationMeta;
-};
-
 export type PaginatedPerson = {
   __typename?: 'PaginatedPerson';
   data: Array<Person>;
@@ -944,6 +1308,12 @@ export type PaginatedProvince = {
 export type PaginatedTire = {
   __typename?: 'PaginatedTire';
   data: Array<Tire>;
+  meta: PaginationMeta;
+};
+
+export type PaginatedTireInspection = {
+  __typename?: 'PaginatedTireInspection';
+  data: Array<TireInspection>;
   meta: PaginationMeta;
 };
 
@@ -1017,48 +1387,76 @@ export type Query = {
   findAllEmployeeCategories: PaginatedEmployeeCategory;
   findAllEmployeeCategorys: Array<EmployeeCategory>;
   findAllEmployeePositions: PaginatedEmployeePosition;
+  findAllEmployeeVacations: Array<EmployeeVacation>;
   findAllEmployees: PaginatedEmployee;
   findAllEquipment: PaginatedEquipment;
+  findAllEquipmentAxles: Array<EquipmentAxle>;
   findAllEquipmentCategories: PaginatedEquipmentCategory;
   findAllEquipmentCategorys: Array<EquipmentCategory>;
+  findAllEquipmentMaintenances: Array<EquipmentMaintenance>;
   findAllEquipmentModels: PaginatedEquipmentModel;
+  findAllEquipmentTransactions: Array<EquipmentTransaction>;
   findAllEquipmentTypes: PaginatedEquipmentType;
   findAllEquipments: Array<Equipment>;
-  findAllHistoryLogs: PaginatedHistoryLog;
-  findAllInspections: PaginatedInspection;
+  findAllHistoryLogs: Array<HistoryLog>;
+  findAllInspections: Array<Inspection>;
   findAllPersons: PaginatedPerson;
   findAllProvinces: Array<Province>;
+  findAllTireEvents: Array<TireEvent>;
+  findAllTireInspections: PaginatedTireInspection;
   findAllTireModels: PaginatedTireModel;
+  findAllTirePositions: Array<TirePositionConfig>;
+  findAllTireRecaps: Array<TireRecap>;
+  findAllTireRotations: Array<TireRotation>;
   findAllTireSizes: PaginatedTireSize;
   findAllTires: PaginatedTire;
   findAllUnits: PaginatedUnit;
+  findAllUsers: Array<User>;
   findCities: PaginatedCity;
   findContacts: PaginatedContact;
   findCountries: PaginatedCountry;
-  findOneAddress: Address;
-  findOneBrand: Brand;
-  findOneBusinessCategory: BusinessCategory;
-  findOneBusinessSubCategory: BusinessSubCategory;
-  findOneCity: City;
-  findOneCompany: Company;
-  findOneContact: Contact;
-  findOneCountry: Country;
-  findOneEmployee: Employee;
-  findOneEmployeeCategory: EmployeeCategory;
-  findOneEmployeePosition: EmployeePosition;
-  findOneEquipment: Equipment;
-  findOneEquipmentCategory: EquipmentCategory;
-  findOneEquipmentModel: EquipmentModel;
-  findOneEquipmentType: EquipmentType;
-  findOneHistoryLog: HistoryLog;
-  findOneInspection: Inspection;
-  findOnePerson: Person;
-  findOneProvince: Province;
-  findOneTire: Tire;
-  findOneTireModel: TireModel;
-  findOneTireSize: TireSize;
-  findOneUnit: Unit;
+  findOneAddress?: Maybe<Address>;
+  findOneBrand?: Maybe<Brand>;
+  findOneBusinessCategory?: Maybe<BusinessCategory>;
+  findOneBusinessSubCategory?: Maybe<BusinessSubCategory>;
+  findOneCity?: Maybe<City>;
+  findOneCompany?: Maybe<Company>;
+  findOneContact?: Maybe<Contact>;
+  findOneCountry?: Maybe<Country>;
+  findOneEmployee?: Maybe<Employee>;
+  findOneEmployeeCategory?: Maybe<EmployeeCategory>;
+  findOneEmployeePosition?: Maybe<EmployeePosition>;
+  findOneEmployeeVacation?: Maybe<EmployeeVacation>;
+  findOneEquipment?: Maybe<Equipment>;
+  findOneEquipmentAxle?: Maybe<EquipmentAxle>;
+  findOneEquipmentCategory?: Maybe<EquipmentCategory>;
+  findOneEquipmentMaintenance?: Maybe<EquipmentMaintenance>;
+  findOneEquipmentModel?: Maybe<EquipmentModel>;
+  findOneEquipmentTransaction?: Maybe<EquipmentTransaction>;
+  findOneEquipmentType?: Maybe<EquipmentType>;
+  findOneHistoryLog?: Maybe<HistoryLog>;
+  findOneInspection?: Maybe<Inspection>;
+  findOnePerson?: Maybe<Person>;
+  findOneProvince?: Maybe<Province>;
+  findOneTire?: Maybe<Tire>;
+  findOneTireEvent?: Maybe<TireEvent>;
+  findOneTireInspection?: Maybe<TireInspection>;
+  findOneTireModel?: Maybe<TireModel>;
+  findOneTirePosition?: Maybe<TirePositionConfig>;
+  findOneTireRotation?: Maybe<TireRotation>;
+  findOneTireSize?: Maybe<TireSize>;
+  findOneUnit?: Maybe<Unit>;
+  findOneUser?: Maybe<User>;
+  findOpenTireAssignments: Array<TireAssignment>;
+  findOpenTireAssignmentsByEquipment: Array<TireAssignment>;
   findProvinces: PaginatedProvince;
+  findTireAssignmentsByTire: Array<TireAssignment>;
+  findTireEventsByTire: Array<TireEvent>;
+  findTireEventsByTireAndType: Array<TireEvent>;
+  findTireInspectionsByTire: Array<TireInspection>;
+  findTireRecapsByTire: Array<TireRecap>;
+  findTireRotationsByTire: Array<TireRotation>;
+  findUserByEmail?: Maybe<User>;
 };
 
 
@@ -1198,6 +1596,15 @@ export type QueryFindAllEmployeePositionsArgs = {
 };
 
 
+export type QueryFindAllEmployeeVacationsArgs = {
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  q?: InputMaybe<Scalars['String']['input']>;
+  skip?: Scalars['Int']['input'];
+  take?: Scalars['Int']['input'];
+  where?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryFindAllEmployeesArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   q?: InputMaybe<Scalars['String']['input']>;
@@ -1209,6 +1616,15 @@ export type QueryFindAllEmployeesArgs = {
 
 export type QueryFindAllEquipmentArgs = {
   filter?: InputMaybe<EquipmentFilterInput>;
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  q?: InputMaybe<Scalars['String']['input']>;
+  skip?: Scalars['Int']['input'];
+  take?: Scalars['Int']['input'];
+  where?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryFindAllEquipmentAxlesArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   q?: InputMaybe<Scalars['String']['input']>;
   skip?: Scalars['Int']['input'];
@@ -1235,7 +1651,25 @@ export type QueryFindAllEquipmentCategorysArgs = {
 };
 
 
+export type QueryFindAllEquipmentMaintenancesArgs = {
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  q?: InputMaybe<Scalars['String']['input']>;
+  skip?: Scalars['Int']['input'];
+  take?: Scalars['Int']['input'];
+  where?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryFindAllEquipmentModelsArgs = {
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  q?: InputMaybe<Scalars['String']['input']>;
+  skip?: Scalars['Int']['input'];
+  take?: Scalars['Int']['input'];
+  where?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryFindAllEquipmentTransactionsArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   q?: InputMaybe<Scalars['String']['input']>;
   skip?: Scalars['Int']['input'];
@@ -1298,12 +1732,22 @@ export type QueryFindAllProvincesArgs = {
 };
 
 
+export type QueryFindAllTireInspectionsArgs = {
+  query?: InputMaybe<TireInspectionsQueryDto>;
+};
+
+
 export type QueryFindAllTireModelsArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   q?: InputMaybe<Scalars['String']['input']>;
   skip?: Scalars['Int']['input'];
   take?: Scalars['Int']['input'];
   where?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryFindAllTirePositionsArgs = {
+  axleId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1326,6 +1770,15 @@ export type QueryFindAllTiresArgs = {
 
 
 export type QueryFindAllUnitsArgs = {
+  orderBy?: InputMaybe<Scalars['String']['input']>;
+  q?: InputMaybe<Scalars['String']['input']>;
+  skip?: Scalars['Int']['input'];
+  take?: Scalars['Int']['input'];
+  where?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryFindAllUsersArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   q?: InputMaybe<Scalars['String']['input']>;
   skip?: Scalars['Int']['input'];
@@ -1417,7 +1870,17 @@ export type QueryFindOneEmployeePositionArgs = {
 };
 
 
+export type QueryFindOneEmployeeVacationArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type QueryFindOneEquipmentArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryFindOneEquipmentAxleArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -1427,7 +1890,17 @@ export type QueryFindOneEquipmentCategoryArgs = {
 };
 
 
+export type QueryFindOneEquipmentMaintenanceArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type QueryFindOneEquipmentModelArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryFindOneEquipmentTransactionArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -1462,7 +1935,27 @@ export type QueryFindOneTireArgs = {
 };
 
 
+export type QueryFindOneTireEventArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryFindOneTireInspectionArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type QueryFindOneTireModelArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryFindOneTirePositionArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryFindOneTireRotationArgs = {
   id: Scalars['Int']['input'];
 };
 
@@ -1477,6 +1970,16 @@ export type QueryFindOneUnitArgs = {
 };
 
 
+export type QueryFindOneUserArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type QueryFindOpenTireAssignmentsByEquipmentArgs = {
+  equipmentId: Scalars['Int']['input'];
+};
+
+
 export type QueryFindProvincesArgs = {
   orderBy?: InputMaybe<Scalars['String']['input']>;
   q?: InputMaybe<Scalars['String']['input']>;
@@ -1484,6 +1987,47 @@ export type QueryFindProvincesArgs = {
   take?: Scalars['Int']['input'];
   where?: InputMaybe<Scalars['String']['input']>;
 };
+
+
+export type QueryFindTireAssignmentsByTireArgs = {
+  tireId: Scalars['Int']['input'];
+};
+
+
+export type QueryFindTireEventsByTireArgs = {
+  tireId: Scalars['Int']['input'];
+};
+
+
+export type QueryFindTireEventsByTireAndTypeArgs = {
+  tireId: Scalars['Int']['input'];
+  type: TireEventType;
+};
+
+
+export type QueryFindTireInspectionsByTireArgs = {
+  tireId: Scalars['Int']['input'];
+};
+
+
+export type QueryFindTireRecapsByTireArgs = {
+  tireId: Scalars['Int']['input'];
+};
+
+
+export type QueryFindTireRotationsByTireArgs = {
+  tireId: Scalars['Int']['input'];
+};
+
+
+export type QueryFindUserByEmailArgs = {
+  email: Scalars['String']['input'];
+};
+
+export enum Role {
+  Admin = 'ADMIN',
+  User = 'USER'
+}
 
 export enum SeverityLevel {
   Critical = 'CRITICAL',
@@ -1494,9 +2038,12 @@ export enum SeverityLevel {
 
 export type Tire = {
   __typename?: 'Tire';
+  assignments?: Maybe<Array<TireAssignment>>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  events?: Maybe<Array<TireEvent>>;
   id: Scalars['Int']['output'];
+  inspections?: Maybe<Array<TireInspection>>;
   isActive: Scalars['Boolean']['output'];
   lastRecapAt?: Maybe<Scalars['DateTime']['output']>;
   lastRecapId?: Maybe<Scalars['Int']['output']>;
@@ -1504,10 +2051,70 @@ export type Tire = {
   modelId: Scalars['Int']['output'];
   position?: Maybe<TirePosition>;
   recapCount?: Maybe<Scalars['Int']['output']>;
+  recaps?: Maybe<Array<TireRecap>>;
+  rotations?: Maybe<Array<TireRotation>>;
   serialNumber: Scalars['String']['output'];
   status: TireStatus;
   totalKm?: Maybe<Scalars['Int']['output']>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type TireAssignment = {
+  __typename?: 'TireAssignment';
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['Int']['output'];
+  kmAtEnd?: Maybe<Scalars['Int']['output']>;
+  kmAtStart?: Maybe<Scalars['Int']['output']>;
+  positionConfig?: Maybe<TirePositionConfig>;
+  positionConfigId: Scalars['Int']['output'];
+  startDate: Scalars['DateTime']['output'];
+  tire?: Maybe<Tire>;
+  tireId: Scalars['Int']['output'];
+};
+
+export type TireEvent = {
+  __typename?: 'TireEvent';
+  description?: Maybe<Scalars['String']['output']>;
+  eventDate: Scalars['DateTime']['output'];
+  eventType: TireEventType;
+  id: Scalars['Int']['output'];
+  metadata?: Maybe<Scalars['String']['output']>;
+  tire?: Maybe<Tire>;
+  tireId: Scalars['Int']['output'];
+  userId?: Maybe<Scalars['Int']['output']>;
+};
+
+export enum TireEventType {
+  Assignment = 'ASSIGNMENT',
+  Discard = 'DISCARD',
+  Inspection = 'INSPECTION',
+  Other = 'OTHER',
+  Recap = 'RECAP',
+  Rotation = 'ROTATION',
+  Unassignment = 'UNASSIGNMENT'
+}
+
+export type TireInspection = {
+  __typename?: 'TireInspection';
+  id: Scalars['Int']['output'];
+  inspectionDate: Scalars['DateTime']['output'];
+  observation?: Maybe<Scalars['String']['output']>;
+  pressure?: Maybe<Scalars['Float']['output']>;
+  tire?: Maybe<Tire>;
+  tireId: Scalars['Int']['output'];
+  treadDepth?: Maybe<Scalars['Float']['output']>;
+};
+
+export type TireInspectionsQueryDto = {
+  equipmentId?: InputMaybe<Scalars['Int']['input']>;
+  fromDate?: InputMaybe<Scalars['DateTime']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  minPressure?: InputMaybe<Scalars['Float']['input']>;
+  minTreadDepth?: InputMaybe<Scalars['Float']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  q?: InputMaybe<Scalars['String']['input']>;
+  tireId?: InputMaybe<Scalars['Int']['input']>;
+  toDate?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type TireModel = {
@@ -1557,6 +2164,51 @@ export enum TirePosition {
   Unknown = 'UNKNOWN'
 }
 
+export type TirePositionConfig = {
+  __typename?: 'TirePositionConfig';
+  assignments?: Maybe<Array<TireAssignment>>;
+  axle?: Maybe<EquipmentAxle>;
+  axleId: Scalars['Int']['output'];
+  id: Scalars['Int']['output'];
+  isDual: Scalars['Boolean']['output'];
+  positionKey: Scalars['String']['output'];
+  side: TireSide;
+};
+
+export type TireRecap = {
+  __typename?: 'TireRecap';
+  cost?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['Int']['output'];
+  kmAtRecap?: Maybe<Scalars['Int']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  provider?: Maybe<Scalars['String']['output']>;
+  recapDate: Scalars['DateTime']['output'];
+  recapNumber: Scalars['Int']['output'];
+  recapType?: Maybe<Scalars['String']['output']>;
+  tire?: Maybe<Tire>;
+  tireId: Scalars['Int']['output'];
+};
+
+export type TireRotation = {
+  __typename?: 'TireRotation';
+  fromEquipmentId?: Maybe<Scalars['Int']['output']>;
+  fromPosition?: Maybe<TirePosition>;
+  id: Scalars['Int']['output'];
+  kmAtRotation?: Maybe<Scalars['Int']['output']>;
+  rotationDate: Scalars['DateTime']['output'];
+  tire?: Maybe<Tire>;
+  tireId: Scalars['Int']['output'];
+  toEquipmentId?: Maybe<Scalars['Int']['output']>;
+  toPosition?: Maybe<TirePosition>;
+};
+
+export enum TireSide {
+  Inner = 'INNER',
+  Left = 'LEFT',
+  Outer = 'OUTER',
+  Right = 'RIGHT'
+}
+
 export type TireSize = {
   __typename?: 'TireSize';
   aspectRatio?: Maybe<Scalars['Int']['output']>;
@@ -1582,6 +2234,14 @@ export type Unit = {
   id: Scalars['Int']['output'];
   isActive: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+};
+
+export type UnmountTireDto = {
+  assignmentId: Scalars['Int']['input'];
+  kmAtEnd?: InputMaybe<Scalars['Int']['input']>;
+  newStatus?: InputMaybe<TireStatus>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  unmountDate?: InputMaybe<Scalars['DateTime']['input']>;
 };
 
 export type UpdateAddressInput = {
@@ -1611,6 +2271,62 @@ export type UpdateContactInput = {
   type?: InputMaybe<ContactType>;
   value?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type UpdateTireInspectionDto = {
+  inspectionDate?: InputMaybe<Scalars['DateTime']['input']>;
+  observation?: InputMaybe<Scalars['String']['input']>;
+  pressure?: InputMaybe<Scalars['Float']['input']>;
+  tireId?: InputMaybe<Scalars['Int']['input']>;
+  treadDepth?: InputMaybe<Scalars['Float']['input']>;
+};
+
+export type UpdateTirePositionDto = {
+  axleId?: InputMaybe<Scalars['Int']['input']>;
+  isDual?: InputMaybe<Scalars['Boolean']['input']>;
+  positionKey?: InputMaybe<Scalars['String']['input']>;
+  side?: InputMaybe<TireSide>;
+};
+
+export type UpdateTireRecapDto = {
+  cost?: InputMaybe<Scalars['Float']['input']>;
+  kmAtRecap?: InputMaybe<Scalars['Int']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<Scalars['String']['input']>;
+  recapType?: InputMaybe<Scalars['String']['input']>;
+  tireId?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type UpdateTireRotationDto = {
+  fromEquipmentId?: InputMaybe<Scalars['Int']['input']>;
+  fromPosition?: InputMaybe<TirePosition>;
+  kmAtRotation?: InputMaybe<Scalars['Int']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  rotationDate?: InputMaybe<Scalars['DateTime']['input']>;
+  tireId?: InputMaybe<Scalars['Int']['input']>;
+  toEquipmentId?: InputMaybe<Scalars['Int']['input']>;
+  toPosition?: InputMaybe<TirePosition>;
+};
+
+export type User = {
+  __typename?: 'User';
+  companyId: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  email: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  isActive: Scalars['Boolean']['output'];
+  lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  preferences?: Maybe<Scalars['JSON']['output']>;
+  role: Role;
+  updatedAt: Scalars['DateTime']['output'];
+  username?: Maybe<Scalars['String']['output']>;
+};
+
+export enum VacationType {
+  Assigned = 'ASSIGNED',
+  Taken = 'TAKEN'
+}
 
 
 
@@ -1687,6 +2403,7 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 export type ResolversTypes = {
   Address: ResolverTypeWrapper<Address>;
   AddressFilterInput: AddressFilterInput;
+  AxleType: AxleType;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Brand: ResolverTypeWrapper<Brand>;
   BusinessCategory: ResolverTypeWrapper<BusinessCategory>;
@@ -1700,16 +2417,27 @@ export type ResolversTypes = {
   CreateAddressInput: CreateAddressInput;
   CreateCityInput: CreateCityInput;
   CreateContactInput: CreateContactInput;
+  CreateTireEventDto: CreateTireEventDto;
+  CreateTireInspectionDto: CreateTireInspectionDto;
+  CreateTirePositionDto: CreateTirePositionDto;
+  CreateTireRecapDto: CreateTireRecapDto;
+  CreateTireRotationDto: CreateTireRotationDto;
+  Currency: Currency;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Employee: ResolverTypeWrapper<Employee>;
   EmployeeCategory: ResolverTypeWrapper<EmployeeCategory>;
   EmployeePosition: ResolverTypeWrapper<EmployeePosition>;
   EmployeeStatus: EmployeeStatus;
+  EmployeeVacation: ResolverTypeWrapper<EmployeeVacation>;
   Equipment: ResolverTypeWrapper<Equipment>;
+  EquipmentAxle: ResolverTypeWrapper<EquipmentAxle>;
   EquipmentCategory: ResolverTypeWrapper<EquipmentCategory>;
   EquipmentFilterInput: EquipmentFilterInput;
+  EquipmentMaintenance: ResolverTypeWrapper<EquipmentMaintenance>;
   EquipmentModel: ResolverTypeWrapper<EquipmentModel>;
   EquipmentStatus: EquipmentStatus;
+  EquipmentTransaction: ResolverTypeWrapper<EquipmentTransaction>;
+  EquipmentTransactionType: EquipmentTransactionType;
   EquipmentType: ResolverTypeWrapper<EquipmentType>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   FuelType: FuelType;
@@ -1718,7 +2446,10 @@ export type ResolversTypes = {
   HistoryType: HistoryType;
   Inspection: ResolverTypeWrapper<Inspection>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
+  MaintenanceType: MaintenanceType;
   MaritalStatus: MaritalStatus;
+  MountTireDto: MountTireDto;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   PaginatedAddress: ResolverTypeWrapper<PaginatedAddress>;
   PaginatedBrand: ResolverTypeWrapper<PaginatedBrand>;
@@ -1735,11 +2466,10 @@ export type ResolversTypes = {
   PaginatedEquipmentCategory: ResolverTypeWrapper<PaginatedEquipmentCategory>;
   PaginatedEquipmentModel: ResolverTypeWrapper<PaginatedEquipmentModel>;
   PaginatedEquipmentType: ResolverTypeWrapper<PaginatedEquipmentType>;
-  PaginatedHistoryLog: ResolverTypeWrapper<PaginatedHistoryLog>;
-  PaginatedInspection: ResolverTypeWrapper<PaginatedInspection>;
   PaginatedPerson: ResolverTypeWrapper<PaginatedPerson>;
   PaginatedProvince: ResolverTypeWrapper<PaginatedProvince>;
   PaginatedTire: ResolverTypeWrapper<PaginatedTire>;
+  PaginatedTireInspection: ResolverTypeWrapper<PaginatedTireInspection>;
   PaginatedTireModel: ResolverTypeWrapper<PaginatedTireModel>;
   PaginatedTireSize: ResolverTypeWrapper<PaginatedTireSize>;
   PaginatedUnit: ResolverTypeWrapper<PaginatedUnit>;
@@ -1748,17 +2478,34 @@ export type ResolversTypes = {
   PersonStatus: PersonStatus;
   Province: ResolverTypeWrapper<Province>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  Role: Role;
   SeverityLevel: SeverityLevel;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Tire: ResolverTypeWrapper<Tire>;
+  TireAssignment: ResolverTypeWrapper<TireAssignment>;
+  TireEvent: ResolverTypeWrapper<TireEvent>;
+  TireEventType: TireEventType;
+  TireInspection: ResolverTypeWrapper<TireInspection>;
+  TireInspectionsQueryDto: TireInspectionsQueryDto;
   TireModel: ResolverTypeWrapper<TireModel>;
   TirePosition: TirePosition;
+  TirePositionConfig: ResolverTypeWrapper<TirePositionConfig>;
+  TireRecap: ResolverTypeWrapper<TireRecap>;
+  TireRotation: ResolverTypeWrapper<TireRotation>;
+  TireSide: TireSide;
   TireSize: ResolverTypeWrapper<TireSize>;
   TireStatus: TireStatus;
   Unit: ResolverTypeWrapper<Unit>;
+  UnmountTireDto: UnmountTireDto;
   UpdateAddressInput: UpdateAddressInput;
   UpdateCityInput: UpdateCityInput;
   UpdateContactInput: UpdateContactInput;
+  UpdateTireInspectionDto: UpdateTireInspectionDto;
+  UpdateTirePositionDto: UpdateTirePositionDto;
+  UpdateTireRecapDto: UpdateTireRecapDto;
+  UpdateTireRotationDto: UpdateTireRotationDto;
+  User: ResolverTypeWrapper<User>;
+  VacationType: VacationType;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -1777,19 +2524,30 @@ export type ResolversParentTypes = {
   CreateAddressInput: CreateAddressInput;
   CreateCityInput: CreateCityInput;
   CreateContactInput: CreateContactInput;
+  CreateTireEventDto: CreateTireEventDto;
+  CreateTireInspectionDto: CreateTireInspectionDto;
+  CreateTirePositionDto: CreateTirePositionDto;
+  CreateTireRecapDto: CreateTireRecapDto;
+  CreateTireRotationDto: CreateTireRotationDto;
   DateTime: Scalars['DateTime']['output'];
   Employee: Employee;
   EmployeeCategory: EmployeeCategory;
   EmployeePosition: EmployeePosition;
+  EmployeeVacation: EmployeeVacation;
   Equipment: Equipment;
+  EquipmentAxle: EquipmentAxle;
   EquipmentCategory: EquipmentCategory;
   EquipmentFilterInput: EquipmentFilterInput;
+  EquipmentMaintenance: EquipmentMaintenance;
   EquipmentModel: EquipmentModel;
+  EquipmentTransaction: EquipmentTransaction;
   EquipmentType: EquipmentType;
   Float: Scalars['Float']['output'];
   HistoryLog: HistoryLog;
   Inspection: Inspection;
   Int: Scalars['Int']['output'];
+  JSON: Scalars['JSON']['output'];
+  MountTireDto: MountTireDto;
   Mutation: Record<PropertyKey, never>;
   PaginatedAddress: PaginatedAddress;
   PaginatedBrand: PaginatedBrand;
@@ -1806,11 +2564,10 @@ export type ResolversParentTypes = {
   PaginatedEquipmentCategory: PaginatedEquipmentCategory;
   PaginatedEquipmentModel: PaginatedEquipmentModel;
   PaginatedEquipmentType: PaginatedEquipmentType;
-  PaginatedHistoryLog: PaginatedHistoryLog;
-  PaginatedInspection: PaginatedInspection;
   PaginatedPerson: PaginatedPerson;
   PaginatedProvince: PaginatedProvince;
   PaginatedTire: PaginatedTire;
+  PaginatedTireInspection: PaginatedTireInspection;
   PaginatedTireModel: PaginatedTireModel;
   PaginatedTireSize: PaginatedTireSize;
   PaginatedUnit: PaginatedUnit;
@@ -1820,12 +2577,25 @@ export type ResolversParentTypes = {
   Query: Record<PropertyKey, never>;
   String: Scalars['String']['output'];
   Tire: Tire;
+  TireAssignment: TireAssignment;
+  TireEvent: TireEvent;
+  TireInspection: TireInspection;
+  TireInspectionsQueryDto: TireInspectionsQueryDto;
   TireModel: TireModel;
+  TirePositionConfig: TirePositionConfig;
+  TireRecap: TireRecap;
+  TireRotation: TireRotation;
   TireSize: TireSize;
   Unit: Unit;
+  UnmountTireDto: UnmountTireDto;
   UpdateAddressInput: UpdateAddressInput;
   UpdateCityInput: UpdateCityInput;
   UpdateContactInput: UpdateContactInput;
+  UpdateTireInspectionDto: UpdateTireInspectionDto;
+  UpdateTirePositionDto: UpdateTirePositionDto;
+  UpdateTireRecapDto: UpdateTireRecapDto;
+  UpdateTireRotationDto: UpdateTireRotationDto;
+  User: User;
 };
 
 export type AddressResolvers<ContextType = any, ParentType extends ResolversParentTypes['Address'] = ResolversParentTypes['Address']> = {
@@ -1945,7 +2715,18 @@ export type EmployeePositionResolvers<ContextType = any, ParentType extends Reso
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
 };
 
+export type EmployeeVacationResolvers<ContextType = any, ParentType extends ResolversParentTypes['EmployeeVacation'] = ResolversParentTypes['EmployeeVacation']> = {
+  days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  employee?: Resolver<Maybe<ResolversTypes['Employee']>, ParentType, ContextType>;
+  endDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  startDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['VacationType'], ParentType, ContextType>;
+  year?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+};
+
 export type EquipmentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Equipment'] = ResolversParentTypes['Equipment']> = {
+  axles?: Resolver<Maybe<Array<ResolversTypes['EquipmentAxle']>>, ParentType, ContextType>;
   category?: Resolver<Maybe<ResolversTypes['EquipmentCategory']>, ParentType, ContextType>;
   categoryId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   chassis?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1961,15 +2742,28 @@ export type EquipmentResolvers<ContextType = any, ParentType extends ResolversPa
   internalCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   licensePlate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  maintenances?: Resolver<Maybe<Array<ResolversTypes['EquipmentMaintenance']>>, ParentType, ContextType>;
   model?: Resolver<Maybe<ResolversTypes['EquipmentModel']>, ParentType, ContextType>;
   modelId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   observation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['EquipmentStatus'], ParentType, ContextType>;
+  transactions?: Resolver<Maybe<Array<ResolversTypes['EquipmentTransaction']>>, ParentType, ContextType>;
   type?: Resolver<Maybe<ResolversTypes['EquipmentType']>, ParentType, ContextType>;
   typeId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   year?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+};
+
+export type EquipmentAxleResolvers<ContextType = any, ParentType extends ResolversParentTypes['EquipmentAxle'] = ResolversParentTypes['EquipmentAxle']> = {
+  axleType?: Resolver<ResolversTypes['AxleType'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  equipment?: Resolver<Maybe<ResolversTypes['Equipment']>, ParentType, ContextType>;
+  equipmentId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tirePositions?: Resolver<Maybe<Array<ResolversTypes['TirePositionConfig']>>, ParentType, ContextType>;
+  wheelCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
 export type EquipmentCategoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['EquipmentCategory'] = ResolversParentTypes['EquipmentCategory']> = {
@@ -1977,6 +2771,21 @@ export type EquipmentCategoryResolvers<ContextType = any, ParentType extends Res
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type EquipmentMaintenanceResolvers<ContextType = any, ParentType extends ResolversParentTypes['EquipmentMaintenance'] = ResolversParentTypes['EquipmentMaintenance']> = {
+  cost?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  equipment?: Resolver<Maybe<ResolversTypes['Equipment']>, ParentType, ContextType>;
+  equipmentId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  startDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  technician?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['MaintenanceType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  warranty?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
 };
 
 export type EquipmentModelResolvers<ContextType = any, ParentType extends ResolversParentTypes['EquipmentModel'] = ResolversParentTypes['EquipmentModel']> = {
@@ -1991,6 +2800,22 @@ export type EquipmentModelResolvers<ContextType = any, ParentType extends Resolv
   type?: Resolver<Maybe<ResolversTypes['EquipmentType']>, ParentType, ContextType>;
   typeId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   year?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+};
+
+export type EquipmentTransactionResolvers<ContextType = any, ParentType extends ResolversParentTypes['EquipmentTransaction'] = ResolversParentTypes['EquipmentTransaction']> = {
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  company?: Resolver<Maybe<ResolversTypes['Company']>, ParentType, ContextType>;
+  companyId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['Currency'], ParentType, ContextType>;
+  equipment?: Resolver<Maybe<ResolversTypes['Equipment']>, ParentType, ContextType>;
+  equipmentId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  exchangeRate?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  observation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  transactionDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['EquipmentTransactionType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
 };
 
 export type EquipmentTypeResolvers<ContextType = any, ParentType extends ResolversParentTypes['EquipmentType'] = ResolversParentTypes['EquipmentType']> = {
@@ -2037,36 +2862,67 @@ export type InspectionResolvers<ContextType = any, ParentType extends ResolversP
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
 };
 
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<MutationCreateAddressArgs, 'input'>>;
   createCity?: Resolver<ResolversTypes['City'], ParentType, ContextType, RequireFields<MutationCreateCityArgs, 'input'>>;
   createContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationCreateContactArgs, 'input'>>;
+  createEmployeeVacation?: Resolver<ResolversTypes['EmployeeVacation'], ParentType, ContextType>;
+  createEquipment?: Resolver<ResolversTypes['Equipment'], ParentType, ContextType>;
+  createEquipmentAxle?: Resolver<ResolversTypes['EquipmentAxle'], ParentType, ContextType>;
+  createEquipmentCategory?: Resolver<ResolversTypes['EquipmentCategory'], ParentType, ContextType>;
+  createEquipmentMaintenance?: Resolver<ResolversTypes['EquipmentMaintenance'], ParentType, ContextType>;
+  createEquipmentModel?: Resolver<ResolversTypes['EquipmentModel'], ParentType, ContextType>;
+  createEquipmentTransaction?: Resolver<ResolversTypes['EquipmentTransaction'], ParentType, ContextType>;
+  createEquipmentType?: Resolver<ResolversTypes['EquipmentType'], ParentType, ContextType>;
+  createHistoryLog?: Resolver<ResolversTypes['HistoryLog'], ParentType, ContextType>;
+  createInspection?: Resolver<ResolversTypes['Inspection'], ParentType, ContextType>;
+  createTire?: Resolver<ResolversTypes['Tire'], ParentType, ContextType>;
+  createTireEvent?: Resolver<ResolversTypes['TireEvent'], ParentType, ContextType, RequireFields<MutationCreateTireEventArgs, 'input'>>;
+  createTireInspection?: Resolver<ResolversTypes['TireInspection'], ParentType, ContextType, RequireFields<MutationCreateTireInspectionArgs, 'input'>>;
+  createTireModel?: Resolver<ResolversTypes['TireModel'], ParentType, ContextType>;
+  createTirePosition?: Resolver<ResolversTypes['TirePositionConfig'], ParentType, ContextType, RequireFields<MutationCreateTirePositionArgs, 'input'>>;
+  createTireRecap?: Resolver<ResolversTypes['TireRecap'], ParentType, ContextType, RequireFields<MutationCreateTireRecapArgs, 'input'>>;
+  createTireRotation?: Resolver<ResolversTypes['TireRotation'], ParentType, ContextType, RequireFields<MutationCreateTireRotationArgs, 'input'>>;
+  createTireSize?: Resolver<ResolversTypes['TireSize'], ParentType, ContextType>;
+  createUnit?: Resolver<ResolversTypes['Unit'], ParentType, ContextType>;
+  createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   deleteAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<MutationDeleteAddressArgs, 'id'>>;
   deleteCity?: Resolver<ResolversTypes['City'], ParentType, ContextType, RequireFields<MutationDeleteCityArgs, 'id'>>;
   deleteContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationDeleteContactArgs, 'id'>>;
-  hardDeleteAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<MutationHardDeleteAddressArgs, 'id'>>;
-  hardDeleteBrand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType, RequireFields<MutationHardDeleteBrandArgs, 'id'>>;
-  hardDeleteBusinessCategory?: Resolver<ResolversTypes['BusinessCategory'], ParentType, ContextType, RequireFields<MutationHardDeleteBusinessCategoryArgs, 'id'>>;
-  hardDeleteBusinessSubCategory?: Resolver<ResolversTypes['BusinessSubCategory'], ParentType, ContextType, RequireFields<MutationHardDeleteBusinessSubCategoryArgs, 'id'>>;
-  hardDeleteCity?: Resolver<ResolversTypes['City'], ParentType, ContextType, RequireFields<MutationHardDeleteCityArgs, 'id'>>;
-  hardDeleteCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationHardDeleteCompanyArgs, 'id'>>;
-  hardDeleteContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationHardDeleteContactArgs, 'id'>>;
-  hardDeleteCountry?: Resolver<ResolversTypes['Country'], ParentType, ContextType, RequireFields<MutationHardDeleteCountryArgs, 'id'>>;
-  hardDeleteEmployee?: Resolver<ResolversTypes['Employee'], ParentType, ContextType, RequireFields<MutationHardDeleteEmployeeArgs, 'id'>>;
-  hardDeleteEmployeeCategory?: Resolver<ResolversTypes['EmployeeCategory'], ParentType, ContextType, RequireFields<MutationHardDeleteEmployeeCategoryArgs, 'id'>>;
-  hardDeleteEmployeePosition?: Resolver<ResolversTypes['EmployeePosition'], ParentType, ContextType, RequireFields<MutationHardDeleteEmployeePositionArgs, 'id'>>;
-  hardDeleteEquipment?: Resolver<ResolversTypes['Equipment'], ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentArgs, 'id'>>;
-  hardDeleteEquipmentCategory?: Resolver<ResolversTypes['EquipmentCategory'], ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentCategoryArgs, 'id'>>;
-  hardDeleteEquipmentModel?: Resolver<ResolversTypes['EquipmentModel'], ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentModelArgs, 'id'>>;
-  hardDeleteEquipmentType?: Resolver<ResolversTypes['EquipmentType'], ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentTypeArgs, 'id'>>;
-  hardDeleteHistoryLog?: Resolver<ResolversTypes['HistoryLog'], ParentType, ContextType, RequireFields<MutationHardDeleteHistoryLogArgs, 'id'>>;
-  hardDeleteInspection?: Resolver<ResolversTypes['Inspection'], ParentType, ContextType, RequireFields<MutationHardDeleteInspectionArgs, 'id'>>;
-  hardDeletePerson?: Resolver<ResolversTypes['Person'], ParentType, ContextType, RequireFields<MutationHardDeletePersonArgs, 'id'>>;
-  hardDeleteProvince?: Resolver<ResolversTypes['Province'], ParentType, ContextType, RequireFields<MutationHardDeleteProvinceArgs, 'id'>>;
-  hardDeleteTire?: Resolver<ResolversTypes['Tire'], ParentType, ContextType, RequireFields<MutationHardDeleteTireArgs, 'id'>>;
-  hardDeleteTireModel?: Resolver<ResolversTypes['TireModel'], ParentType, ContextType, RequireFields<MutationHardDeleteTireModelArgs, 'id'>>;
-  hardDeleteTireSize?: Resolver<ResolversTypes['TireSize'], ParentType, ContextType, RequireFields<MutationHardDeleteTireSizeArgs, 'id'>>;
-  hardDeleteUnit?: Resolver<ResolversTypes['Unit'], ParentType, ContextType, RequireFields<MutationHardDeleteUnitArgs, 'id'>>;
+  hardDeleteAddress?: Resolver<Maybe<ResolversTypes['Address']>, ParentType, ContextType, RequireFields<MutationHardDeleteAddressArgs, 'id'>>;
+  hardDeleteBrand?: Resolver<Maybe<ResolversTypes['Brand']>, ParentType, ContextType, RequireFields<MutationHardDeleteBrandArgs, 'id'>>;
+  hardDeleteBusinessCategory?: Resolver<Maybe<ResolversTypes['BusinessCategory']>, ParentType, ContextType, RequireFields<MutationHardDeleteBusinessCategoryArgs, 'id'>>;
+  hardDeleteBusinessSubCategory?: Resolver<Maybe<ResolversTypes['BusinessSubCategory']>, ParentType, ContextType, RequireFields<MutationHardDeleteBusinessSubCategoryArgs, 'id'>>;
+  hardDeleteCity?: Resolver<Maybe<ResolversTypes['City']>, ParentType, ContextType, RequireFields<MutationHardDeleteCityArgs, 'id'>>;
+  hardDeleteCompany?: Resolver<Maybe<ResolversTypes['Company']>, ParentType, ContextType, RequireFields<MutationHardDeleteCompanyArgs, 'id'>>;
+  hardDeleteContact?: Resolver<Maybe<ResolversTypes['Contact']>, ParentType, ContextType, RequireFields<MutationHardDeleteContactArgs, 'id'>>;
+  hardDeleteCountry?: Resolver<Maybe<ResolversTypes['Country']>, ParentType, ContextType, RequireFields<MutationHardDeleteCountryArgs, 'id'>>;
+  hardDeleteEmployee?: Resolver<Maybe<ResolversTypes['Employee']>, ParentType, ContextType, RequireFields<MutationHardDeleteEmployeeArgs, 'id'>>;
+  hardDeleteEmployeeCategory?: Resolver<Maybe<ResolversTypes['EmployeeCategory']>, ParentType, ContextType, RequireFields<MutationHardDeleteEmployeeCategoryArgs, 'id'>>;
+  hardDeleteEmployeePosition?: Resolver<Maybe<ResolversTypes['EmployeePosition']>, ParentType, ContextType, RequireFields<MutationHardDeleteEmployeePositionArgs, 'id'>>;
+  hardDeleteEmployeeVacation?: Resolver<Maybe<ResolversTypes['EmployeeVacation']>, ParentType, ContextType, RequireFields<MutationHardDeleteEmployeeVacationArgs, 'id'>>;
+  hardDeleteEquipment?: Resolver<Maybe<ResolversTypes['Equipment']>, ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentArgs, 'id'>>;
+  hardDeleteEquipmentAxle?: Resolver<Maybe<ResolversTypes['EquipmentAxle']>, ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentAxleArgs, 'id'>>;
+  hardDeleteEquipmentCategory?: Resolver<Maybe<ResolversTypes['EquipmentCategory']>, ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentCategoryArgs, 'id'>>;
+  hardDeleteEquipmentMaintenance?: Resolver<Maybe<ResolversTypes['EquipmentMaintenance']>, ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentMaintenanceArgs, 'id'>>;
+  hardDeleteEquipmentModel?: Resolver<Maybe<ResolversTypes['EquipmentModel']>, ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentModelArgs, 'id'>>;
+  hardDeleteEquipmentTransaction?: Resolver<Maybe<ResolversTypes['EquipmentTransaction']>, ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentTransactionArgs, 'id'>>;
+  hardDeleteEquipmentType?: Resolver<Maybe<ResolversTypes['EquipmentType']>, ParentType, ContextType, RequireFields<MutationHardDeleteEquipmentTypeArgs, 'id'>>;
+  hardDeleteHistoryLog?: Resolver<Maybe<ResolversTypes['HistoryLog']>, ParentType, ContextType, RequireFields<MutationHardDeleteHistoryLogArgs, 'id'>>;
+  hardDeleteInspection?: Resolver<Maybe<ResolversTypes['Inspection']>, ParentType, ContextType, RequireFields<MutationHardDeleteInspectionArgs, 'id'>>;
+  hardDeletePerson?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, RequireFields<MutationHardDeletePersonArgs, 'id'>>;
+  hardDeleteProvince?: Resolver<Maybe<ResolversTypes['Province']>, ParentType, ContextType, RequireFields<MutationHardDeleteProvinceArgs, 'id'>>;
+  hardDeleteTire?: Resolver<Maybe<ResolversTypes['Tire']>, ParentType, ContextType, RequireFields<MutationHardDeleteTireArgs, 'id'>>;
+  hardDeleteTireModel?: Resolver<Maybe<ResolversTypes['TireModel']>, ParentType, ContextType, RequireFields<MutationHardDeleteTireModelArgs, 'id'>>;
+  hardDeleteTireSize?: Resolver<Maybe<ResolversTypes['TireSize']>, ParentType, ContextType, RequireFields<MutationHardDeleteTireSizeArgs, 'id'>>;
+  hardDeleteUnit?: Resolver<Maybe<ResolversTypes['Unit']>, ParentType, ContextType, RequireFields<MutationHardDeleteUnitArgs, 'id'>>;
+  hardDeleteUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationHardDeleteUserArgs, 'id'>>;
+  mountTire?: Resolver<ResolversTypes['TireAssignment'], ParentType, ContextType, RequireFields<MutationMountTireArgs, 'input'>>;
+  registerTireEvent?: Resolver<ResolversTypes['TireEvent'], ParentType, ContextType, RequireFields<MutationRegisterTireEventArgs, 'description' | 'tireId' | 'type'>>;
   removeAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<MutationRemoveAddressArgs, 'id'>>;
   removeBrand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType, RequireFields<MutationRemoveBrandArgs, 'id'>>;
   removeBusinessCategory?: Resolver<ResolversTypes['BusinessCategory'], ParentType, ContextType, RequireFields<MutationRemoveBusinessCategoryArgs, 'id'>>;
@@ -2078,18 +2934,28 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   removeEmployee?: Resolver<ResolversTypes['Employee'], ParentType, ContextType, RequireFields<MutationRemoveEmployeeArgs, 'id'>>;
   removeEmployeeCategory?: Resolver<ResolversTypes['EmployeeCategory'], ParentType, ContextType, RequireFields<MutationRemoveEmployeeCategoryArgs, 'id'>>;
   removeEmployeePosition?: Resolver<ResolversTypes['EmployeePosition'], ParentType, ContextType, RequireFields<MutationRemoveEmployeePositionArgs, 'id'>>;
+  removeEmployeeVacation?: Resolver<ResolversTypes['EmployeeVacation'], ParentType, ContextType, RequireFields<MutationRemoveEmployeeVacationArgs, 'id'>>;
   removeEquipment?: Resolver<ResolversTypes['Equipment'], ParentType, ContextType, RequireFields<MutationRemoveEquipmentArgs, 'id'>>;
+  removeEquipmentAxle?: Resolver<ResolversTypes['EquipmentAxle'], ParentType, ContextType, RequireFields<MutationRemoveEquipmentAxleArgs, 'id'>>;
   removeEquipmentCategory?: Resolver<ResolversTypes['EquipmentCategory'], ParentType, ContextType, RequireFields<MutationRemoveEquipmentCategoryArgs, 'id'>>;
+  removeEquipmentMaintenance?: Resolver<ResolversTypes['EquipmentMaintenance'], ParentType, ContextType, RequireFields<MutationRemoveEquipmentMaintenanceArgs, 'id'>>;
   removeEquipmentModel?: Resolver<ResolversTypes['EquipmentModel'], ParentType, ContextType, RequireFields<MutationRemoveEquipmentModelArgs, 'id'>>;
+  removeEquipmentTransaction?: Resolver<ResolversTypes['EquipmentTransaction'], ParentType, ContextType, RequireFields<MutationRemoveEquipmentTransactionArgs, 'id'>>;
   removeEquipmentType?: Resolver<ResolversTypes['EquipmentType'], ParentType, ContextType, RequireFields<MutationRemoveEquipmentTypeArgs, 'id'>>;
   removeHistoryLog?: Resolver<ResolversTypes['HistoryLog'], ParentType, ContextType, RequireFields<MutationRemoveHistoryLogArgs, 'id'>>;
   removeInspection?: Resolver<ResolversTypes['Inspection'], ParentType, ContextType, RequireFields<MutationRemoveInspectionArgs, 'id'>>;
   removePerson?: Resolver<ResolversTypes['Person'], ParentType, ContextType, RequireFields<MutationRemovePersonArgs, 'id'>>;
   removeProvince?: Resolver<ResolversTypes['Province'], ParentType, ContextType, RequireFields<MutationRemoveProvinceArgs, 'id'>>;
   removeTire?: Resolver<ResolversTypes['Tire'], ParentType, ContextType, RequireFields<MutationRemoveTireArgs, 'id'>>;
+  removeTireEvent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveTireEventArgs, 'id'>>;
+  removeTireInspection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveTireInspectionArgs, 'id'>>;
   removeTireModel?: Resolver<ResolversTypes['TireModel'], ParentType, ContextType, RequireFields<MutationRemoveTireModelArgs, 'id'>>;
+  removeTirePosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveTirePositionArgs, 'id'>>;
+  removeTireRecap?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveTireRecapArgs, 'id'>>;
+  removeTireRotation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveTireRotationArgs, 'id'>>;
   removeTireSize?: Resolver<ResolversTypes['TireSize'], ParentType, ContextType, RequireFields<MutationRemoveTireSizeArgs, 'id'>>;
   removeUnit?: Resolver<ResolversTypes['Unit'], ParentType, ContextType, RequireFields<MutationRemoveUnitArgs, 'id'>>;
+  removeUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRemoveUserArgs, 'id'>>;
   restoreAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<MutationRestoreAddressArgs, 'id'>>;
   restoreBrand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType, RequireFields<MutationRestoreBrandArgs, 'id'>>;
   restoreBusinessCategory?: Resolver<ResolversTypes['BusinessCategory'], ParentType, ContextType, RequireFields<MutationRestoreBusinessCategoryArgs, 'id'>>;
@@ -2101,9 +2967,13 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   restoreEmployee?: Resolver<ResolversTypes['Employee'], ParentType, ContextType, RequireFields<MutationRestoreEmployeeArgs, 'id'>>;
   restoreEmployeeCategory?: Resolver<ResolversTypes['EmployeeCategory'], ParentType, ContextType, RequireFields<MutationRestoreEmployeeCategoryArgs, 'id'>>;
   restoreEmployeePosition?: Resolver<ResolversTypes['EmployeePosition'], ParentType, ContextType, RequireFields<MutationRestoreEmployeePositionArgs, 'id'>>;
+  restoreEmployeeVacation?: Resolver<ResolversTypes['EmployeeVacation'], ParentType, ContextType, RequireFields<MutationRestoreEmployeeVacationArgs, 'id'>>;
   restoreEquipment?: Resolver<ResolversTypes['Equipment'], ParentType, ContextType, RequireFields<MutationRestoreEquipmentArgs, 'id'>>;
+  restoreEquipmentAxle?: Resolver<ResolversTypes['EquipmentAxle'], ParentType, ContextType, RequireFields<MutationRestoreEquipmentAxleArgs, 'id'>>;
   restoreEquipmentCategory?: Resolver<ResolversTypes['EquipmentCategory'], ParentType, ContextType, RequireFields<MutationRestoreEquipmentCategoryArgs, 'id'>>;
+  restoreEquipmentMaintenance?: Resolver<ResolversTypes['EquipmentMaintenance'], ParentType, ContextType, RequireFields<MutationRestoreEquipmentMaintenanceArgs, 'id'>>;
   restoreEquipmentModel?: Resolver<ResolversTypes['EquipmentModel'], ParentType, ContextType, RequireFields<MutationRestoreEquipmentModelArgs, 'id'>>;
+  restoreEquipmentTransaction?: Resolver<ResolversTypes['EquipmentTransaction'], ParentType, ContextType, RequireFields<MutationRestoreEquipmentTransactionArgs, 'id'>>;
   restoreEquipmentType?: Resolver<ResolversTypes['EquipmentType'], ParentType, ContextType, RequireFields<MutationRestoreEquipmentTypeArgs, 'id'>>;
   restoreHistoryLog?: Resolver<ResolversTypes['HistoryLog'], ParentType, ContextType, RequireFields<MutationRestoreHistoryLogArgs, 'id'>>;
   restoreInspection?: Resolver<ResolversTypes['Inspection'], ParentType, ContextType, RequireFields<MutationRestoreInspectionArgs, 'id'>>;
@@ -2113,9 +2983,31 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   restoreTireModel?: Resolver<ResolversTypes['TireModel'], ParentType, ContextType, RequireFields<MutationRestoreTireModelArgs, 'id'>>;
   restoreTireSize?: Resolver<ResolversTypes['TireSize'], ParentType, ContextType, RequireFields<MutationRestoreTireSizeArgs, 'id'>>;
   restoreUnit?: Resolver<ResolversTypes['Unit'], ParentType, ContextType, RequireFields<MutationRestoreUnitArgs, 'id'>>;
+  restoreUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRestoreUserArgs, 'id'>>;
+  unmountTire?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnmountTireArgs, 'input'>>;
   updateAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<MutationUpdateAddressArgs, 'id' | 'input'>>;
   updateCity?: Resolver<ResolversTypes['City'], ParentType, ContextType, RequireFields<MutationUpdateCityArgs, 'id' | 'input'>>;
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
+  updateEmployeeVacation?: Resolver<ResolversTypes['EmployeeVacation'], ParentType, ContextType>;
+  updateEquipment?: Resolver<ResolversTypes['Equipment'], ParentType, ContextType>;
+  updateEquipmentAxle?: Resolver<ResolversTypes['EquipmentAxle'], ParentType, ContextType>;
+  updateEquipmentCategory?: Resolver<ResolversTypes['EquipmentCategory'], ParentType, ContextType>;
+  updateEquipmentMaintenance?: Resolver<ResolversTypes['EquipmentMaintenance'], ParentType, ContextType>;
+  updateEquipmentModel?: Resolver<ResolversTypes['EquipmentModel'], ParentType, ContextType>;
+  updateEquipmentTransaction?: Resolver<ResolversTypes['EquipmentTransaction'], ParentType, ContextType>;
+  updateEquipmentType?: Resolver<ResolversTypes['EquipmentType'], ParentType, ContextType>;
+  updateHistoryLog?: Resolver<ResolversTypes['HistoryLog'], ParentType, ContextType>;
+  updateInspection?: Resolver<ResolversTypes['Inspection'], ParentType, ContextType>;
+  updateLastLogin?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUpdateLastLoginArgs, 'userId'>>;
+  updateTire?: Resolver<ResolversTypes['Tire'], ParentType, ContextType>;
+  updateTireInspection?: Resolver<ResolversTypes['TireInspection'], ParentType, ContextType, RequireFields<MutationUpdateTireInspectionArgs, 'id' | 'input'>>;
+  updateTireModel?: Resolver<ResolversTypes['TireModel'], ParentType, ContextType>;
+  updateTirePosition?: Resolver<ResolversTypes['TirePositionConfig'], ParentType, ContextType, RequireFields<MutationUpdateTirePositionArgs, 'id' | 'input'>>;
+  updateTireRecap?: Resolver<ResolversTypes['TireRecap'], ParentType, ContextType, RequireFields<MutationUpdateTireRecapArgs, 'id' | 'input'>>;
+  updateTireRotation?: Resolver<ResolversTypes['TireRotation'], ParentType, ContextType, RequireFields<MutationUpdateTireRotationArgs, 'id' | 'input'>>;
+  updateTireSize?: Resolver<ResolversTypes['TireSize'], ParentType, ContextType>;
+  updateUnit?: Resolver<ResolversTypes['Unit'], ParentType, ContextType>;
+  updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
 };
 
 export type PaginatedAddressResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaginatedAddress'] = ResolversParentTypes['PaginatedAddress']> = {
@@ -2193,16 +3085,6 @@ export type PaginatedEquipmentTypeResolvers<ContextType = any, ParentType extend
   meta?: Resolver<ResolversTypes['PaginationMeta'], ParentType, ContextType>;
 };
 
-export type PaginatedHistoryLogResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaginatedHistoryLog'] = ResolversParentTypes['PaginatedHistoryLog']> = {
-  data?: Resolver<Array<ResolversTypes['HistoryLog']>, ParentType, ContextType>;
-  meta?: Resolver<ResolversTypes['PaginationMeta'], ParentType, ContextType>;
-};
-
-export type PaginatedInspectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaginatedInspection'] = ResolversParentTypes['PaginatedInspection']> = {
-  data?: Resolver<Array<ResolversTypes['Inspection']>, ParentType, ContextType>;
-  meta?: Resolver<ResolversTypes['PaginationMeta'], ParentType, ContextType>;
-};
-
 export type PaginatedPersonResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaginatedPerson'] = ResolversParentTypes['PaginatedPerson']> = {
   data?: Resolver<Array<ResolversTypes['Person']>, ParentType, ContextType>;
   meta?: Resolver<ResolversTypes['PaginationMeta'], ParentType, ContextType>;
@@ -2215,6 +3097,11 @@ export type PaginatedProvinceResolvers<ContextType = any, ParentType extends Res
 
 export type PaginatedTireResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaginatedTire'] = ResolversParentTypes['PaginatedTire']> = {
   data?: Resolver<Array<ResolversTypes['Tire']>, ParentType, ContextType>;
+  meta?: Resolver<ResolversTypes['PaginationMeta'], ParentType, ContextType>;
+};
+
+export type PaginatedTireInspectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaginatedTireInspection'] = ResolversParentTypes['PaginatedTireInspection']> = {
+  data?: Resolver<Array<ResolversTypes['TireInspection']>, ParentType, ContextType>;
   meta?: Resolver<ResolversTypes['PaginationMeta'], ParentType, ContextType>;
 };
 
@@ -2276,54 +3163,85 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   findAllEmployeeCategories?: Resolver<ResolversTypes['PaginatedEmployeeCategory'], ParentType, ContextType, RequireFields<QueryFindAllEmployeeCategoriesArgs, 'skip' | 'take'>>;
   findAllEmployeeCategorys?: Resolver<Array<ResolversTypes['EmployeeCategory']>, ParentType, ContextType, RequireFields<QueryFindAllEmployeeCategorysArgs, 'skip' | 'take'>>;
   findAllEmployeePositions?: Resolver<ResolversTypes['PaginatedEmployeePosition'], ParentType, ContextType, RequireFields<QueryFindAllEmployeePositionsArgs, 'skip' | 'take'>>;
+  findAllEmployeeVacations?: Resolver<Array<ResolversTypes['EmployeeVacation']>, ParentType, ContextType, RequireFields<QueryFindAllEmployeeVacationsArgs, 'skip' | 'take'>>;
   findAllEmployees?: Resolver<ResolversTypes['PaginatedEmployee'], ParentType, ContextType, RequireFields<QueryFindAllEmployeesArgs, 'skip' | 'take'>>;
   findAllEquipment?: Resolver<ResolversTypes['PaginatedEquipment'], ParentType, ContextType, RequireFields<QueryFindAllEquipmentArgs, 'skip' | 'take'>>;
+  findAllEquipmentAxles?: Resolver<Array<ResolversTypes['EquipmentAxle']>, ParentType, ContextType, RequireFields<QueryFindAllEquipmentAxlesArgs, 'skip' | 'take'>>;
   findAllEquipmentCategories?: Resolver<ResolversTypes['PaginatedEquipmentCategory'], ParentType, ContextType, RequireFields<QueryFindAllEquipmentCategoriesArgs, 'skip' | 'take'>>;
   findAllEquipmentCategorys?: Resolver<Array<ResolversTypes['EquipmentCategory']>, ParentType, ContextType, RequireFields<QueryFindAllEquipmentCategorysArgs, 'skip' | 'take'>>;
+  findAllEquipmentMaintenances?: Resolver<Array<ResolversTypes['EquipmentMaintenance']>, ParentType, ContextType, RequireFields<QueryFindAllEquipmentMaintenancesArgs, 'skip' | 'take'>>;
   findAllEquipmentModels?: Resolver<ResolversTypes['PaginatedEquipmentModel'], ParentType, ContextType, RequireFields<QueryFindAllEquipmentModelsArgs, 'skip' | 'take'>>;
+  findAllEquipmentTransactions?: Resolver<Array<ResolversTypes['EquipmentTransaction']>, ParentType, ContextType, RequireFields<QueryFindAllEquipmentTransactionsArgs, 'skip' | 'take'>>;
   findAllEquipmentTypes?: Resolver<ResolversTypes['PaginatedEquipmentType'], ParentType, ContextType, RequireFields<QueryFindAllEquipmentTypesArgs, 'skip' | 'take'>>;
   findAllEquipments?: Resolver<Array<ResolversTypes['Equipment']>, ParentType, ContextType, RequireFields<QueryFindAllEquipmentsArgs, 'skip' | 'take'>>;
-  findAllHistoryLogs?: Resolver<ResolversTypes['PaginatedHistoryLog'], ParentType, ContextType, RequireFields<QueryFindAllHistoryLogsArgs, 'skip' | 'take'>>;
-  findAllInspections?: Resolver<ResolversTypes['PaginatedInspection'], ParentType, ContextType, RequireFields<QueryFindAllInspectionsArgs, 'skip' | 'take'>>;
+  findAllHistoryLogs?: Resolver<Array<ResolversTypes['HistoryLog']>, ParentType, ContextType, RequireFields<QueryFindAllHistoryLogsArgs, 'skip' | 'take'>>;
+  findAllInspections?: Resolver<Array<ResolversTypes['Inspection']>, ParentType, ContextType, RequireFields<QueryFindAllInspectionsArgs, 'skip' | 'take'>>;
   findAllPersons?: Resolver<ResolversTypes['PaginatedPerson'], ParentType, ContextType, RequireFields<QueryFindAllPersonsArgs, 'skip' | 'take'>>;
   findAllProvinces?: Resolver<Array<ResolversTypes['Province']>, ParentType, ContextType, RequireFields<QueryFindAllProvincesArgs, 'skip' | 'take'>>;
+  findAllTireEvents?: Resolver<Array<ResolversTypes['TireEvent']>, ParentType, ContextType>;
+  findAllTireInspections?: Resolver<ResolversTypes['PaginatedTireInspection'], ParentType, ContextType, Partial<QueryFindAllTireInspectionsArgs>>;
   findAllTireModels?: Resolver<ResolversTypes['PaginatedTireModel'], ParentType, ContextType, RequireFields<QueryFindAllTireModelsArgs, 'skip' | 'take'>>;
+  findAllTirePositions?: Resolver<Array<ResolversTypes['TirePositionConfig']>, ParentType, ContextType, Partial<QueryFindAllTirePositionsArgs>>;
+  findAllTireRecaps?: Resolver<Array<ResolversTypes['TireRecap']>, ParentType, ContextType>;
+  findAllTireRotations?: Resolver<Array<ResolversTypes['TireRotation']>, ParentType, ContextType>;
   findAllTireSizes?: Resolver<ResolversTypes['PaginatedTireSize'], ParentType, ContextType, RequireFields<QueryFindAllTireSizesArgs, 'skip' | 'take'>>;
   findAllTires?: Resolver<ResolversTypes['PaginatedTire'], ParentType, ContextType, RequireFields<QueryFindAllTiresArgs, 'skip' | 'take'>>;
   findAllUnits?: Resolver<ResolversTypes['PaginatedUnit'], ParentType, ContextType, RequireFields<QueryFindAllUnitsArgs, 'skip' | 'take'>>;
+  findAllUsers?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryFindAllUsersArgs, 'skip' | 'take'>>;
   findCities?: Resolver<ResolversTypes['PaginatedCity'], ParentType, ContextType, RequireFields<QueryFindCitiesArgs, 'skip' | 'take'>>;
   findContacts?: Resolver<ResolversTypes['PaginatedContact'], ParentType, ContextType, RequireFields<QueryFindContactsArgs, 'skip' | 'take'>>;
   findCountries?: Resolver<ResolversTypes['PaginatedCountry'], ParentType, ContextType, RequireFields<QueryFindCountriesArgs, 'skip' | 'take'>>;
-  findOneAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<QueryFindOneAddressArgs, 'id'>>;
-  findOneBrand?: Resolver<ResolversTypes['Brand'], ParentType, ContextType, RequireFields<QueryFindOneBrandArgs, 'id'>>;
-  findOneBusinessCategory?: Resolver<ResolversTypes['BusinessCategory'], ParentType, ContextType, RequireFields<QueryFindOneBusinessCategoryArgs, 'id'>>;
-  findOneBusinessSubCategory?: Resolver<ResolversTypes['BusinessSubCategory'], ParentType, ContextType, RequireFields<QueryFindOneBusinessSubCategoryArgs, 'id'>>;
-  findOneCity?: Resolver<ResolversTypes['City'], ParentType, ContextType, RequireFields<QueryFindOneCityArgs, 'id'>>;
-  findOneCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<QueryFindOneCompanyArgs, 'id'>>;
-  findOneContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<QueryFindOneContactArgs, 'id'>>;
-  findOneCountry?: Resolver<ResolversTypes['Country'], ParentType, ContextType, RequireFields<QueryFindOneCountryArgs, 'id'>>;
-  findOneEmployee?: Resolver<ResolversTypes['Employee'], ParentType, ContextType, RequireFields<QueryFindOneEmployeeArgs, 'id'>>;
-  findOneEmployeeCategory?: Resolver<ResolversTypes['EmployeeCategory'], ParentType, ContextType, RequireFields<QueryFindOneEmployeeCategoryArgs, 'id'>>;
-  findOneEmployeePosition?: Resolver<ResolversTypes['EmployeePosition'], ParentType, ContextType, RequireFields<QueryFindOneEmployeePositionArgs, 'id'>>;
-  findOneEquipment?: Resolver<ResolversTypes['Equipment'], ParentType, ContextType, RequireFields<QueryFindOneEquipmentArgs, 'id'>>;
-  findOneEquipmentCategory?: Resolver<ResolversTypes['EquipmentCategory'], ParentType, ContextType, RequireFields<QueryFindOneEquipmentCategoryArgs, 'id'>>;
-  findOneEquipmentModel?: Resolver<ResolversTypes['EquipmentModel'], ParentType, ContextType, RequireFields<QueryFindOneEquipmentModelArgs, 'id'>>;
-  findOneEquipmentType?: Resolver<ResolversTypes['EquipmentType'], ParentType, ContextType, RequireFields<QueryFindOneEquipmentTypeArgs, 'id'>>;
-  findOneHistoryLog?: Resolver<ResolversTypes['HistoryLog'], ParentType, ContextType, RequireFields<QueryFindOneHistoryLogArgs, 'id'>>;
-  findOneInspection?: Resolver<ResolversTypes['Inspection'], ParentType, ContextType, RequireFields<QueryFindOneInspectionArgs, 'id'>>;
-  findOnePerson?: Resolver<ResolversTypes['Person'], ParentType, ContextType, RequireFields<QueryFindOnePersonArgs, 'id'>>;
-  findOneProvince?: Resolver<ResolversTypes['Province'], ParentType, ContextType, RequireFields<QueryFindOneProvinceArgs, 'id'>>;
-  findOneTire?: Resolver<ResolversTypes['Tire'], ParentType, ContextType, RequireFields<QueryFindOneTireArgs, 'id'>>;
-  findOneTireModel?: Resolver<ResolversTypes['TireModel'], ParentType, ContextType, RequireFields<QueryFindOneTireModelArgs, 'id'>>;
-  findOneTireSize?: Resolver<ResolversTypes['TireSize'], ParentType, ContextType, RequireFields<QueryFindOneTireSizeArgs, 'id'>>;
-  findOneUnit?: Resolver<ResolversTypes['Unit'], ParentType, ContextType, RequireFields<QueryFindOneUnitArgs, 'id'>>;
+  findOneAddress?: Resolver<Maybe<ResolversTypes['Address']>, ParentType, ContextType, RequireFields<QueryFindOneAddressArgs, 'id'>>;
+  findOneBrand?: Resolver<Maybe<ResolversTypes['Brand']>, ParentType, ContextType, RequireFields<QueryFindOneBrandArgs, 'id'>>;
+  findOneBusinessCategory?: Resolver<Maybe<ResolversTypes['BusinessCategory']>, ParentType, ContextType, RequireFields<QueryFindOneBusinessCategoryArgs, 'id'>>;
+  findOneBusinessSubCategory?: Resolver<Maybe<ResolversTypes['BusinessSubCategory']>, ParentType, ContextType, RequireFields<QueryFindOneBusinessSubCategoryArgs, 'id'>>;
+  findOneCity?: Resolver<Maybe<ResolversTypes['City']>, ParentType, ContextType, RequireFields<QueryFindOneCityArgs, 'id'>>;
+  findOneCompany?: Resolver<Maybe<ResolversTypes['Company']>, ParentType, ContextType, RequireFields<QueryFindOneCompanyArgs, 'id'>>;
+  findOneContact?: Resolver<Maybe<ResolversTypes['Contact']>, ParentType, ContextType, RequireFields<QueryFindOneContactArgs, 'id'>>;
+  findOneCountry?: Resolver<Maybe<ResolversTypes['Country']>, ParentType, ContextType, RequireFields<QueryFindOneCountryArgs, 'id'>>;
+  findOneEmployee?: Resolver<Maybe<ResolversTypes['Employee']>, ParentType, ContextType, RequireFields<QueryFindOneEmployeeArgs, 'id'>>;
+  findOneEmployeeCategory?: Resolver<Maybe<ResolversTypes['EmployeeCategory']>, ParentType, ContextType, RequireFields<QueryFindOneEmployeeCategoryArgs, 'id'>>;
+  findOneEmployeePosition?: Resolver<Maybe<ResolversTypes['EmployeePosition']>, ParentType, ContextType, RequireFields<QueryFindOneEmployeePositionArgs, 'id'>>;
+  findOneEmployeeVacation?: Resolver<Maybe<ResolversTypes['EmployeeVacation']>, ParentType, ContextType, RequireFields<QueryFindOneEmployeeVacationArgs, 'id'>>;
+  findOneEquipment?: Resolver<Maybe<ResolversTypes['Equipment']>, ParentType, ContextType, RequireFields<QueryFindOneEquipmentArgs, 'id'>>;
+  findOneEquipmentAxle?: Resolver<Maybe<ResolversTypes['EquipmentAxle']>, ParentType, ContextType, RequireFields<QueryFindOneEquipmentAxleArgs, 'id'>>;
+  findOneEquipmentCategory?: Resolver<Maybe<ResolversTypes['EquipmentCategory']>, ParentType, ContextType, RequireFields<QueryFindOneEquipmentCategoryArgs, 'id'>>;
+  findOneEquipmentMaintenance?: Resolver<Maybe<ResolversTypes['EquipmentMaintenance']>, ParentType, ContextType, RequireFields<QueryFindOneEquipmentMaintenanceArgs, 'id'>>;
+  findOneEquipmentModel?: Resolver<Maybe<ResolversTypes['EquipmentModel']>, ParentType, ContextType, RequireFields<QueryFindOneEquipmentModelArgs, 'id'>>;
+  findOneEquipmentTransaction?: Resolver<Maybe<ResolversTypes['EquipmentTransaction']>, ParentType, ContextType, RequireFields<QueryFindOneEquipmentTransactionArgs, 'id'>>;
+  findOneEquipmentType?: Resolver<Maybe<ResolversTypes['EquipmentType']>, ParentType, ContextType, RequireFields<QueryFindOneEquipmentTypeArgs, 'id'>>;
+  findOneHistoryLog?: Resolver<Maybe<ResolversTypes['HistoryLog']>, ParentType, ContextType, RequireFields<QueryFindOneHistoryLogArgs, 'id'>>;
+  findOneInspection?: Resolver<Maybe<ResolversTypes['Inspection']>, ParentType, ContextType, RequireFields<QueryFindOneInspectionArgs, 'id'>>;
+  findOnePerson?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, RequireFields<QueryFindOnePersonArgs, 'id'>>;
+  findOneProvince?: Resolver<Maybe<ResolversTypes['Province']>, ParentType, ContextType, RequireFields<QueryFindOneProvinceArgs, 'id'>>;
+  findOneTire?: Resolver<Maybe<ResolversTypes['Tire']>, ParentType, ContextType, RequireFields<QueryFindOneTireArgs, 'id'>>;
+  findOneTireEvent?: Resolver<Maybe<ResolversTypes['TireEvent']>, ParentType, ContextType, RequireFields<QueryFindOneTireEventArgs, 'id'>>;
+  findOneTireInspection?: Resolver<Maybe<ResolversTypes['TireInspection']>, ParentType, ContextType, RequireFields<QueryFindOneTireInspectionArgs, 'id'>>;
+  findOneTireModel?: Resolver<Maybe<ResolversTypes['TireModel']>, ParentType, ContextType, RequireFields<QueryFindOneTireModelArgs, 'id'>>;
+  findOneTirePosition?: Resolver<Maybe<ResolversTypes['TirePositionConfig']>, ParentType, ContextType, RequireFields<QueryFindOneTirePositionArgs, 'id'>>;
+  findOneTireRotation?: Resolver<Maybe<ResolversTypes['TireRotation']>, ParentType, ContextType, RequireFields<QueryFindOneTireRotationArgs, 'id'>>;
+  findOneTireSize?: Resolver<Maybe<ResolversTypes['TireSize']>, ParentType, ContextType, RequireFields<QueryFindOneTireSizeArgs, 'id'>>;
+  findOneUnit?: Resolver<Maybe<ResolversTypes['Unit']>, ParentType, ContextType, RequireFields<QueryFindOneUnitArgs, 'id'>>;
+  findOneUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryFindOneUserArgs, 'id'>>;
+  findOpenTireAssignments?: Resolver<Array<ResolversTypes['TireAssignment']>, ParentType, ContextType>;
+  findOpenTireAssignmentsByEquipment?: Resolver<Array<ResolversTypes['TireAssignment']>, ParentType, ContextType, RequireFields<QueryFindOpenTireAssignmentsByEquipmentArgs, 'equipmentId'>>;
   findProvinces?: Resolver<ResolversTypes['PaginatedProvince'], ParentType, ContextType, RequireFields<QueryFindProvincesArgs, 'skip' | 'take'>>;
+  findTireAssignmentsByTire?: Resolver<Array<ResolversTypes['TireAssignment']>, ParentType, ContextType, RequireFields<QueryFindTireAssignmentsByTireArgs, 'tireId'>>;
+  findTireEventsByTire?: Resolver<Array<ResolversTypes['TireEvent']>, ParentType, ContextType, RequireFields<QueryFindTireEventsByTireArgs, 'tireId'>>;
+  findTireEventsByTireAndType?: Resolver<Array<ResolversTypes['TireEvent']>, ParentType, ContextType, RequireFields<QueryFindTireEventsByTireAndTypeArgs, 'tireId' | 'type'>>;
+  findTireInspectionsByTire?: Resolver<Array<ResolversTypes['TireInspection']>, ParentType, ContextType, RequireFields<QueryFindTireInspectionsByTireArgs, 'tireId'>>;
+  findTireRecapsByTire?: Resolver<Array<ResolversTypes['TireRecap']>, ParentType, ContextType, RequireFields<QueryFindTireRecapsByTireArgs, 'tireId'>>;
+  findTireRotationsByTire?: Resolver<Array<ResolversTypes['TireRotation']>, ParentType, ContextType, RequireFields<QueryFindTireRotationsByTireArgs, 'tireId'>>;
+  findUserByEmail?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryFindUserByEmailArgs, 'email'>>;
 };
 
 export type TireResolvers<ContextType = any, ParentType extends ResolversParentTypes['Tire'] = ResolversParentTypes['Tire']> = {
+  assignments?: Resolver<Maybe<Array<ResolversTypes['TireAssignment']>>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  events?: Resolver<Maybe<Array<ResolversTypes['TireEvent']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  inspections?: Resolver<Maybe<Array<ResolversTypes['TireInspection']>>, ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   lastRecapAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   lastRecapId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -2331,10 +3249,45 @@ export type TireResolvers<ContextType = any, ParentType extends ResolversParentT
   modelId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   position?: Resolver<Maybe<ResolversTypes['TirePosition']>, ParentType, ContextType>;
   recapCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  recaps?: Resolver<Maybe<Array<ResolversTypes['TireRecap']>>, ParentType, ContextType>;
+  rotations?: Resolver<Maybe<Array<ResolversTypes['TireRotation']>>, ParentType, ContextType>;
   serialNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['TireStatus'], ParentType, ContextType>;
   totalKm?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+};
+
+export type TireAssignmentResolvers<ContextType = any, ParentType extends ResolversParentTypes['TireAssignment'] = ResolversParentTypes['TireAssignment']> = {
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  kmAtEnd?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  kmAtStart?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  positionConfig?: Resolver<Maybe<ResolversTypes['TirePositionConfig']>, ParentType, ContextType>;
+  positionConfigId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  startDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  tire?: Resolver<Maybe<ResolversTypes['Tire']>, ParentType, ContextType>;
+  tireId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type TireEventResolvers<ContextType = any, ParentType extends ResolversParentTypes['TireEvent'] = ResolversParentTypes['TireEvent']> = {
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  eventDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  eventType?: Resolver<ResolversTypes['TireEventType'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  metadata?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tire?: Resolver<Maybe<ResolversTypes['Tire']>, ParentType, ContextType>;
+  tireId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  userId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+};
+
+export type TireInspectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['TireInspection'] = ResolversParentTypes['TireInspection']> = {
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  inspectionDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  observation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  pressure?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  tire?: Resolver<Maybe<ResolversTypes['Tire']>, ParentType, ContextType>;
+  tireId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  treadDepth?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
 };
 
 export type TireModelResolvers<ContextType = any, ParentType extends ResolversParentTypes['TireModel'] = ResolversParentTypes['TireModel']> = {
@@ -2350,6 +3303,41 @@ export type TireModelResolvers<ContextType = any, ParentType extends ResolversPa
   sizeId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   speedSymbol?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   treadPattern?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type TirePositionConfigResolvers<ContextType = any, ParentType extends ResolversParentTypes['TirePositionConfig'] = ResolversParentTypes['TirePositionConfig']> = {
+  assignments?: Resolver<Maybe<Array<ResolversTypes['TireAssignment']>>, ParentType, ContextType>;
+  axle?: Resolver<Maybe<ResolversTypes['EquipmentAxle']>, ParentType, ContextType>;
+  axleId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isDual?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  positionKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  side?: Resolver<ResolversTypes['TireSide'], ParentType, ContextType>;
+};
+
+export type TireRecapResolvers<ContextType = any, ParentType extends ResolversParentTypes['TireRecap'] = ResolversParentTypes['TireRecap']> = {
+  cost?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  kmAtRecap?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  provider?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  recapDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  recapNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recapType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tire?: Resolver<Maybe<ResolversTypes['Tire']>, ParentType, ContextType>;
+  tireId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type TireRotationResolvers<ContextType = any, ParentType extends ResolversParentTypes['TireRotation'] = ResolversParentTypes['TireRotation']> = {
+  fromEquipmentId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fromPosition?: Resolver<Maybe<ResolversTypes['TirePosition']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  kmAtRotation?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  rotationDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  tire?: Resolver<Maybe<ResolversTypes['Tire']>, ParentType, ContextType>;
+  tireId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  toEquipmentId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  toPosition?: Resolver<Maybe<ResolversTypes['TirePosition']>, ParentType, ContextType>;
 };
 
 export type TireSizeResolvers<ContextType = any, ParentType extends ResolversParentTypes['TireSize'] = ResolversParentTypes['TireSize']> = {
@@ -2369,6 +3357,21 @@ export type UnitResolvers<ContextType = any, ParentType extends ResolversParentT
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  companyId?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lastLoginAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preferences?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['Role'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   Address?: AddressResolvers<ContextType>;
   Brand?: BrandResolvers<ContextType>;
@@ -2382,12 +3385,17 @@ export type Resolvers<ContextType = any> = {
   Employee?: EmployeeResolvers<ContextType>;
   EmployeeCategory?: EmployeeCategoryResolvers<ContextType>;
   EmployeePosition?: EmployeePositionResolvers<ContextType>;
+  EmployeeVacation?: EmployeeVacationResolvers<ContextType>;
   Equipment?: EquipmentResolvers<ContextType>;
+  EquipmentAxle?: EquipmentAxleResolvers<ContextType>;
   EquipmentCategory?: EquipmentCategoryResolvers<ContextType>;
+  EquipmentMaintenance?: EquipmentMaintenanceResolvers<ContextType>;
   EquipmentModel?: EquipmentModelResolvers<ContextType>;
+  EquipmentTransaction?: EquipmentTransactionResolvers<ContextType>;
   EquipmentType?: EquipmentTypeResolvers<ContextType>;
   HistoryLog?: HistoryLogResolvers<ContextType>;
   Inspection?: InspectionResolvers<ContextType>;
+  JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   PaginatedAddress?: PaginatedAddressResolvers<ContextType>;
   PaginatedBrand?: PaginatedBrandResolvers<ContextType>;
@@ -2404,11 +3412,10 @@ export type Resolvers<ContextType = any> = {
   PaginatedEquipmentCategory?: PaginatedEquipmentCategoryResolvers<ContextType>;
   PaginatedEquipmentModel?: PaginatedEquipmentModelResolvers<ContextType>;
   PaginatedEquipmentType?: PaginatedEquipmentTypeResolvers<ContextType>;
-  PaginatedHistoryLog?: PaginatedHistoryLogResolvers<ContextType>;
-  PaginatedInspection?: PaginatedInspectionResolvers<ContextType>;
   PaginatedPerson?: PaginatedPersonResolvers<ContextType>;
   PaginatedProvince?: PaginatedProvinceResolvers<ContextType>;
   PaginatedTire?: PaginatedTireResolvers<ContextType>;
+  PaginatedTireInspection?: PaginatedTireInspectionResolvers<ContextType>;
   PaginatedTireModel?: PaginatedTireModelResolvers<ContextType>;
   PaginatedTireSize?: PaginatedTireSizeResolvers<ContextType>;
   PaginatedUnit?: PaginatedUnitResolvers<ContextType>;
@@ -2417,8 +3424,15 @@ export type Resolvers<ContextType = any> = {
   Province?: ProvinceResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Tire?: TireResolvers<ContextType>;
+  TireAssignment?: TireAssignmentResolvers<ContextType>;
+  TireEvent?: TireEventResolvers<ContextType>;
+  TireInspection?: TireInspectionResolvers<ContextType>;
   TireModel?: TireModelResolvers<ContextType>;
+  TirePositionConfig?: TirePositionConfigResolvers<ContextType>;
+  TireRecap?: TireRecapResolvers<ContextType>;
+  TireRotation?: TireRotationResolvers<ContextType>;
   TireSize?: TireSizeResolvers<ContextType>;
   Unit?: UnitResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
 };
 

@@ -23,6 +23,8 @@ import { TiresModule } from "./modules/tires/tires.module";
 import { LoggerMiddleware } from "@common/logger/logger.middleware";
 import { ReportsModule } from "@reports/reports.module";
 import { ValidatorsModule } from "@modules/validators/validators.module";
+import { ScalarsModule } from "@common/scalars/scalars.module";
+
 @Module({
   imports: [
     // Configuration module
@@ -53,6 +55,7 @@ import { ValidatorsModule } from "@modules/validators/validators.module";
     }),
 
     // Feature modules
+    ScalarsModule,
     AuthModule,
     UsersModule,
     CompaniesModule,
