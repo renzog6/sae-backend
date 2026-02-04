@@ -6,332 +6,241 @@ import path from "path";
 const prisma = new PrismaClient();
 const importDir = path.join(__dirname, "seeds-data");
 
-function loadJson(file: string) {
+const isDevReset = process.env.SEED_RESET === "true";
+const isProd = process.env.NODE_ENV === "production";
+
+function loadJson<T = any>(file: string): T[] {
   const filePath = path.join(importDir, file);
   if (!fs.existsSync(filePath)) return [];
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-async function main() {
-  // ⚡ Ojo con el orden, hay que respetar relaciones (padres primero)
+async function safeCreateMany<T>(
+  label: string,
+  data: T[],
+  createMany: (data: T[]) => Promise<any>,
+  createOne?: (item: T) => Promise<any>
+) {
+  if (!data.length) return;
 
-  // Base data (no dependencies)
-  const users = loadJson("users.json");
-  if (users.length)
-    await prisma.user.createMany({ data: users, skipDuplicates: true });
+  try {
+    await createMany(data);
+    console.log(`✅ ${label}: ${data.length}`);
+  } catch (err) {
+    console.error(`❌ ${label} failed`);
+    if (!createOne) throw err;
 
-  const countries = loadJson("countries.json");
-  if (countries.length)
-    await prisma.country.createMany({ data: countries, skipDuplicates: true });
-
-  const provinces = loadJson("provinces.json");
-  if (provinces.length)
-    await prisma.province.createMany({ data: provinces, skipDuplicates: true });
-
-  const cities = loadJson("cities.json");
-  if (cities.length)
-    await prisma.city.createMany({ data: cities, skipDuplicates: true });
-
-  const businessCategories = loadJson("businessCategories.json");
-  if (businessCategories.length)
-    await prisma.businessCategory.createMany({
-      data: businessCategories,
-      skipDuplicates: true,
-    });
-
-  const businessSubCategories = loadJson("businessSubCategories.json");
-  if (businessSubCategories.length)
-    await prisma.businessSubCategory.createMany({
-      data: businessSubCategories,
-      skipDuplicates: true,
-    });
-
-  const companies = loadJson("companies.json");
-  if (companies.length)
-    await prisma.company.createMany({ data: companies, skipDuplicates: true });
-
-  const contacts = loadJson("contacts.json");
-  if (contacts.length)
-    await prisma.contact.createMany({ data: contacts, skipDuplicates: true });
-
-  const contactLinks = loadJson("contactLinks.json");
-  if (contactLinks.length)
-    await prisma.contactLink.createMany({
-      data: contactLinks,
-      skipDuplicates: true,
-    });
-
-  const addresses = loadJson("addresses.json");
-  if (addresses.length)
-    await prisma.address.createMany({ data: addresses, skipDuplicates: true });
-
-  const persons = loadJson("persons.json");
-  if (persons.length)
-    await prisma.person.createMany({ data: persons, skipDuplicates: true });
-
-  const families = loadJson("families.json");
-  if (families.length)
-    await prisma.family.createMany({ data: families, skipDuplicates: true });
-
-  const employeeCategories = loadJson("employeeCategories.json");
-  if (employeeCategories.length)
-    await prisma.employeeCategory.createMany({
-      data: employeeCategories,
-      skipDuplicates: true,
-    });
-
-  const employeePositions = loadJson("employeePositions.json");
-  if (employeePositions.length)
-    await prisma.employeePosition.createMany({
-      data: employeePositions,
-      skipDuplicates: true,
-    });
-
-  const employees = loadJson("employees.json");
-  if (employees.length)
-    await prisma.employee.createMany({ data: employees, skipDuplicates: true });
-
-  const employeeVacations = loadJson("employeeVacations.json");
-  if (employeeVacations.length)
-    await prisma.employeeVacation.createMany({
-      data: employeeVacations,
-      skipDuplicates: true,
-    });
-
-  const employeeIncidents = loadJson("employeeIncidents.json");
-  if (employeeIncidents.length)
-    await prisma.employeeIncident.createMany({
-      data: employeeIncidents,
-      skipDuplicates: true,
-    });
-
-  const documents = loadJson("documents.json");
-  if (documents.length)
-    await prisma.serverFile.createMany({
-      data: documents,
-      skipDuplicates: true,
-    });
-
-  // Parts system (brands needed for equipmentModels)
-  const brands = loadJson("brands.json");
-  if (brands.length)
-    await prisma.brand.createMany({ data: brands, skipDuplicates: true });
-
-  // Equipment hierarchy
-  const equipmentCategories = loadJson("equipmentCategories.json");
-  if (equipmentCategories.length)
-    await prisma.equipmentCategory.createMany({
-      data: equipmentCategories,
-      skipDuplicates: true,
-    });
-
-  const equipmentTypes = loadJson("equipmentTypes.json");
-  if (equipmentTypes.length)
-    await prisma.equipmentType.createMany({
-      data: equipmentTypes,
-      skipDuplicates: true,
-    });
-
-  const equipmentModels = loadJson("equipmentModels.json");
-  if (equipmentModels.length)
-    await prisma.equipmentModel.createMany({
-      data: equipmentModels,
-      skipDuplicates: true,
-    });
-
-  const equipment = loadJson("equipment.json");
-  if (equipment.length) {
-    console.log(`Loading ${equipment.length} equipment items...`);
-    try {
-      await prisma.equipment.createMany({
-        data: equipment,
-        skipDuplicates: true,
-      });
-      console.log("Equipment loaded successfully");
-    } catch (error) {
-      console.error("Error loading equipment:", error);
-      // Try to insert one by one to find the problematic record
-      for (let i = 0; i < equipment.length; i++) {
-        try {
-          await prisma.equipment.create({
-            data: equipment[i],
-          });
-          console.log(`Inserted equipment id: ${equipment[i].id}`);
-        } catch (err) {
-          console.error(
-            `Error inserting equipment id ${equipment[i].id}:`,
-            err
-          );
-          break;
-        }
+    for (const item of data) {
+      try {
+        await createOne(item);
+      } catch (e) {
+        console.error(`💥 ${label} item error:`, item);
+        throw e;
       }
     }
   }
+}
 
-  const equipmentAxles = loadJson("equipmentAxles.json");
-  if (equipmentAxles.length)
-    await prisma.equipmentAxle.createMany({
-      data: equipmentAxles,
-      skipDuplicates: true,
-    });
+async function resetDevData() {
+  if (isProd) {
+    throw new Error("❌ SEED_RESET no está permitido en producción");
+  }
 
-  const equipmentMaintenance = loadJson("equipmentMaintenance.json");
-  if (equipmentMaintenance.length)
-    await prisma.equipmentMaintenance.createMany({
-      data: equipmentMaintenance,
-      skipDuplicates: true,
-    });
+  console.log("🔥 DEV RESET: borrando datos...");
 
-  // Inspections
-  const inspectionTypes = loadJson("inspectionTypes.json");
-  if (inspectionTypes.length)
-    await prisma.inspectionType.createMany({
-      data: inspectionTypes,
-      skipDuplicates: true,
-    });
+  await prisma.$transaction([
+    prisma.inspection.deleteMany(),
+    prisma.employeeIncident.deleteMany(),
+    prisma.historyLog.deleteMany(),
 
-  const inspections = loadJson("inspections.json");
-  if (inspections.length)
-    await prisma.inspection.createMany({
-      data: inspections,
-      skipDuplicates: true,
-    });
+    prisma.employeeVacation.deleteMany(),
+    prisma.serverFile.deleteMany(),
 
-  const partCategories = loadJson("partCategories.json");
-  if (partCategories.length)
-    await prisma.partCategory.createMany({
-      data: partCategories,
-      skipDuplicates: true,
-    });
+    prisma.employee.deleteMany(),
+    prisma.person.deleteMany(),
+  ]);
+}
 
-  const parts = loadJson("parts.json");
-  if (parts.length)
-    await prisma.part.createMany({ data: parts, skipDuplicates: true });
+async function main() {
+  console.log("🌱 Starting seed...");
 
-  const partOrderCompanies = loadJson("partOrderCompanies.json");
-  if (partOrderCompanies.length)
-    await prisma.partOrderCompany.createMany({
-      data: partOrderCompanies,
-      skipDuplicates: true,
-    });
+  if (isDevReset) {
+    await resetDevData();
+  }
 
-  const equipmentModelParts = loadJson("equipmentModelParts.json");
-  if (equipmentModelParts.length)
-    await prisma.equipmentModelPart.createMany({
-      data: equipmentModelParts,
-      skipDuplicates: true,
-    });
+  // ───────────── GEO ─────────────
+  await safeCreateMany(
+    "Countries",
+    loadJson("countries.json"),
+    (data) => prisma.country.createMany({ data, skipDuplicates: true })
+  );
 
-  const equipmentParts = loadJson("equipmentParts.json");
-  if (equipmentParts.length)
-    await prisma.equipmentPart.createMany({
-      data: equipmentParts,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Provinces",
+    loadJson("provinces.json"),
+    (data) => prisma.province.createMany({ data, skipDuplicates: true })
+  );
 
-  // Products system
-  const presentations = loadJson("presentations.json");
-  if (presentations.length)
-    await prisma.presentation.createMany({
-      data: presentations,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Cities",
+    loadJson("cities.json"),
+    (data) => prisma.city.createMany({ data, skipDuplicates: true })
+  );
 
-  const products = loadJson("products.json");
-  if (products.length)
-    await prisma.product.createMany({ data: products, skipDuplicates: true });
+  await safeCreateMany(
+    "Addresses",
+    loadJson("addresses.json"),
+    (data) => prisma.address.createMany({ data, skipDuplicates: true })
+  );
 
-  const productCompanies = loadJson("productCompanies.json");
-  if (productCompanies.length)
-    await prisma.productCompany.createMany({
-      data: productCompanies,
-      skipDuplicates: true,
-    });
+  // ───────────── USERS / PEOPLE ─────────────
+  await safeCreateMany(
+    "Users",
+    loadJson("users.json"),
+    (data) => prisma.user.createMany({ data, skipDuplicates: true })
+  );
 
-  // Tire system (depends on brands)
-  const tireSizes = loadJson("tireSizes.json");
-  if (tireSizes.length)
-    await prisma.tireSize.createMany({ data: tireSizes, skipDuplicates: true });
+  await safeCreateMany(
+    "Persons",
+    loadJson("persons.json"),
+    (data) => prisma.person.createMany({ data, skipDuplicates: true })
+  );
 
-  const tireSizeAliases = loadJson("tireSizeAliases.json");
-  if (tireSizeAliases.length)
-    await prisma.tireSizeAlias.createMany({
-      data: tireSizeAliases,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Families",
+    loadJson("families.json"),
+    (data) => prisma.family.createMany({ data, skipDuplicates: true })
+  );
 
-  const tireModels = loadJson("tireModels.json");
-  if (tireModels.length)
-    await prisma.tireModel.createMany({
-      data: tireModels,
-      skipDuplicates: true,
-    });
+  // ───────────── COMPANIES ─────────────
+  await safeCreateMany(
+    "Business Categories",
+    loadJson("businessCategories.json"),
+    (data) => prisma.businessCategory.createMany({ data, skipDuplicates: true })
+  );
 
-  const tires = loadJson("tires.json");
-  if (tires.length)
-    await prisma.tire.createMany({ data: tires, skipDuplicates: true });
+  await safeCreateMany(
+    "Business SubCategories",
+    loadJson("businessSubCategories.json"),
+    (data) =>
+      prisma.businessSubCategory.createMany({ data, skipDuplicates: true })
+  );
 
-  const tireAssignments = loadJson("tireAssignments.json");
-  if (tireAssignments.length)
-    await prisma.tireAssignment.createMany({
-      data: tireAssignments,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Companies",
+    loadJson("companies.json"),
+    (data) => prisma.company.createMany({ data, skipDuplicates: true })
+  );
 
-  const tireRotations = loadJson("tireRotations.json");
-  if (tireRotations.length)
-    await prisma.tireRotation.createMany({
-      data: tireRotations,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Contacts",
+    loadJson("contacts.json"),
+    (data) => prisma.contact.createMany({ data, skipDuplicates: true })
+  );
 
-  const tireRecaps = loadJson("tireRecaps.json");
-  if (tireRecaps.length)
-    await prisma.tireRecap.createMany({
-      data: tireRecaps,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Contact Links",
+    loadJson("contactLinks.json"),
+    (data) => prisma.contactLink.createMany({ data, skipDuplicates: true })
+  );
 
-  const tireInspections = loadJson("tireInspections.json");
-  if (tireInspections.length)
-    await prisma.tireInspection.createMany({
-      data: tireInspections,
-      skipDuplicates: true,
-    });
+  // ───────────── HR ─────────────
+  await safeCreateMany(
+    "Employee Categories",
+    loadJson("employeeCategories.json"),
+    (data) =>
+      prisma.employeeCategory.createMany({ data, skipDuplicates: true })
+  );
 
-  const tireEvents = loadJson("tireEvents.json");
-  if (tireEvents.length)
-    await prisma.tireEvent.createMany({
-      data: tireEvents,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Employee Positions",
+    loadJson("employeePositions.json"),
+    (data) =>
+      prisma.employeePosition.createMany({ data, skipDuplicates: true })
+  );
 
-  const tirePositionConfigs = loadJson("tirePositionConfigs.json");
-  if (tirePositionConfigs.length)
-    await prisma.tirePositionConfig.createMany({
-      data: tirePositionConfigs,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Employees",
+    loadJson("employees.json"),
+    (data) => prisma.employee.createMany({ data, skipDuplicates: true })
+  );
 
-  // Additional data
-  const units = loadJson("units.json");
-  if (units.length)
-    await prisma.unit.createMany({ data: units, skipDuplicates: true });
+  await safeCreateMany(
+    "Employee Vacations",
+    loadJson("employeeVacations.json"),
+    (data) =>
+      prisma.employeeVacation.createMany({ data, skipDuplicates: true })
+  );
 
-  const historyLogs = loadJson("historyLogs.json");
-  if (historyLogs.length)
-    await prisma.historyLog.createMany({
-      data: historyLogs,
-      skipDuplicates: true,
-    });
+  await safeCreateMany(
+    "Employee Incidents",
+    loadJson("employeeIncidents.json"),
+    (data) =>
+      prisma.employeeIncident.createMany({ data, skipDuplicates: true })
+  );
 
-  console.log("🌱 Seed completed successfully!");
+  // ───────────── EQUIPMENT ─────────────
+  await safeCreateMany(
+    "Brands",
+    loadJson("brands.json"),
+    (data) => prisma.brand.createMany({ data, skipDuplicates: true })
+  );
+
+  await safeCreateMany(
+    "Equipment Categories",
+    loadJson("equipmentCategories.json"),
+    (data) =>
+      prisma.equipmentCategory.createMany({ data, skipDuplicates: true })
+  );
+
+  await safeCreateMany(
+    "Equipment Types",
+    loadJson("equipmentTypes.json"),
+    (data) =>
+      prisma.equipmentType.createMany({ data, skipDuplicates: true })
+  );
+
+  await safeCreateMany(
+    "Equipment Models",
+    loadJson("equipmentModels.json"),
+    (data) =>
+      prisma.equipmentModel.createMany({ data, skipDuplicates: true })
+  );
+
+  await safeCreateMany(
+    "Equipment",
+    loadJson("equipment.json"),
+    (data) => prisma.equipment.createMany({ data, skipDuplicates: true }),
+    (item) => prisma.equipment.create({ data: item })
+  );
+
+  // ───────────── INSPECTIONS / AUDIT ─────────────
+  await safeCreateMany(
+    "Inspection Types",
+    loadJson("inspectionTypes.json"),
+    (data) =>
+      prisma.inspectionType.createMany({ data, skipDuplicates: true })
+  );
+
+  await safeCreateMany(
+    "Inspections",
+    loadJson("inspections.json"),
+    (data) => prisma.inspection.createMany({ data, skipDuplicates: true })
+  );
+
+  await safeCreateMany(
+    "History Logs",
+    loadJson("historyLogs.json"),
+    (data) => prisma.historyLog.createMany({ data, skipDuplicates: true })
+  );
+
+  console.log("🌱 Seed completed successfully");
 }
 
 main()
   .then(() => prisma.$disconnect())
   .catch((e) => {
-    console.error(e);
+    console.error("💥 Seed failed:", e);
     prisma.$disconnect();
     process.exit(1);
   });
