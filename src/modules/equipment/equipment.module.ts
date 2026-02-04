@@ -11,6 +11,8 @@ import { EquipmentModelsModule } from "./equipment-models/equipment-models.modul
 import { EquipmentTransactionModule } from "./equipment-transaction/equipment-transaction.module";
 import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
 
+import { EquipmentResolver } from "./equipment.resolver";
+
 @Module({
   imports: [
     PrismaModule,
@@ -23,7 +25,7 @@ import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
     EquipmentTypesModule,
   ],
   controllers: [EquipmentController],
-  providers: [EquipmentService],
+  providers: [EquipmentService, EquipmentResolver],
   exports: [
     EquipmentService,
     EquipmentAxlesModule,
@@ -34,4 +36,4 @@ import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
     EquipmentTypesModule,
   ],
 })
-export class EquipmentModule {}
+export class EquipmentModule { }

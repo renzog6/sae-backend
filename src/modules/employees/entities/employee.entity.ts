@@ -33,8 +33,8 @@ export class Employee implements Partial<PrismaEmployee> {
     @ApiProperty()
     personId: number;
 
-    @Field(() => Person)
-    person: Person;
+    @Field(() => Person, { nullable: true })
+    person?: Person;
 
     @Field(() => Int)
     @ApiProperty()

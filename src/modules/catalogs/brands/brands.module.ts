@@ -1,10 +1,10 @@
-//file: sae-backend/src/modules/catalogs/brands/brands.module.ts
 import { Module } from "@nestjs/common";
 import { BrandsService } from "./brands.service";
 import { BrandsController } from "./brands.controller";
+import { BrandsResolver } from "./brands.resolver";
 
 @Module({
   controllers: [BrandsController],
-  providers: [BrandsService],
+  providers: [BrandsService, BrandsResolver],
 })
-export class BrandsModule {}
+export class BrandsModule { }

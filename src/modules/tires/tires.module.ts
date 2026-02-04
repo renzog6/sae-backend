@@ -2,6 +2,7 @@
 import { Module } from "@nestjs/common";
 import { TiresService } from "./tires.service";
 import { TiresController } from "./tires.controller";
+import { TiresResolver } from "./tires.resolver";
 import { PrismaService } from "@prisma/prisma.service";
 import { TireAssignmentsModule } from "./tire-assignments/tire-assignments.module";
 import { TireRotationsModule } from "./tire-rotations/tire-rotations.module";
@@ -35,7 +36,7 @@ import { TirePositionsController } from "./tire-positions/tire-positions.control
     TirePositionsController,
     TiresController,
   ],
-  providers: [TiresService, PrismaService],
+  providers: [TiresService, TiresResolver, PrismaService],
   exports: [TiresService],
   imports: [
     TireAssignmentsModule,
@@ -49,4 +50,4 @@ import { TirePositionsController } from "./tire-positions/tire-positions.control
     TirePositionsModule,
   ],
 })
-export class TiresModule {}
+export class TiresModule { }

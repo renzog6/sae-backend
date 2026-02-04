@@ -1,66 +1,124 @@
 import { Type } from "@nestjs/common";
-import { Query, Resolver, Args, Int, Mutation } from "@nestjs/graphql";
+import { Query, Resolver, Args, Int, Mutation, InputType, Field } from "@nestjs/graphql";
 import { BaseService } from "../services/base.service";
 import { PaginationArgs } from "../dto/pagination.args";
-import { PaginationResponseDto } from "../dto/pagination-response.dto";
-import { Paginated } from "../dto/paginated-result.gql";
 
-export function BaseResolver<T extends Type<unknown>>(classRef: T): any {
+export interface BaseResolverOptions {
+    createInput?: Type<any>;
+    updateInput?: Type<any>;
+    name?: string;
+}
+
+export function BaseResolver<T extends Type<unknown>>(
+    classRef: T,
+    options: BaseResolverOptions = {}
+): any {
+    const resourceName = options.name || classRef.name;
+
     @Resolver({ isAbstract: true })
     abstract class BaseResolverHost {
         constructor(protected readonly service: BaseService<any>) { }
 
-        @Query(() => [classRef], { name: `findAll${classRef.name}s` })
+        @Query(() => [classRef], { name: `findAll${resourceName}s` })
         async findAll(@Args() args: PaginationArgs): Promise<any[]> {
             const { skip, take, where: whereString, orderBy: orderByString, q } = args;
 
-            const where = whereString ? JSON.parse(whereString) : {};
-            const orderBy = orderByString ? JSON.parse(orderByString) : undefined;
+            let where = {};
+            try {
+                where = whereString ? JSON.parse(whereString) : {};
+            } catch (e) {
+                console.error(`Error parsing where string for ${resourceName}:`, e);
+            }
 
-            // Construir query compatible con BaseService.findAll
-            // BaseService.findAll espera (query, additionalWhere, include)
-            // Estamos adaptando los args de GQL al DTO BaseQueryDto del servicio
             const queryDto: any = {
                 skip,
                 take,
                 q,
-                // page, limit no se usan directamente si pasamos skip/take, 
-                // pero BaseService calcula paginación basado en ellos si no se pasan skip/take
             };
 
-            // Si orderBy está presente, algunos BaseService podrían no soportarlo dinámicamente sin cambios,
-            // pero por ahora pasamos lo básico.
-
             const result = await this.service.findAll(queryDto, where);
-            return result.data; // BaseResponseDto tiene { data, meta }
+            return result.data;
         }
 
-        @Query(() => classRef, { name: `findOne${classRef.name}` })
-        async findOne(@Args("id", { type: () => Int }) id: number): Promise<T> {
-            const result = await this.service.findOne(id);
-            return result.data as T;
+        @Query(() => classRef, { name: `findOne${resourceName}`, nullable: true })
+        async findOne(@Args("id", { type: () => Int }) id: number): Promise<any> {
+            try {
+                const result = await this.service.findOne(id);
+                return result.data;
+            } catch (e) {
+                return null;
+            }
         }
 
-        @Mutation(() => classRef, { name: `remove${classRef.name}` })
+        @Mutation(() => classRef, { name: `remove${resourceName}` })
         async remove(@Args("id", { type: () => Int }) id: number): Promise<any> {
             const result = await this.service.remove(id);
-            return { id, ...result }; // Devuelve confirmación simple o el objeto si se modifica el servicio para devolverlo
+            return result.data;
         }
 
-        // Aquí se pueden agregar create/update/restore/hardDelete
-        // Para create/update se necesitarían DTOs específicos que son difíciles de generalizar sin mixins
-        // Por ahora implementamos lectura y borrado básico.
-
-        @Mutation(() => classRef, { name: `restore${classRef.name}` })
+        @Mutation(() => classRef, { name: `restore${resourceName}` })
         async restore(@Args("id", { type: () => Int }) id: number): Promise<any> {
             const result = await this.service.restore(id);
             return result.data;
         }
 
-        @Mutation(() => classRef, { name: `hardDelete${classRef.name}` })
+        @Mutation(() => classRef, { name: `hardDelete${resourceName}`, nullable: true })
         async hardDelete(@Args("id", { type: () => Int }) id: number): Promise<any> {
-            return this.service.hardDelete(id);
+            // baseService.hardDelete returns { message }, but GQL needs the object or ID
+            // We'll return a partial with the ID if possible, but most schemas expect the full object
+            // Let's try to find it first if we want to return the whole thing, 
+            // but hard delete usually means it's gone. Returning a boolean or the ID is safer.
+            // For now, let's keep it returning the object by finding it before deleting.
+            const record = await this.service.findOne(id, null, { includeDeleted: true });
+            await this.service.hardDelete(id);
+            return record.data;
         }
     }
+
+    // Dynamic Create Mutation
+    if (options.createInput) {
+        const createMutationName = `create${resourceName}`;
+        Object.defineProperty(BaseResolverHost.prototype, createMutationName, {
+            value: async function (input: any) {
+                const result = await this.service.create(input);
+                return result.data;
+            },
+            writable: true,
+            configurable: true,
+        });
+        Mutation(() => classRef, { name: createMutationName })(
+            BaseResolverHost.prototype,
+            createMutationName,
+            {
+                value: [
+                    Args("input", { type: () => options.createInput })
+                ]
+            }
+        );
+    }
+
+    // Dynamic Update Mutation
+    if (options.updateInput) {
+        const updateMutationName = `update${resourceName}`;
+        Object.defineProperty(BaseResolverHost.prototype, updateMutationName, {
+            value: async function (id: number, input: any) {
+                const result = await this.service.update(id, input);
+                return result.data;
+            },
+            writable: true,
+            configurable: true,
+        });
+        Mutation(() => classRef, { name: updateMutationName })(
+            BaseResolverHost.prototype,
+            updateMutationName,
+            {
+                value: [
+                    Args("id", { type: () => Int }),
+                    Args("input", { type: () => options.updateInput })
+                ]
+            }
+        );
+    }
+
     return BaseResolverHost;
 }

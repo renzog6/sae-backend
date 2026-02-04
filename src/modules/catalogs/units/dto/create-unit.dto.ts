@@ -1,4 +1,3 @@
-//filepath: sae-backend/src/modules/catalogs/units/dto/create-unit.dto.ts
 import {
   IsNotEmpty,
   IsOptional,
@@ -7,8 +6,11 @@ import {
   IsDateString,
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { InputType, Field } from "@nestjs/graphql";
 
+@InputType()
 export class CreateUnitDto {
+  @Field()
   @ApiProperty({
     description: "Name of the unit",
     example: "Kilogram",
@@ -17,6 +19,7 @@ export class CreateUnitDto {
   @IsNotEmpty()
   name!: string;
 
+  @Field()
   @ApiProperty({
     description: "Abbreviation for the unit",
     example: "kg",
@@ -25,6 +28,7 @@ export class CreateUnitDto {
   @IsNotEmpty()
   abbreviation!: string;
 
+  @Field({ nullable: true })
   @ApiPropertyOptional({
     description: "Whether the unit is active",
     example: true,
@@ -32,12 +36,4 @@ export class CreateUnitDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
-
-  @ApiPropertyOptional({
-    description: "Deletion date for soft delete",
-    example: "2024-01-01T00:00:00.000Z",
-  })
-  @IsDateString()
-  @IsOptional()
-  deletedAt?: string;
 }

@@ -24,6 +24,17 @@ input AddressFilterInput {
   personId: Int
 }
 
+type Brand {
+  code: String!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  information: String
+  isActive: Boolean!
+  name: String!
+  updatedAt: DateTime!
+}
+
 type BusinessCategory {
   code: String
   createdAt: DateTime!
@@ -138,7 +149,7 @@ type Employee {
   employeeCode: String!
   hireDate: DateTime!
   id: Int!
-  person: Person!
+  person: Person
   personId: Int!
   position: EmployeePosition
   status: EmployeeStatus!
@@ -166,10 +177,144 @@ enum EmployeeStatus {
   TERMINATED
 }
 
+type Equipment {
+  category: EquipmentCategory
+  categoryId: Int
+  chassis: String
+  color: String
+  company: Company
+  companyId: Int
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String
+  engine: String
+  fuelType: FuelType
+  id: Int!
+  internalCode: String
+  isActive: Boolean!
+  licensePlate: String
+  model: EquipmentModel
+  modelId: Int
+  name: String
+  observation: String
+  status: EquipmentStatus!
+  type: EquipmentType
+  typeId: Int
+  updatedAt: DateTime!
+  year: Int
+}
+
+type EquipmentCategory {
+  code: String
+  description: String
+  id: Int!
+  name: String!
+}
+
+input EquipmentFilterInput {
+  categoryId: Int
+  modelId: Int
+  status: EquipmentStatus
+  typeId: Int
+  year: Int
+}
+
+type EquipmentModel {
+  brand: Brand
+  brandId: Int
+  code: String
+  deletedAt: DateTime
+  description: String
+  id: Int!
+  isActive: Boolean!
+  name: String!
+  type: EquipmentType
+  typeId: Int
+  year: Int
+}
+
+enum EquipmentStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  RETIRED
+  SOLD
+}
+
+type EquipmentType {
+  category: EquipmentCategory
+  categoryId: Int!
+  code: String
+  description: String
+  id: Int!
+  name: String!
+}
+
+enum FuelType {
+  CNG
+  DIESEL
+  ELECTRIC
+  GASOLINE
+  HYBRID
+  LPG
+  NONE
+}
+
 enum Gender {
   FEMALE
   MALE
   OTHER
+}
+
+type HistoryLog {
+  company: Company
+  companyId: Int
+  createdAt: DateTime!
+  description: String
+  employee: Employee
+  employeeId: Int
+  equipment: Equipment
+  equipmentId: Int
+  eventDate: DateTime!
+  id: Int!
+  metadata: String
+  person: Person
+  personId: Int
+  severity: SeverityLevel!
+  title: String!
+  type: HistoryType!
+  userId: Int
+}
+
+enum HistoryType {
+  COMPANY_EVENT
+  COMPANY_REMINDER
+  EMPLOYEE_ACHIEVEMENT
+  EMPLOYEE_HIRE
+  EMPLOYEE_ILLNESS
+  EMPLOYEE_WARNING
+  EQUIPMENT_ACCIDENT
+  EQUIPMENT_MAINTENANCE
+  EQUIPMENT_REPAIR
+  GENERAL_NOTE
+  PERSONAL_EVENT
+  VACATION_ASSIGNED
+  VACATION_TAKEN
+}
+
+type Inspection {
+  createdAt: DateTime!
+  date: DateTime!
+  description: String
+  employee: Employee
+  employeeId: Int!
+  equipment: Equipment
+  equipmentId: Int!
+  id: Int!
+  inspectionTypeId: Int!
+  isActive: Boolean!
+  observation: String
+  updatedAt: DateTime!
 }
 
 enum MaritalStatus {
@@ -187,6 +332,7 @@ type Mutation {
   deleteCity(id: Int!): City!
   deleteContact(id: Int!): Contact!
   hardDeleteAddress(id: Int!): Address!
+  hardDeleteBrand(id: Int!): Brand!
   hardDeleteBusinessCategory(id: Int!): BusinessCategory!
   hardDeleteBusinessSubCategory(id: Int!): BusinessSubCategory!
   hardDeleteCity(id: Int!): City!
@@ -196,9 +342,20 @@ type Mutation {
   hardDeleteEmployee(id: Int!): Employee!
   hardDeleteEmployeeCategory(id: Int!): EmployeeCategory!
   hardDeleteEmployeePosition(id: Int!): EmployeePosition!
+  hardDeleteEquipment(id: Int!): Equipment!
+  hardDeleteEquipmentCategory(id: Int!): EquipmentCategory!
+  hardDeleteEquipmentModel(id: Int!): EquipmentModel!
+  hardDeleteEquipmentType(id: Int!): EquipmentType!
+  hardDeleteHistoryLog(id: Int!): HistoryLog!
+  hardDeleteInspection(id: Int!): Inspection!
   hardDeletePerson(id: Int!): Person!
   hardDeleteProvince(id: Int!): Province!
+  hardDeleteTire(id: Int!): Tire!
+  hardDeleteTireModel(id: Int!): TireModel!
+  hardDeleteTireSize(id: Int!): TireSize!
+  hardDeleteUnit(id: Int!): Unit!
   removeAddress(id: Int!): Address!
+  removeBrand(id: Int!): Brand!
   removeBusinessCategory(id: Int!): BusinessCategory!
   removeBusinessSubCategory(id: Int!): BusinessSubCategory!
   removeCity(id: Int!): City!
@@ -208,9 +365,20 @@ type Mutation {
   removeEmployee(id: Int!): Employee!
   removeEmployeeCategory(id: Int!): EmployeeCategory!
   removeEmployeePosition(id: Int!): EmployeePosition!
+  removeEquipment(id: Int!): Equipment!
+  removeEquipmentCategory(id: Int!): EquipmentCategory!
+  removeEquipmentModel(id: Int!): EquipmentModel!
+  removeEquipmentType(id: Int!): EquipmentType!
+  removeHistoryLog(id: Int!): HistoryLog!
+  removeInspection(id: Int!): Inspection!
   removePerson(id: Int!): Person!
   removeProvince(id: Int!): Province!
+  removeTire(id: Int!): Tire!
+  removeTireModel(id: Int!): TireModel!
+  removeTireSize(id: Int!): TireSize!
+  removeUnit(id: Int!): Unit!
   restoreAddress(id: Int!): Address!
+  restoreBrand(id: Int!): Brand!
   restoreBusinessCategory(id: Int!): BusinessCategory!
   restoreBusinessSubCategory(id: Int!): BusinessSubCategory!
   restoreCity(id: Int!): City!
@@ -220,8 +388,18 @@ type Mutation {
   restoreEmployee(id: Int!): Employee!
   restoreEmployeeCategory(id: Int!): EmployeeCategory!
   restoreEmployeePosition(id: Int!): EmployeePosition!
+  restoreEquipment(id: Int!): Equipment!
+  restoreEquipmentCategory(id: Int!): EquipmentCategory!
+  restoreEquipmentModel(id: Int!): EquipmentModel!
+  restoreEquipmentType(id: Int!): EquipmentType!
+  restoreHistoryLog(id: Int!): HistoryLog!
+  restoreInspection(id: Int!): Inspection!
   restorePerson(id: Int!): Person!
   restoreProvince(id: Int!): Province!
+  restoreTire(id: Int!): Tire!
+  restoreTireModel(id: Int!): TireModel!
+  restoreTireSize(id: Int!): TireSize!
+  restoreUnit(id: Int!): Unit!
   updateAddress(id: Int!, input: UpdateAddressInput!): Address!
   updateCity(id: Int!, input: UpdateCityInput!): City!
   updateContact(id: Int!, input: UpdateContactInput!): Contact!
@@ -229,6 +407,11 @@ type Mutation {
 
 type PaginatedAddress {
   data: [Address!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedBrand {
+  data: [Brand!]!
   meta: PaginationMeta!
 }
 
@@ -277,6 +460,36 @@ type PaginatedEmployeePosition {
   meta: PaginationMeta!
 }
 
+type PaginatedEquipment {
+  data: [Equipment!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedEquipmentCategory {
+  data: [EquipmentCategory!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedEquipmentModel {
+  data: [EquipmentModel!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedEquipmentType {
+  data: [EquipmentType!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedHistoryLog {
+  data: [HistoryLog!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedInspection {
+  data: [Inspection!]!
+  meta: PaginationMeta!
+}
+
 type PaginatedPerson {
   data: [Person!]!
   meta: PaginationMeta!
@@ -284,6 +497,26 @@ type PaginatedPerson {
 
 type PaginatedProvince {
   data: [Province!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedTire {
+  data: [Tire!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedTireModel {
+  data: [TireModel!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedTireSize {
+  data: [TireSize!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedUnit {
+  data: [Unit!]!
   meta: PaginationMeta!
 }
 
@@ -322,6 +555,7 @@ type Province {
 type Query {
   findAddresses(filter: AddressFilterInput, orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedAddress!
   findAllAddresss(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Address!]!
+  findAllBrands(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedBrand!
   findAllBusinessCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedBusinessCategory!
   findAllBusinessCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [BusinessCategory!]!
   findAllBusinessSubCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedBusinessSubCategory!
@@ -335,12 +569,25 @@ type Query {
   findAllEmployeeCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [EmployeeCategory!]!
   findAllEmployeePositions(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployeePosition!
   findAllEmployees(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEmployee!
+  findAllEquipment(filter: EquipmentFilterInput, orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEquipment!
+  findAllEquipmentCategories(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEquipmentCategory!
+  findAllEquipmentCategorys(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [EquipmentCategory!]!
+  findAllEquipmentModels(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEquipmentModel!
+  findAllEquipmentTypes(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedEquipmentType!
+  findAllEquipments(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Equipment!]!
+  findAllHistoryLogs(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedHistoryLog!
+  findAllInspections(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedInspection!
   findAllPersons(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedPerson!
   findAllProvinces(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): [Province!]!
+  findAllTireModels(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedTireModel!
+  findAllTireSizes(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedTireSize!
+  findAllTires(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedTire!
+  findAllUnits(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedUnit!
   findCities(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedCity!
   findContacts(filter: ContactFilterInput, orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedContact!
   findCountries(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedCountry!
   findOneAddress(id: Int!): Address!
+  findOneBrand(id: Int!): Brand!
   findOneBusinessCategory(id: Int!): BusinessCategory!
   findOneBusinessSubCategory(id: Int!): BusinessSubCategory!
   findOneCity(id: Int!): City!
@@ -350,9 +597,114 @@ type Query {
   findOneEmployee(id: Int!): Employee!
   findOneEmployeeCategory(id: Int!): EmployeeCategory!
   findOneEmployeePosition(id: Int!): EmployeePosition!
+  findOneEquipment(id: Int!): Equipment!
+  findOneEquipmentCategory(id: Int!): EquipmentCategory!
+  findOneEquipmentModel(id: Int!): EquipmentModel!
+  findOneEquipmentType(id: Int!): EquipmentType!
+  findOneHistoryLog(id: Int!): HistoryLog!
+  findOneInspection(id: Int!): Inspection!
   findOnePerson(id: Int!): Person!
   findOneProvince(id: Int!): Province!
+  findOneTire(id: Int!): Tire!
+  findOneTireModel(id: Int!): TireModel!
+  findOneTireSize(id: Int!): TireSize!
+  findOneUnit(id: Int!): Unit!
   findProvinces(orderBy: String, q: String, skip: Int! = 0, take: Int! = 10, where: String): PaginatedProvince!
+}
+
+enum SeverityLevel {
+  CRITICAL
+  INFO
+  SUCCESS
+  WARNING
+}
+
+type Tire {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  id: Int!
+  isActive: Boolean!
+  lastRecapAt: DateTime
+  lastRecapId: Int
+  model: TireModel
+  modelId: Int!
+  position: TirePosition
+  recapCount: Int
+  serialNumber: String!
+  status: TireStatus!
+  totalKm: Int
+  updatedAt: DateTime!
+}
+
+type TireModel {
+  brand: Brand
+  brandId: Int!
+  construction: String
+  id: Int!
+  information: String
+  loadIndex: Int
+  name: String!
+  plyRating: String
+  size: TireSize
+  sizeId: Int!
+  speedSymbol: String
+  treadPattern: String
+}
+
+enum TirePosition {
+  DD
+  DI
+  E1D
+  E1DD
+  E1DI
+  E1I
+  E1ID
+  E1II
+  E2D
+  E2DD
+  E2DI
+  E2I
+  E2ID
+  E2II
+  E3D
+  E3DD
+  E3DI
+  E3I
+  E3ID
+  E3II
+  E4D
+  E4DD
+  E4DI
+  E4I
+  E4ID
+  E4II
+  SPARE
+  UNKNOWN
+}
+
+type TireSize {
+  aspectRatio: Int
+  id: Int!
+  information: String
+  mainCode: String!
+  rimDiameter: Float
+  width: Int
+}
+
+enum TireStatus {
+  DISCARDED
+  IN_STOCK
+  IN_USE
+  RECAP
+  UNDER_REPAIR
+}
+
+type Unit {
+  abbreviation: String!
+  deletedAt: DateTime
+  id: Int!
+  isActive: Boolean!
+  name: String!
 }
 
 input UpdateAddressInput {
