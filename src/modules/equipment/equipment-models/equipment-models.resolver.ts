@@ -4,11 +4,16 @@ import { EquipmentModel } from "./entity/equipment-model.entity";
 import { BaseResolver } from "@common/resolvers/base.resolver";
 import { Paginated } from "@common/dto/paginated-result.gql";
 import { PaginationArgs } from "@common/dto/pagination.args";
+import { CreateEquipmentModelDto } from "./dto/create-equipment-model.dto";
+import { UpdateEquipmentModelDto } from "./dto/update-equipment-model.dto";
 
 const PaginatedEquipmentModel = Paginated(EquipmentModel);
 
 @Resolver(() => EquipmentModel)
-export class EquipmentModelsResolver extends BaseResolver(EquipmentModel) {
+export class EquipmentModelsResolver extends BaseResolver(EquipmentModel, {
+    createInput: CreateEquipmentModelDto,
+    updateInput: UpdateEquipmentModelDto,
+}) {
     constructor(private readonly equipmentModelService: EquipmentModelService) {
         super(equipmentModelService);
     }

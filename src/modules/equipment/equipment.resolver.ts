@@ -5,6 +5,8 @@ import { BaseResolver } from "@common/resolvers/base.resolver";
 import { Paginated } from "@common/dto/paginated-result.gql";
 import { PaginationArgs } from "@common/dto/pagination.args";
 import { EquipmentStatus } from "@prisma/client";
+import { CreateEquipmentDto } from "./dto/create-equipment.dto";
+import { UpdateEquipmentDto } from "./dto/update-equipment.dto";
 
 @InputType()
 export class EquipmentFilterInput {
@@ -27,7 +29,10 @@ export class EquipmentFilterInput {
 const PaginatedEquipment = Paginated(Equipment);
 
 @Resolver(() => Equipment)
-export class EquipmentResolver extends BaseResolver(Equipment) {
+export class EquipmentResolver extends BaseResolver(Equipment, {
+    createInput: CreateEquipmentDto,
+    updateInput: UpdateEquipmentDto,
+}) {
     constructor(private readonly equipmentService: EquipmentService) {
         super(equipmentService);
     }

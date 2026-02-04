@@ -1,6 +1,5 @@
-import { PartialType } from "@nestjs/swagger";
+import { InputType, PartialType } from "@nestjs/graphql";
 import { CreateEquipmentModelDto } from "./create-equipment-model.dto";
 
-export class UpdateEquipmentModelDto extends PartialType(
-  CreateEquipmentModelDto
-) {}
+@InputType()
+export class UpdateEquipmentModelDto extends PartialType(CreateEquipmentModelDto) { }

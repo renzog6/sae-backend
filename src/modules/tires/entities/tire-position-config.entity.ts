@@ -2,6 +2,7 @@ import { ObjectType, Field, Int, registerEnumType } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { TirePositionConfig as PrismaTirePositionConfig, TireSide } from "@prisma/client";
 import { EquipmentAxle } from "../../equipment/equipment-axles/entity/equipment-axle.entity";
+import { TireAssignment } from "./tire-assignment.entity";
 
 registerEnumType(TireSide, {
     name: "TireSide",
@@ -31,4 +32,7 @@ export class TirePositionConfig implements Partial<PrismaTirePositionConfig> {
     @Field()
     @ApiProperty()
     isDual: boolean;
+
+    @Field(() => [TireAssignment], { nullable: true })
+    assignments?: TireAssignment[];
 }

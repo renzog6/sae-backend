@@ -9,6 +9,9 @@ import { Company } from "@modules/companies/entities/company.entity";
 import { EquipmentCategory } from "../equipment-categories/entity/equipment-category.entity";
 import { EquipmentType } from "../equipment-types/entity/equipment-type.entity";
 import { EquipmentModel } from "../equipment-models/entity/equipment-model.entity";
+import { EquipmentAxle } from "../equipment-axles/entity/equipment-axle.entity";
+import { EquipmentMaintenance } from "../equipment-maintenance/entity/equipment-maintenance.entity";
+import { EquipmentTransaction } from "../equipment-transaction/entity/equipment-transaction.entity";
 
 // Register enums for GraphQL
 registerEnumType(EquipmentStatus, { name: "EquipmentStatus" });
@@ -107,4 +110,14 @@ export class Equipment implements Partial<PrismaEquipment> {
   @Field()
   @ApiProperty()
   updatedAt: Date;
+
+  // Relations
+  @Field(() => [EquipmentAxle], { nullable: true })
+  axles?: EquipmentAxle[];
+
+  @Field(() => [EquipmentMaintenance], { nullable: true })
+  maintenances?: EquipmentMaintenance[];
+
+  @Field(() => [EquipmentTransaction], { nullable: true })
+  transactions?: EquipmentTransaction[];
 }
