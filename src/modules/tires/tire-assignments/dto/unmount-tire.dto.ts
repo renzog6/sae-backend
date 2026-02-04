@@ -1,8 +1,12 @@
-// filepath: sae-backend/src/modules/tires/tire-assignments/dto/unmount-tire.dto.ts
+import { InputType, Field, Int } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsOptional, IsString } from "class-validator";
+import { IsInt, IsOptional, IsString, IsEnum, IsDate } from "class-validator";
+import { TireStatus } from "@prisma/client";
+import { Type } from "class-transformer";
 
+@InputType()
 export class UnmountTireDto {
+  @Field(() => Int)
   @ApiProperty({
     example: 1,
     description: "Assignment id to close (tire assignment record)",
@@ -10,6 +14,7 @@ export class UnmountTireDto {
   @IsInt()
   assignmentId: number;
 
+  @Field(() => Int, { nullable: true })
   @ApiProperty({
     example: 151200,
     description: "KM odometer reading at unmount time",
@@ -19,25 +24,29 @@ export class UnmountTireDto {
   @IsInt()
   kmAtEnd?: number;
 
+  @Field(() => Date, { nullable: true })
   @ApiProperty({
     example: "2025-01-15",
     description: "Date when the tire was unmounted",
     required: false,
   })
   @IsOptional()
-  @IsString()
-  unmountDate?: string;
+  @IsDate()
+  @Type(() => Date)
+  unmountDate?: Date;
 
+  @Field(() => TireStatus, { nullable: true })
   @ApiProperty({
-    example: "IN_STOCK",
+    example: TireStatus.IN_STOCK,
     description: "New status for the tire after unmounting",
-    enum: ["IN_STOCK", "UNDER_REPAIR", "RECAP", "DISCARDED"],
+    enum: TireStatus,
     required: false,
   })
   @IsOptional()
-  @IsString()
-  newStatus?: "IN_STOCK" | "UNDER_REPAIR" | "RECAP" | "DISCARDED";
+  @IsEnum(TireStatus)
+  newStatus?: TireStatus;
 
+  @Field({ nullable: true })
   @ApiProperty({ example: "Unmount due to rotation", required: false })
   @IsOptional()
   @IsString()

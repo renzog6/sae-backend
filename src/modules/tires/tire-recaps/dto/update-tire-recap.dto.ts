@@ -1,5 +1,5 @@
-//filepath: sae-backend/src/tires/tire-recaps/dto/update-tire-recap.dto.ts
-import { PartialType } from "@nestjs/swagger";
+import { InputType, PartialType } from "@nestjs/graphql";
 import { CreateTireRecapDto } from "./create-tire-recap.dto";
 
-export class UpdateTireRecapDto extends PartialType(CreateTireRecapDto) {}
+@InputType()
+export class UpdateTireRecapDto extends PartialType(CreateTireRecapDto) { }

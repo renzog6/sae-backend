@@ -2,6 +2,11 @@ import { ObjectType, Field, Int, registerEnumType } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { Tire as PrismaTire, TireStatus, TirePosition } from "@prisma/client";
 import { TireModel } from "../tire-models/entity/tire-model.entity";
+import { TireAssignment } from "../entities/tire-assignment.entity";
+import { TireInspection } from "../entities/tire-inspection.entity";
+import { TireRecap } from "../entities/tire-recap.entity";
+import { TireRotation } from "../entities/tire-rotation.entity";
+import { TireEvent } from "../entities/tire-event.entity";
 
 registerEnumType(TireStatus, { name: "TireStatus" });
 registerEnumType(TirePosition, { name: "TirePosition" });
@@ -62,4 +67,20 @@ export class Tire implements Partial<PrismaTire> {
     @Field()
     @ApiProperty()
     updatedAt: Date;
+
+    // Relations
+    @Field(() => [TireAssignment], { nullable: true })
+    assignments?: TireAssignment[];
+
+    @Field(() => [TireInspection], { nullable: true })
+    inspections?: TireInspection[];
+
+    @Field(() => [TireRecap], { nullable: true })
+    recaps?: TireRecap[];
+
+    @Field(() => [TireRotation], { nullable: true })
+    rotations?: TireRotation[];
+
+    @Field(() => [TireEvent], { nullable: true })
+    events?: TireEvent[];
 }

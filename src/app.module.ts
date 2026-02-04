@@ -47,7 +47,9 @@ import { ValidatorsModule } from "@modules/validators/validators.module";
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), "src/schema.gql"),
       sortSchema: true,
-      playground: true, // Habilitar Playground para pruebas
+      playground: process.env.NODE_ENV !== "production", // Solo en dev
+      introspection: true, // Habilitar para que herramientas como Codegen funcionen (o limitar por env)
+      context: ({ req }) => ({ req }), // Pasar req para que el AuthGuard funcione
     }),
 
     // Feature modules

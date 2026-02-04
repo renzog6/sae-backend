@@ -1,5 +1,5 @@
-//filepath: sae-backend/src/tires/tire-rotations/dto/update-tire-rotation.dto.ts
-import { PartialType } from "@nestjs/mapped-types";
+import { InputType, PartialType } from "@nestjs/graphql";
 import { CreateTireRotationDto } from "./create-tire-rotation.dto";
 
-export class UpdateTireRotationDto extends PartialType(CreateTireRotationDto) {}
+@InputType()
+export class UpdateTireRotationDto extends PartialType(CreateTireRotationDto) { }

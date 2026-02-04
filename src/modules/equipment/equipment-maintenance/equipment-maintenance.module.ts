@@ -4,10 +4,12 @@ import { EquipmentMaintenanceController } from "./equipment-maintenance.controll
 import { PrismaModule } from "@prisma/prisma.module";
 import { HistoryModule } from "@modules/history/history.module";
 
+import { EquipmentMaintenanceResolver } from "./equipment-maintenance.resolver";
+
 @Module({
     imports: [PrismaModule, HistoryModule],
     controllers: [EquipmentMaintenanceController],
-    providers: [EquipmentMaintenanceService],
+    providers: [EquipmentMaintenanceService, EquipmentMaintenanceResolver],
     exports: [EquipmentMaintenanceService],
 })
 export class EquipmentMaintenanceModule { }

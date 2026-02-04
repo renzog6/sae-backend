@@ -1,14 +1,14 @@
 // filepath: sae-backend/src/modules/equipment/equipment-transaction/equipment-transaction.module.ts
-import { Module, forwardRef } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { EquipmentTransactionsService } from "./equipment-transactions.service";
 import { EquipmentTransactionsController } from "./equipment-transactions.controller";
 import { PrismaModule } from "@prisma/prisma.module";
-import { HistoryModule } from "@modules/history/history.module";
+import { EquipmentTransactionsResolver } from "./equipment-transactions.resolver";
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => HistoryModule)],
+  imports: [PrismaModule],
   controllers: [EquipmentTransactionsController],
-  providers: [EquipmentTransactionsService],
+  providers: [EquipmentTransactionsService, EquipmentTransactionsResolver],
   exports: [EquipmentTransactionsService],
 })
-export class EquipmentTransactionModule {}
+export class EquipmentTransactionModule { }

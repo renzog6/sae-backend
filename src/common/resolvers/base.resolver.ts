@@ -1,12 +1,14 @@
-import { Type } from "@nestjs/common";
+import { Type, UseGuards, UseFilters, Logger } from "@nestjs/common";
 import { Query, Resolver, Args, Int, Mutation, InputType, Field } from "@nestjs/graphql";
 import { BaseService } from "../services/base.service";
 import { PaginationArgs } from "../dto/pagination.args";
+import { GraphQLAuthGuard } from "../guards/graphql-auth.guard";
 
 export interface BaseResolverOptions {
     createInput?: Type<any>;
     updateInput?: Type<any>;
     name?: string;
+    isPublic?: boolean;
 }
 
 export function BaseResolver<T extends Type<unknown>>(
@@ -14,8 +16,10 @@ export function BaseResolver<T extends Type<unknown>>(
     options: BaseResolverOptions = {}
 ): any {
     const resourceName = options.name || classRef.name;
+    const logger = new Logger(`${resourceName}Resolver`);
 
     @Resolver({ isAbstract: true })
+    @UseGuards(...(options.isPublic ? [] : [GraphQLAuthGuard]))
     abstract class BaseResolverHost {
         constructor(protected readonly service: BaseService<any>) { }
 
@@ -27,7 +31,8 @@ export function BaseResolver<T extends Type<unknown>>(
             try {
                 where = whereString ? JSON.parse(whereString) : {};
             } catch (e) {
-                console.error(`Error parsing where string for ${resourceName}:`, e);
+                logger.error(`Error parsing where string for ${resourceName}: ${e.message}`);
+                throw e;
             }
 
             const queryDto: any = {
@@ -46,6 +51,7 @@ export function BaseResolver<T extends Type<unknown>>(
                 const result = await this.service.findOne(id);
                 return result.data;
             } catch (e) {
+                logger.warn(`${resourceName} with ID ${id} not found for findOne`);
                 return null;
             }
         }
@@ -64,14 +70,14 @@ export function BaseResolver<T extends Type<unknown>>(
 
         @Mutation(() => classRef, { name: `hardDelete${resourceName}`, nullable: true })
         async hardDelete(@Args("id", { type: () => Int }) id: number): Promise<any> {
-            // baseService.hardDelete returns { message }, but GQL needs the object or ID
-            // We'll return a partial with the ID if possible, but most schemas expect the full object
-            // Let's try to find it first if we want to return the whole thing, 
-            // but hard delete usually means it's gone. Returning a boolean or the ID is safer.
-            // For now, let's keep it returning the object by finding it before deleting.
-            const record = await this.service.findOne(id, null, { includeDeleted: true });
-            await this.service.hardDelete(id);
-            return record.data;
+            try {
+                const record = await this.service.findOne(id, null, { includeDeleted: true });
+                await this.service.hardDelete(id);
+                return record.data;
+            } catch (e) {
+                logger.error(`Error hard deleting ${resourceName} with ID ${id}: ${e.message}`);
+                throw e;
+            }
         }
     }
 

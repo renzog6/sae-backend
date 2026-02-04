@@ -1,8 +1,10 @@
-//filepath: sae-backend/src/tires/tire-sizes/dto/create-tire-size.dto.ts
+import { InputType, Field, Int, Float } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsOptional, IsNumber } from "class-validator";
 
+@InputType()
 export class CreateTireSizeDto {
+  @Field()
   @ApiProperty({
     example: "380/90R46",
     description: "Main tire size code",
@@ -10,6 +12,7 @@ export class CreateTireSizeDto {
   @IsString()
   mainCode: string;
 
+  @Field(() => Int, { nullable: true })
   @ApiProperty({
     example: 380,
     description: "Width in mm",
@@ -19,6 +22,7 @@ export class CreateTireSizeDto {
   @IsNumber()
   width?: number;
 
+  @Field(() => Int, { nullable: true })
   @ApiProperty({
     example: 90,
     description: "Aspect ratio",
@@ -28,6 +32,7 @@ export class CreateTireSizeDto {
   @IsNumber()
   aspectRatio?: number;
 
+  @Field(() => Float, { nullable: true })
   @ApiProperty({
     example: 46,
     description: "Rim diameter in inches",
@@ -37,6 +42,7 @@ export class CreateTireSizeDto {
   @IsNumber()
   rimDiameter?: number;
 
+  @Field({ nullable: true })
   @ApiProperty({
     example: "R",
     description: "Construction type (R for Radial, D for Diagonal)",
@@ -46,6 +52,7 @@ export class CreateTireSizeDto {
   @IsString()
   construction?: string;
 
+  @Field(() => Int, { nullable: true })
   @ApiProperty({
     example: 142,
     description: "Load index",
@@ -55,6 +62,7 @@ export class CreateTireSizeDto {
   @IsNumber()
   loadIndex?: number;
 
+  @Field({ nullable: true })
   @ApiProperty({
     example: "A8",
     description: "Speed symbol",
@@ -64,6 +72,7 @@ export class CreateTireSizeDto {
   @IsString()
   speedSymbol?: string;
 
+  @Field({ nullable: true })
   @ApiProperty({
     example: "Neumático agrícola radial de gran tamaño",
     description: "Additional information",
