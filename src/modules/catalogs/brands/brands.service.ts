@@ -1,6 +1,7 @@
 // filepath: sae-backend/src/modules/catalogs/brands/brands.service.ts
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateBrandDto } from "./dto/create-brand.dto";
+import { UpdateBrandDto } from "./dto/update-brand.dto";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
@@ -28,7 +29,7 @@ export class BrandsService extends BaseService<any> {
   }
 
   async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
+    query: BaseQueryDto = new BaseQueryDto(),
   ): Promise<BaseResponseDto<any>> {
     // Extract search query
     const q = query.q;
@@ -53,6 +54,14 @@ export class BrandsService extends BaseService<any> {
         code,
         information,
       },
+    });
+    return { data: brand };
+  }
+
+  async update(id: number, updateBrandDto: UpdateBrandDto) {
+    const brand = await this.prisma.brand.update({
+      where: { id },
+      data: updateBrandDto,
     });
     return { data: brand };
   }

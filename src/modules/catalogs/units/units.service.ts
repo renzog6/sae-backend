@@ -4,6 +4,7 @@ import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 import { CreateUnitDto } from "./dto/create-unit.dto";
+import { UpdateUnitDto } from "./dto/update-unit.dto";
 
 @Injectable()
 export class UnitsService extends BaseService<any> {
@@ -28,7 +29,7 @@ export class UnitsService extends BaseService<any> {
   }
 
   async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
+    query: BaseQueryDto = new BaseQueryDto(),
   ): Promise<BaseResponseDto<any>> {
     // Extract search query
     const q = query.q;
@@ -48,6 +49,14 @@ export class UnitsService extends BaseService<any> {
     const { name, abbreviation } = createUnitDto;
     const unit = await this.prisma.unit.create({
       data: { name, abbreviation },
+    });
+    return { data: unit };
+  }
+
+  async update(id: number, updateUnitDto: UpdateUnitDto) {
+    const unit = await this.prisma.unit.update({
+      where: { id },
+      data: updateUnitDto,
     });
     return { data: unit };
   }

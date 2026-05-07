@@ -8,44 +8,68 @@ import { Company } from "@modules/companies/entities/company.entity";
 
 // Registrar el enum en GraphQL
 registerEnumType(EmployeeStatus, {
-    name: 'EmployeeStatus',
+  name: "EmployeeStatus",
 });
 
 @ObjectType()
 export class Employee implements Partial<PrismaEmployee> {
-    @Field(() => Int)
-    @ApiProperty()
-    id: number;
+  @Field(() => Int)
+  @ApiProperty()
+  id: number;
 
-    @Field(() => String)
-    @ApiProperty()
-    employeeCode: string;
+  @Field(() => String)
+  @ApiProperty()
+  employeeCode: string;
 
-    @Field(() => Date)
-    @ApiProperty()
-    hireDate: Date;
+  @Field(() => String, { nullable: true })
+  @ApiProperty({ required: false })
+  information?: string;
 
-    @Field(() => EmployeeStatus)
-    @ApiProperty({ enum: EmployeeStatus })
-    status: EmployeeStatus;
+  @Field(() => EmployeeStatus)
+  @ApiProperty({ enum: EmployeeStatus })
+  status: EmployeeStatus;
 
-    @Field(() => Int)
-    @ApiProperty()
-    personId: number;
+  @Field(() => Date)
+  @ApiProperty()
+  hireDate: Date;
 
-    @Field(() => Person, { nullable: true })
-    person?: Person;
+  @Field(() => Date, { nullable: true })
+  @ApiProperty({ required: false })
+  endDate?: Date;
 
-    @Field(() => Int)
-    @ApiProperty()
-    companyId: number;
+  @Field(() => Int)
+  @ApiProperty()
+  personId: number;
 
-    @Field(() => Company, { nullable: true })
-    company?: Company;
+  @Field(() => Person, { nullable: true })
+  person?: Person;
 
-    @Field(() => EmployeeCategory, { nullable: true })
-    category?: EmployeeCategory;
+  @Field(() => Int)
+  @ApiProperty()
+  companyId: number;
 
-    @Field(() => EmployeePosition, { nullable: true })
-    position?: EmployeePosition;
+  @Field(() => Company, { nullable: true })
+  company?: Company;
+
+  @Field(() => Int)
+  @ApiProperty()
+  categoryId: number;
+
+  @Field(() => EmployeeCategory, { nullable: true })
+  category?: EmployeeCategory;
+
+  @Field(() => Int)
+  @ApiProperty()
+  positionId: number;
+
+  @Field(() => EmployeePosition, { nullable: true })
+  position?: EmployeePosition;
+
+  @Field(() => Date, { nullable: true })
+  @ApiProperty({ required: false })
+  createdAt?: Date;
+
+  @Field(() => Date, { nullable: true })
+  @ApiProperty({ required: false })
+  updatedAt?: Date;
 }

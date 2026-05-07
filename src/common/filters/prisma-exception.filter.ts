@@ -55,13 +55,24 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       console.error("Unhandled error:", exception);
     }
 
-    // Responder con formato consistente
-    response.status(status).json({
-      statusCode: status,
-      message,
-      timestamp: new Date().toISOString(),
-      path: ctx.getRequest().url,
-      ...(errorDetails && { details: errorDetails }),
-    });
+    // Responder con formato consistente (verificar que response tenga método status)
+    if (typeof response.status === "function") {
+      response.status(status).json({
+        statusCode: status,
+        message,
+        timestamp: new Date().toISOString(),
+        path: ctx.getRequest().url,
+        ...(errorDetails && { details: errorDetails }),
+      });
+    } else {
+      // Para GraphQL u otros contextos, usar json directamente
+      response.json?.({
+        statusCode: status,
+        message,
+        timestamp: new Date().toISOString(),
+        path: ctx.getRequest().url,
+        ...(errorDetails && { details: errorDetails }),
+      }) || console.error("Response no soportado:", response);
+    }
   }
 }

@@ -1,13 +1,16 @@
 import { BaseController } from "@common/controllers/base.controller";
 import {
   Controller,
+  Get,
   Post,
   Body,
+  Param,
   UseGuards,
 } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
@@ -34,6 +37,22 @@ export class ContactsController extends BaseController<Contact> {
   @ApiResponse({ status: 400, description: "Bad request" })
   override create(@Body() createContactDto: CreateContactDto) {
     return this.contactsService.create(createContactDto);
+  }
+
+  @Get("person/:personId")
+  @ApiOperation({
+    summary: "Get contacts by person",
+    description: "Retrieves all contacts associated with a specific person.",
+  })
+  @ApiParam({
+    name: "personId",
+    type: "number",
+    description: "Unique identifier of the person",
+  })
+  @ApiResponse({ status: 200, description: "Contacts retrieved successfully" })
+  @ApiResponse({ status: 404, description: "Person not found" })
+  byPerson(@Param("personId") personId: string) {
+    return this.contactsService.findByPerson(+personId);
   }
 
 }

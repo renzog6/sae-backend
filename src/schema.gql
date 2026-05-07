@@ -129,10 +129,26 @@ input CreateAddressInput {
   street: String
 }
 
+input CreateBrandDto {
+  code: String!
+  deletedAt: String
+  information: String
+  isActive: Boolean
+  name: String!
+}
+
 input CreateCityInput {
   name: String!
   postalCode: String!
   provinceId: Int!
+}
+
+input CreateCompanyDto {
+  businessCategoryId: Int
+  businessName: String
+  cuit: String!
+  information: String
+  name: String!
 }
 
 input CreateContactInput {
@@ -142,6 +158,36 @@ input CreateContactInput {
   personId: Int
   type: ContactType!
   value: String!
+}
+
+input CreateEmployeeDto {
+  categoryId: Int!
+  companyId: Int
+  employeeCode: String
+  endDate: String
+  hireDate: String!
+  information: String
+  personId: Int!
+  positionId: Int!
+  status: EmployeeStatus
+}
+
+input CreateEquipmentDto {
+  categoryId: Int
+  chassis: String
+  color: String
+  companyId: Int
+  description: String
+  engine: String
+  fuelType: FuelType
+  internalCode: String
+  licensePlate: String
+  modelId: Int
+  name: String
+  observation: String
+  status: EquipmentStatus
+  typeId: Int
+  year: Int
 }
 
 input CreateTireEventDto {
@@ -188,6 +234,12 @@ input CreateTireRotationDto {
   toPosition: TirePosition
 }
 
+input CreateUnitDto {
+  abbreviation: String!
+  isActive: Boolean
+  name: String!
+}
+
 enum Currency {
   ARS
   EUR
@@ -201,15 +253,21 @@ scalar DateTime
 
 type Employee {
   category: EmployeeCategory
+  categoryId: Int!
   company: Company
   companyId: Int!
+  createdAt: DateTime
   employeeCode: String!
+  endDate: DateTime
   hireDate: DateTime!
   id: Int!
+  information: String
   person: Person
   personId: Int!
   position: EmployeePosition
+  positionId: Int!
   status: EmployeeStatus!
+  updatedAt: DateTime
 }
 
 type EmployeeCategory {
@@ -463,10 +521,13 @@ input MountTireDto {
 
 type Mutation {
   createAddress(input: CreateAddressInput!): Address!
+  createBrand(input: CreateBrandDto!): Brand!
   createCity(input: CreateCityInput!): City!
+  createCompany(input: CreateCompanyDto!): Company!
   createContact(input: CreateContactInput!): Contact!
+  createEmployee(input: CreateEmployeeDto!): Employee!
   createEmployeeVacation: EmployeeVacation!
-  createEquipment: Equipment!
+  createEquipment(input: CreateEquipmentDto!): Equipment!
   createEquipmentAxle: EquipmentAxle!
   createEquipmentCategory: EquipmentCategory!
   createEquipmentMaintenance: EquipmentMaintenance!
@@ -483,7 +544,7 @@ type Mutation {
   createTireRecap(input: CreateTireRecapDto!): TireRecap!
   createTireRotation(input: CreateTireRotationDto!): TireRotation!
   createTireSize: TireSize!
-  createUnit: Unit!
+  createUnit(input: CreateUnitDto!): Unit!
   createUser: User!
   deleteAddress(id: Int!): Address!
   deleteCity(id: Int!): City!
@@ -581,10 +642,13 @@ type Mutation {
   restoreUser(id: Int!): User!
   unmountTire(input: UnmountTireDto!): Boolean!
   updateAddress(id: Int!, input: UpdateAddressInput!): Address!
+  updateBrand(id: Int!, input: UpdateBrandDto!): Brand!
   updateCity(id: Int!, input: UpdateCityInput!): City!
+  updateCompany(id: String!, input: UpdateCompanyDto!): Company!
   updateContact(id: Int!, input: UpdateContactInput!): Contact!
+  updateEmployee(id: Int!, input: UpdateEmployeeDto!): Employee!
   updateEmployeeVacation: EmployeeVacation!
-  updateEquipment: Equipment!
+  updateEquipment(id: Int!, input: UpdateEquipmentDto!): Equipment!
   updateEquipmentAxle: EquipmentAxle!
   updateEquipmentCategory: EquipmentCategory!
   updateEquipmentMaintenance: EquipmentMaintenance!
@@ -601,7 +665,7 @@ type Mutation {
   updateTireRecap(id: Int!, input: UpdateTireRecapDto!): TireRecap!
   updateTireRotation(id: Int!, input: UpdateTireRotationDto!): TireRotation!
   updateTireSize: TireSize!
-  updateUnit: Unit!
+  updateUnit(id: Int!, input: UpdateUnitDto!): Unit!
   updateUser: User!
 }
 
@@ -1060,10 +1124,26 @@ input UpdateAddressInput {
   street: String
 }
 
+input UpdateBrandDto {
+  code: String
+  deletedAt: String
+  information: String
+  isActive: Boolean
+  name: String
+}
+
 input UpdateCityInput {
   name: String
   postalCode: String
   provinceId: Int
+}
+
+input UpdateCompanyDto {
+  businessCategoryId: Int
+  businessName: String
+  cuit: String
+  information: String
+  name: String
 }
 
 input UpdateContactInput {
@@ -1071,6 +1151,36 @@ input UpdateContactInput {
   label: String
   type: ContactType
   value: String
+}
+
+input UpdateEmployeeDto {
+  categoryId: Int
+  companyId: Int
+  employeeCode: String
+  endDate: String
+  hireDate: String
+  information: String
+  personId: Int
+  positionId: Int
+  status: EmployeeStatus
+}
+
+input UpdateEquipmentDto {
+  categoryId: Int
+  chassis: String
+  color: String
+  companyId: Int
+  description: String
+  engine: String
+  fuelType: FuelType
+  internalCode: String
+  licensePlate: String
+  modelId: Int
+  name: String
+  observation: String
+  status: EquipmentStatus
+  typeId: Int
+  year: Int
 }
 
 input UpdateTireInspectionDto {
@@ -1106,6 +1216,12 @@ input UpdateTireRotationDto {
   tireId: Int
   toEquipmentId: Int
   toPosition: TirePosition
+}
+
+input UpdateUnitDto {
+  abbreviation: String
+  isActive: Boolean
+  name: String
 }
 
 type User {

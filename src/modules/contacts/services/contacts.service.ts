@@ -205,4 +205,25 @@ export class ContactsService extends BaseService<any> {
 
     return { message: "Contact deleted successfully" };
   }
+
+  async findByPerson(personId: number) {
+    const contacts = await this.prisma.contact.findMany({
+      where: {
+        contactLinks: {
+          some: { personId },
+        },
+      },
+      include: {
+        contactLinks: {
+          include: {
+            company: true,
+            person: true,
+          },
+        },
+      },
+      orderBy: { id: "desc" },
+    });
+
+    return { data: contacts };
+  }
 }

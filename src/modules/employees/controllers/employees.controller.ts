@@ -67,5 +67,14 @@ export class EmployeesController extends BaseController<Employee> {
   override remove(@Param("id", ParseIntPipe) id: number) {
     return super.remove(id);
   }
+
+  @Get(":id/history")
+  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
+  @ApiOperation({ summary: "Get employee history" })
+  @ApiParam({ name: "id", type: "number" })
+  @ApiResponse({ status: 200, description: "Employee history retrieved successfully" })
+  getHistory(@Param("id", ParseIntPipe) id: number) {
+    return this.employeesService.getHistory(id);
+  }
 }
 
