@@ -1,5 +1,5 @@
 // filepath: sae-backend/test/business-categories.e2e-spec.ts
-import * as request from "supertest";
+import request from "supertest";
 import { INestApplication } from "@nestjs/common";
 import { createTestingApp } from "./utils";
 import { PrismaService } from "../src/prisma/prisma.service";

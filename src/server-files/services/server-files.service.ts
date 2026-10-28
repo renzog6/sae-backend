@@ -1,6 +1,6 @@
 // filepath: sae-backend/src/server-files/services/server-files.service.ts
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "@prisma/prisma.service";
 import { StorageStrategy } from "../strategies/storage-strategy.interface";
 import { join, basename, relative } from "path";
 import {

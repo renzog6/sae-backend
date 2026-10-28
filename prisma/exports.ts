@@ -71,7 +71,7 @@ async function main() {
       console.log(`✅ Exported ${data.length} rows from ${name} → ${filePath}`);
     } catch (error) {
       console.warn(
-        `⚠️  Error exporting ${name}: ${error.message}. Continuing...`
+        `⚠️  Error exporting ${name}: ${(error as Error).message}. Continuing...`
       );
     }
   }

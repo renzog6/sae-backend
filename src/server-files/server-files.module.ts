@@ -1,6 +1,6 @@
 // filepath: sae-backend/src/server-files/server-files.module.ts
 import { Module } from '@nestjs/common';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from '@prisma/prisma.module';
 import { ServerFilesController } from './controllers/server-files.controller';
 import { ServerFilesService } from './services/server-files.service';
 import { StorageFactory } from './factory/storage.factory';
