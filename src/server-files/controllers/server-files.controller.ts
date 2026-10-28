@@ -8,8 +8,10 @@ import {
   UploadedFile,
   UseInterceptors,
   Res,
+  Req,
   NotFoundException,
   Query,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
@@ -29,6 +31,7 @@ import { extname, join, isAbsolute } from "path";
 import { Response } from "express";
 import { existsSync, mkdirSync } from "fs";
 import { ServerFilesService } from "../services/server-files.service";
+import { AuthenticatedUser } from "../services/server-files.service";
 import { StorageFactory } from "../factory/storage.factory";
 import { UploadFileDto } from "../dto/upload-file.dto";
 
@@ -94,6 +97,7 @@ export class ServerFilesController {
     },
   })
   async findAll(
+    @Req() req: { user: AuthenticatedUser },
     @Query("employeeId") employeeId?: string,
     @Query("companyId") companyId?: string
   ) {
@@ -101,7 +105,7 @@ export class ServerFilesController {
     if (employeeId) filter.employeeId = +employeeId;
     if (companyId) filter.companyId = +companyId;
 
-    return this.serverFilesService.findAll(filter);
+    return this.serverFilesService.findAllForUser(filter, req.user);
   }
 
   @Post("upload")
@@ -189,8 +193,13 @@ export class ServerFilesController {
   @ApiNotFoundResponse({
     description: "File not found with the specified ID",
   })
-  async download(@Param("id") id: string, @Res() res: Response) {
-    const doc = await this.serverFilesService.findOne(+id);
+  async download(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: { user: AuthenticatedUser },
+    @Res() res: Response
+  ) {
+    // findOneForUser valida que el archivo pertenezca a la empresa del usuario
+    const doc = await this.serverFilesService.findOneForUser(id, req.user);
     const filePath = isAbsolute(doc.data.path)
       ? doc.data.path
       : join(process.cwd(), doc.data.path);
