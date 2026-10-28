@@ -108,7 +108,10 @@
       "^@auth/(.*)$": "<rootDir>/../src/auth/$1",
       "^@modules/(.*)$": "<rootDir>/../src/modules/$1",
       "^@common/(.*)$": "<rootDir>/../src/common/$1",
-      "^@prisma/prisma\\.service$": "<rootDir>/../src/prisma/prisma.service"
+      "^@prisma/prisma\\.service$": "<rootDir>/../src/prisma/prisma.service",
+      "^@prisma/prisma\\.module$": "<rootDir>/../src/prisma/prisma.module",
+      "^@reports/(.*)$": "<rootDir>/../src/reports/$1",
+      "^src/(.*)$": "<rootDir>/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
