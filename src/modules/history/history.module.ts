@@ -5,7 +5,6 @@ import { CompaniesModule } from "@modules/companies/companies.module";
 import { EquipmentModule } from "@modules/equipment/equipment.module";
 import { HistoryLogService } from "@modules/history/services/history-log.service";
 import { HistoryLogController } from "./controllers/history-log.controller";
-import { HistoryResolver } from "./history.resolver";
 
 @Module({
   imports: [
@@ -14,7 +13,7 @@ import { HistoryResolver } from "./history.resolver";
     CompaniesModule,
     forwardRef(() => EquipmentModule),
   ],
-  providers: [HistoryLogService, HistoryResolver],
+  providers: [HistoryLogService],
   controllers: [HistoryLogController],
   exports: [HistoryLogService],
 })

@@ -8,7 +8,6 @@ import { EmployeeCategoriesModule } from "./employee-categories/employee-categor
 import { HistoryModule } from "../history/history.module";
 import { EmployeeIncidentController } from "./controllers/employee-incident.controller";
 import { EmployeeIncidentService } from "./services/employee-incident.service";
-import { EmployeesResolver } from "./employees.resolver";
 
 @Module({
   imports: [
@@ -19,7 +18,7 @@ import { EmployeesResolver } from "./employees.resolver";
     EmployeeCategoriesModule,
   ],
   controllers: [EmployeesController, EmployeeIncidentController],
-  providers: [EmployeesService, EmployeeIncidentService, EmployeesResolver],
+  providers: [EmployeesService, EmployeeIncidentService],
   exports: [EmployeesService, EmployeeIncidentService],
 })
 export class EmployeesModule { }

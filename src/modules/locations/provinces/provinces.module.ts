@@ -3,12 +3,11 @@ import { Module } from "@nestjs/common";
 import { ProvincesController } from "./provinces.controller";
 import { ProvincesService } from "./provinces.service";
 import { PrismaModule } from "@prisma/prisma.module";
-import { ProvincesResolver } from "./provinces.resolver";
 
 @Module({
   imports: [PrismaModule],
   controllers: [ProvincesController],
-  providers: [ProvincesService, ProvincesResolver],
+  providers: [ProvincesService],
   exports: [ProvincesService],
 })
 export class ProvincesModule { }

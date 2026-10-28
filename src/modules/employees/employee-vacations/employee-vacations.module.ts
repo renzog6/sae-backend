@@ -4,12 +4,11 @@ import { EmployeeVacationsService } from "./employee-vacations.service";
 import { EmployeeVacationsController } from "./employee-vacations.controller";
 import { PrismaModule } from "@prisma/prisma.module";
 import { HistoryModule } from "../../history/history.module";
-import { EmployeeVacationsResolver } from "./employee-vacations.resolver";
 
 @Module({
   imports: [PrismaModule, forwardRef(() => HistoryModule)],
   controllers: [EmployeeVacationsController],
-  providers: [EmployeeVacationsService, EmployeeVacationsResolver],
+  providers: [EmployeeVacationsService],
   exports: [EmployeeVacationsService],
 })
 export class EmployeeVacationsModule {}

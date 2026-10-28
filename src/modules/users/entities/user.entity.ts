@@ -1,5 +1,4 @@
 import { ObjectType, Field, Int, registerEnumType } from "@nestjs/graphql";
-import { GraphQLJSON } from "@common/scalars/json.scalar";
 import { ApiProperty } from "@nestjs/swagger";
 import { User as PrismaUser, Role } from "@prisma/client";
 
@@ -33,7 +32,6 @@ export class User implements Partial<PrismaUser> {
   @ApiProperty({ enum: Role })
   role: Role;
 
-  @Field(() => GraphQLJSON, { nullable: true })
   @ApiProperty({ required: false })
   preferences?: Record<string, any>;
 

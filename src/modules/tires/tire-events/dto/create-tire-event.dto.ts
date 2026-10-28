@@ -1,6 +1,5 @@
 // filepath: sae-backend/src/modules/tires/tire-events/dto/create-tire-event.dto.ts
 import { InputType, Field, Int } from "@nestjs/graphql";
-import { GraphQLJSON } from "@common/scalars/json.scalar";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsDate,
@@ -58,7 +57,6 @@ export class CreateTireEventDto {
   @IsInt()
   kmAtEvent?: number;
 
-  @Field(() => GraphQLJSON, { nullable: true })
   @ApiProperty({
     example: { positionConfigId: 1 },
     description: "Datos adicionales del evento",

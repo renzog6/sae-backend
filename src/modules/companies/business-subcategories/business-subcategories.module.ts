@@ -4,12 +4,11 @@ import { BusinessSubcategoriesService } from "./business-subcategories.service";
 import { BusinessSubcategoriesController } from "./business-subcategories.controller";
 import { PrismaModule } from "@prisma/prisma.module";
 
-import { BusinessSubCategoriesResolver } from "./business-subcategories.resolver";
 
 @Module({
   imports: [PrismaModule],
   controllers: [BusinessSubcategoriesController],
-  providers: [BusinessSubcategoriesService, BusinessSubCategoriesResolver],
+  providers: [BusinessSubcategoriesService],
   exports: [BusinessSubcategoriesService],
 })
 export class BusinessSubcategoriesModule { }

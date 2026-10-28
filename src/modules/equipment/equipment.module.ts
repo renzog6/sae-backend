@@ -11,7 +11,6 @@ import { EquipmentModelsModule } from "./equipment-models/equipment-models.modul
 import { EquipmentTransactionModule } from "./equipment-transaction/equipment-transaction.module";
 import { EquipmentTypesModule } from "./equipment-types/equipment-types.module";
 
-import { EquipmentResolver } from "./equipment.resolver";
 
 @Module({
   imports: [
@@ -25,7 +24,7 @@ import { EquipmentResolver } from "./equipment.resolver";
     EquipmentTypesModule,
   ],
   controllers: [EquipmentController],
-  providers: [EquipmentService, EquipmentResolver],
+  providers: [EquipmentService],
   exports: [
     EquipmentService,
     EquipmentAxlesModule,

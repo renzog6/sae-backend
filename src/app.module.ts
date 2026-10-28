@@ -3,8 +3,6 @@ import { join } from "path";
 import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
-import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./modules/users/users.module";
@@ -23,7 +21,6 @@ import { TiresModule } from "./modules/tires/tires.module";
 import { LoggerMiddleware } from "@common/logger/logger.middleware";
 import { ReportsModule } from "@reports/reports.module";
 import { ValidatorsModule } from "@modules/validators/validators.module";
-import { ScalarsModule } from "@common/scalars/scalars.module";
 
 @Module({
   imports: [
@@ -44,18 +41,7 @@ import { ScalarsModule } from "@common/scalars/scalars.module";
     // Database module
     PrismaModule,
 
-    // GraphQL
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), "src/schema.gql"),
-      sortSchema: true,
-      playground: process.env.NODE_ENV !== "production", // Solo en dev
-      introspection: true, // Habilitar para que herramientas como Codegen funcionen (o limitar por env)
-      context: ({ req }) => ({ req }), // Pasar req para que el AuthGuard funcione
-    }),
-
     // Feature modules
-    ScalarsModule,
     AuthModule,
     UsersModule,
     CompaniesModule,

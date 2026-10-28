@@ -1,5 +1,4 @@
 import { InputType, Field, Int } from "@nestjs/graphql";
-import { GraphQLJSON } from "@common/scalars/json.scalar";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEmail,
@@ -65,7 +64,6 @@ export class CreateUserDto {
   @IsOptional()
   role?: Role;
 
-  @Field(() => GraphQLJSON, { nullable: true })
   @ApiProperty({
     description: "User preferences in JSON format",
     example: { theme: "dark", language: "en" },

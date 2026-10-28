@@ -3,12 +3,11 @@ import { Module } from "@nestjs/common";
 import { EquipmentTransactionsService } from "./equipment-transactions.service";
 import { EquipmentTransactionsController } from "./equipment-transactions.controller";
 import { PrismaModule } from "@prisma/prisma.module";
-import { EquipmentTransactionsResolver } from "./equipment-transactions.resolver";
 
 @Module({
   imports: [PrismaModule],
   controllers: [EquipmentTransactionsController],
-  providers: [EquipmentTransactionsService, EquipmentTransactionsResolver],
+  providers: [EquipmentTransactionsService],
   exports: [EquipmentTransactionsService],
 })
 export class EquipmentTransactionModule { }
