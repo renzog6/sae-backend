@@ -20,6 +20,8 @@ import { Contact } from "../entities/contact.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put, ParseIntPipe } from "@nestjs/common";
+import { UpdateContactDto } from "../dto/update-contact.dto";
 
 @ApiTags("contacts")
 @Controller("contacts")
@@ -55,5 +57,8 @@ export class ContactsController extends BaseController<Contact> {
     return this.contactsService.findByPerson(+personId);
   }
 
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateContactDto) {
+    return super.update(id, dto);
+  }
 }
-

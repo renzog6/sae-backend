@@ -18,6 +18,8 @@ import { EquipmentMaintenance } from "./entity/equipment-maintenance.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put, Param, ParseIntPipe } from "@nestjs/common";
+import { UpdateEquipmentMaintenanceDto } from "./dto/update-equipment-maintenance.dto";
 
 @ApiTags("equipment-maintenance")
 @Controller("equipment-maintenance")
@@ -41,5 +43,9 @@ export class EquipmentMaintenanceController extends BaseController<EquipmentMain
   })
   override create(@Body() createEquipmentMaintenanceDto: CreateEquipmentMaintenanceDto) {
     return this.maintenanceService.create(createEquipmentMaintenanceDto);
+  }
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateEquipmentMaintenanceDto) {
+    return super.update(id, dto);
   }
 }

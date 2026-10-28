@@ -20,6 +20,9 @@ import { Country } from "./entities/country.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Body, Post, Put } from "@nestjs/common";
+import { CreateCountryDto } from "./dto/create-country.dto";
+import { UpdateCountryDto } from "./dto/update-country.dto";
 
 @ApiTags("locations/countries")
 @Controller("locations/countries")
@@ -55,5 +58,14 @@ export class CountriesController extends BaseController<Country> {
   @ApiResponse({ status: 404, description: "Country not found" })
   provinces(@Param("id") id: string) {
     return this.countriesService.findProvinces(+id);
+  }
+  @Post()
+  create(@Body() dto: CreateCountryDto) {
+    return super.create(dto);
+  }
+
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateCountryDto) {
+    return super.update(id, dto);
   }
 }

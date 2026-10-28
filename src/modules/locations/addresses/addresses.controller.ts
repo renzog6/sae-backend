@@ -34,6 +34,8 @@ import { Address } from "./entities/address.entity"; // Verifying entity path ne
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put, ParseIntPipe } from "@nestjs/common";
+import { UpdateAddressDto } from "./dto/update-address.dto";
 
 @ApiTags("locations/addresses")
 @Controller("locations/addresses")
@@ -150,5 +152,14 @@ export class AddressesController extends BaseController<Address> {
   @ApiResponse({ status: 404, description: "Person not found" })
   byPerson(@Param("personId") personId: string) {
     return this.addressesService.findByPerson(+personId);
+  }
+  @Post()
+  create(@Body() dto: CreateAddressDto) {
+    return super.create(dto);
+  }
+
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateAddressDto) {
+    return super.update(id, dto);
   }
 }

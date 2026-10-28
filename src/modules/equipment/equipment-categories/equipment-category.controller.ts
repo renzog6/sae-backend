@@ -14,6 +14,8 @@ import { EquipmentCategory } from "./entity/equipment-category.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put, Param, ParseIntPipe } from "@nestjs/common";
+import { UpdateEquipmentCategoryDto } from "./dto/update-equipment-category.dto";
 
 @ApiTags("equipment-categories")
 @Controller("equipment-categories")
@@ -40,5 +42,9 @@ export class EquipmentCategoryController extends BaseController<EquipmentCategor
     @Body() createEquipmentCategoryDto: CreateEquipmentCategoryDto
   ) {
     return this.categoryService.create(createEquipmentCategoryDto);
+  }
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateEquipmentCategoryDto) {
+    return super.update(id, dto);
   }
 }

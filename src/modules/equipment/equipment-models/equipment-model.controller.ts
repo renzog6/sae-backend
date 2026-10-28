@@ -23,6 +23,8 @@ import { EquipmentModel } from "./entity/equipment-model.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put } from "@nestjs/common";
+import { UpdateEquipmentModelDto } from "./dto/update-equipment-model.dto";
 
 @ApiTags("equipment-models")
 @Controller("equipment-models")
@@ -54,5 +56,9 @@ export class EquipmentModelController extends BaseController<EquipmentModel> {
   @ApiParam({ name: "typeId", type: "number" })
   async findByType(@Param("typeId", ParseIntPipe) typeId: number) {
     return this.equipmentModelService.findByType(typeId);
+  }
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateEquipmentModelDto) {
+    return super.update(id, dto);
   }
 }

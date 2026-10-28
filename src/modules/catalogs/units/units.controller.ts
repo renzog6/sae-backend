@@ -8,6 +8,9 @@ import { UnitsService } from "./units.service";
 import { Unit } from "./entities/unit.entity";
 
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Body, Post, Put } from "@nestjs/common";
+import { CreateUnitDto } from "./dto/create-unit.dto";
+import { UpdateUnitDto } from "./dto/update-unit.dto";
 
 @ApiTags("units")
 @Controller("units")
@@ -22,5 +25,14 @@ export class UnitsController extends BaseController<Unit> {
   @ApiParam({ name: "id", type: "number" })
   override remove(@Param("id", ParseIntPipe) id: number) {
     return super.remove(id);
+  }
+  @Post()
+  create(@Body() dto: CreateUnitDto) {
+    return super.create(dto);
+  }
+
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateUnitDto) {
+    return super.update(id, dto);
   }
 }

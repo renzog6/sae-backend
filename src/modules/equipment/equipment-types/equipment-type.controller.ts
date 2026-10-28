@@ -25,6 +25,7 @@ import { EquipmentType } from "./entity/equipment-type.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { UpdateEquipmentTypeDto } from "./dto/update-equipment-type.dto";
 
 @ApiTags("equipment-types")
 @Controller("equipment-types")
@@ -55,5 +56,9 @@ export class EquipmentTypeController extends BaseController<EquipmentType> {
   @ApiParam({ name: "categoryId", type: "number" })
   async findByCategory(@Param("categoryId", ParseIntPipe) categoryId: number) {
     return this.equipmentTypeService.findByCategory(categoryId);
+  }
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateEquipmentTypeDto) {
+    return super.update(id, dto);
   }
 }

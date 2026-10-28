@@ -24,6 +24,7 @@ import { EmployeePosition } from "./entities/employee-position.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { ParseIntPipe } from "@nestjs/common";
 
 @ApiTags("employee-positions")
 @Controller("employee-positions")
@@ -57,4 +58,8 @@ export class EmployeePositionsController extends BaseController<EmployeePosition
   }
 
   // Standard CRUD methods inherited
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateEmployeePositionDto) {
+    return super.update(id, dto);
+  }
 }
