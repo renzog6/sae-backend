@@ -1,12 +1,9 @@
-import { InputType, Field, Int } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, IsOptional, IsString, IsEnum, IsDate } from "class-validator";
 import { TireStatus } from "@prisma/client";
 import { Type } from "class-transformer";
 
-@InputType()
 export class UnmountTireDto {
-  @Field(() => Int)
   @ApiProperty({
     example: 1,
     description: "Assignment id to close (tire assignment record)",
@@ -14,7 +11,6 @@ export class UnmountTireDto {
   @IsInt()
   assignmentId: number;
 
-  @Field(() => Int, { nullable: true })
   @ApiProperty({
     example: 151200,
     description: "KM odometer reading at unmount time",
@@ -24,7 +20,6 @@ export class UnmountTireDto {
   @IsInt()
   kmAtEnd?: number;
 
-  @Field(() => Date, { nullable: true })
   @ApiProperty({
     example: "2025-01-15",
     description: "Date when the tire was unmounted",
@@ -35,7 +30,6 @@ export class UnmountTireDto {
   @Type(() => Date)
   unmountDate?: Date;
 
-  @Field(() => TireStatus, { nullable: true })
   @ApiProperty({
     example: TireStatus.IN_STOCK,
     description: "New status for the tire after unmounting",
@@ -46,7 +40,6 @@ export class UnmountTireDto {
   @IsEnum(TireStatus)
   newStatus?: TireStatus;
 
-  @Field({ nullable: true })
   @ApiProperty({ example: "Unmount due to rotation", required: false })
   @IsOptional()
   @IsString()

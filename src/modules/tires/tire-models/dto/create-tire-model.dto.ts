@@ -1,10 +1,7 @@
-import { InputType, Field, Int } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsOptional, IsNumber, IsInt } from "class-validator";
 
-@InputType()
 export class CreateTireModelDto {
-  @Field(() => Int)
   @ApiProperty({
     example: 1,
     description: "Brand ID (foreign key)",
@@ -12,7 +9,6 @@ export class CreateTireModelDto {
   @IsInt()
   brandId: number;
 
-  @Field(() => Int)
   @ApiProperty({
     example: 1,
     description: "Tire size ID (foreign key)",
@@ -20,7 +16,6 @@ export class CreateTireModelDto {
   @IsInt()
   sizeId: number;
 
-  @Field()
   @ApiProperty({
     example: "Agribib",
     description: "Model name",
@@ -28,7 +23,6 @@ export class CreateTireModelDto {
   @IsString()
   name: string;
 
-  @Field(() => Int, { nullable: true })
   @ApiProperty({
     example: 142,
     description: "Load index",
@@ -38,7 +32,6 @@ export class CreateTireModelDto {
   @IsNumber()
   loadIndex?: number;
 
-  @Field({ nullable: true })
   @ApiProperty({
     example: "A8",
     description: "Speed symbol",
@@ -48,7 +41,6 @@ export class CreateTireModelDto {
   @IsString()
   speedSymbol?: string;
 
-  @Field({ nullable: true })
   @ApiProperty({
     example: "8PR",
     description: "Ply rating",
@@ -58,7 +50,6 @@ export class CreateTireModelDto {
   @IsString()
   plyRating?: string;
 
-  @Field({ nullable: true })
   @ApiProperty({
     example: "R-1W",
     description: "Tread pattern",
@@ -68,7 +59,6 @@ export class CreateTireModelDto {
   @IsString()
   treadPattern?: string;
 
-  @Field({ nullable: true })
   @ApiProperty({
     example: "Neumático agrícola de alto rendimiento",
     description: "Additional information",

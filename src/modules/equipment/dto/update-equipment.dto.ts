@@ -1,5 +1,4 @@
-import { InputType, PartialType } from "@nestjs/graphql";
+import { PartialType } from "@nestjs/mapped-types";
 import { CreateEquipmentDto } from "./create-equipment.dto";
 
-@InputType()
 export class UpdateEquipmentDto extends PartialType(CreateEquipmentDto) { }

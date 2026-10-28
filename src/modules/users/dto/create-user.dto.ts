@@ -1,4 +1,3 @@
-import { InputType, Field, Int } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEmail,
@@ -13,9 +12,7 @@ import {
 } from "class-validator";
 import { Role } from "@prisma/client";
 
-@InputType()
 export class CreateUserDto {
-  @Field()
   @ApiProperty({
     description: "User email",
     example: "user@example.com",
@@ -24,7 +21,6 @@ export class CreateUserDto {
   @IsNotEmpty({ message: "Email is required" })
   email: string;
 
-  @Field()
   @ApiProperty({
     description: "User password",
     example: "password123",
@@ -34,7 +30,6 @@ export class CreateUserDto {
   @MinLength(6, { message: "Password must be at least 6 characters long" })
   password: string;
 
-  @Field()
   @ApiProperty({
     description: "User name",
     example: "John Doe",
@@ -43,7 +38,6 @@ export class CreateUserDto {
   @IsNotEmpty({ message: "Name is required" })
   name: string;
 
-  @Field({ nullable: true })
   @ApiProperty({
     description: "Username",
     example: "UserX",
@@ -53,7 +47,6 @@ export class CreateUserDto {
   @IsOptional()
   username?: string;
 
-  @Field(() => Role, { nullable: true })
   @ApiProperty({
     description: "User role",
     enum: Role,
@@ -73,7 +66,6 @@ export class CreateUserDto {
   @IsOptional()
   preferences?: Record<string, any>;
 
-  @Field(() => Int, { nullable: true })
   @ApiProperty({
     description: "Company ID",
     example: 1,
@@ -84,7 +76,6 @@ export class CreateUserDto {
   @IsOptional()
   companyId?: number;
 
-  @Field({ nullable: true })
   @ApiProperty({
     description: "Whether the user is active",
     example: true,

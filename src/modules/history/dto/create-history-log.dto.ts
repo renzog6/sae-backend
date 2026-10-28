@@ -1,4 +1,3 @@
-import { InputType, Field, Int } from "@nestjs/graphql";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsString,
@@ -10,9 +9,7 @@ import {
 import { HistoryType, SeverityLevel } from "@prisma/client";
 import { Type } from "class-transformer";
 
-@InputType()
 export class CreateHistoryLogDto {
-  @Field()
   @ApiProperty({
     description: "Title of the history log entry",
     example: "Employee Promotion",
@@ -20,7 +17,6 @@ export class CreateHistoryLogDto {
   @IsString()
   title: string;
 
-  @Field({ nullable: true })
   @ApiPropertyOptional({
     description: "Detailed description of the history log entry",
     example: "Employee was promoted to senior position",
@@ -29,7 +25,6 @@ export class CreateHistoryLogDto {
   @IsString()
   description?: string;
 
-  @Field(() => HistoryType)
   @ApiProperty({
     enum: HistoryType,
     description: "Type of history log entry",
@@ -38,7 +33,6 @@ export class CreateHistoryLogDto {
   @IsEnum(HistoryType)
   type: HistoryType;
 
-  @Field(() => SeverityLevel, { nullable: true })
   @ApiPropertyOptional({
     enum: SeverityLevel,
     description: "Severity level of the log entry",
@@ -48,7 +42,6 @@ export class CreateHistoryLogDto {
   @IsEnum(SeverityLevel)
   severity?: SeverityLevel;
 
-  @Field(() => Date, { nullable: true })
   @ApiPropertyOptional({
     description: "Date when the event occurred in ISO format",
     example: "2025-10-01T00:00:00.000Z",
@@ -58,7 +51,6 @@ export class CreateHistoryLogDto {
   @Type(() => Date)
   eventDate?: Date;
 
-  @Field(() => Int, { nullable: true })
   @ApiPropertyOptional({
     description: "ID of the associated employee",
     example: 1,
@@ -67,7 +59,6 @@ export class CreateHistoryLogDto {
   @IsNumber()
   employeeId?: number;
 
-  @Field(() => Int, { nullable: true })
   @ApiPropertyOptional({
     description: "ID of the associated company",
     example: 1,
@@ -76,7 +67,6 @@ export class CreateHistoryLogDto {
   @IsNumber()
   companyId?: number;
 
-  @Field(() => Int, { nullable: true })
   @ApiPropertyOptional({
     description: "ID of the associated equipment",
     example: 1,
@@ -85,7 +75,6 @@ export class CreateHistoryLogDto {
   @IsNumber()
   equipmentId?: number;
 
-  @Field(() => Int, { nullable: true })
   @ApiPropertyOptional({
     description: "ID of the associated person",
     example: 1,
@@ -94,7 +83,6 @@ export class CreateHistoryLogDto {
   @IsNumber()
   personId?: number;
 
-  @Field({ nullable: true })
   @ApiPropertyOptional({
     description: "Additional metadata as JSON string",
     example: '{"key": "value"}',

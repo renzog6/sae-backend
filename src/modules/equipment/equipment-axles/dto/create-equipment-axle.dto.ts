@@ -1,4 +1,3 @@
-import { InputType, Field, Int, registerEnumType } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEnum,
@@ -13,18 +12,11 @@ import {
 import { Type } from "class-transformer";
 import { AxleType, TireSide } from "@prisma/client";
 
-registerEnumType(TireSide, {
-  name: "TireSide",
-});
-
-@InputType()
 export class CreateEquipmentAxleDto {
-  @Field(() => Int)
   @ApiProperty({ example: 1, description: "Equipment ID" })
   @IsInt()
   equipmentId: number;
 
-  @Field(() => Int)
   @ApiProperty({
     example: 1,
     description: "Order number (1 for first axle, etc.)",
@@ -32,7 +24,6 @@ export class CreateEquipmentAxleDto {
   @IsInt()
   order: number;
 
-  @Field(() => AxleType)
   @ApiProperty({
     enum: AxleType,
     example: "DRIVE",
@@ -41,7 +32,6 @@ export class CreateEquipmentAxleDto {
   @IsEnum(AxleType)
   axleType: AxleType;
 
-  @Field(() => Int)
   @ApiProperty({
     example: 4,
     description: "Number of wheels on this axle",
@@ -49,7 +39,6 @@ export class CreateEquipmentAxleDto {
   @IsInt()
   wheelCount: number;
 
-  @Field({ nullable: true })
   @ApiProperty({
     example: "Front steering axle",
     description: "Optional description",
@@ -60,14 +49,11 @@ export class CreateEquipmentAxleDto {
   description?: string;
 }
 
-@InputType()
 export class CreateTirePositionDto {
-  @Field()
   @ApiProperty({ example: "E1I", description: "Position key (e.g., E1I, E1D)" })
   @IsString()
   positionKey: string;
 
-  @Field(() => TireSide)
   @ApiProperty({
     enum: TireSide,
     example: "LEFT",
@@ -76,7 +62,6 @@ export class CreateTirePositionDto {
   @IsEnum(TireSide)
   side: TireSide;
 
-  @Field()
   @ApiProperty({
     example: false,
     description: "Whether this position is for dual tires",
@@ -85,15 +70,12 @@ export class CreateTirePositionDto {
   isDual: boolean;
 }
 
-@InputType()
 export class CreateEquipmentAxleWithPositionsDto {
-  @Field(() => CreateEquipmentAxleDto)
   @ApiProperty({ type: CreateEquipmentAxleDto })
   @ValidateNested()
   @Type(() => CreateEquipmentAxleDto)
   axle: CreateEquipmentAxleDto;
 
-  @Field(() => [CreateTirePositionDto])
   @ApiProperty({
     type: [CreateTirePositionDto],
     description: "Array of tire positions to create for this axle",

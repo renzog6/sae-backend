@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { InputType, Field, Int } from "@nestjs/graphql";
 import {
   IsNotEmpty,
   IsOptional,
@@ -10,10 +9,8 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 
-@InputType()
 export class CreateCompanyDto {
   @ApiProperty({ description: "CUIT", example: "30-12345678-9" })
-  @Field(() => String)
   @MaxLength(13, { message: "El CUIT debe tener máximo 13 caracteres" })
   @Matches(/^\d{2}-\d{8}-\d{1}$/, {
     message: "El formato de CUIT debe ser XX-XXXXXXXX-X",
@@ -23,19 +20,16 @@ export class CreateCompanyDto {
   cuit: string;
 
   @ApiProperty({ description: "Nombre comercial", example: "Acme SRL" })
-  @Field(() => String)
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({ description: "Razón social", required: false })
-  @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
   businessName?: string;
 
   @ApiProperty({ description: "Información adicional", required: false })
-  @Field(() => String, { nullable: true })
   @IsString()
   @IsOptional()
   information?: string;
@@ -45,7 +39,6 @@ export class CreateCompanyDto {
     required: false,
     example: 1,
   })
-  @Field(() => Int, { nullable: true })
   @IsInt()
   @IsOptional()
   @Type(() => Number)
