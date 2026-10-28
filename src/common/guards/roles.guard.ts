@@ -8,6 +8,11 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
+    // Escape hatch exclusivo de la suite de tests (ver jwt-auth.guard.ts).
+    if (process.env.NODE_ENV === "test" && process.env.AUTH_BYPASS === "true") {
+      return true;
+    }
+
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),

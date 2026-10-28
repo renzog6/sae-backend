@@ -1,10 +1,13 @@
 // filepath: sae-backend/src/app.module.ts
 import { join } from "path";
 import { MiddlewareConsumer, Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
+import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
+import { RolesGuard } from "@common/guards/roles.guard";
 import { UsersModule } from "./modules/users/users.module";
 import { CompaniesModule } from "./modules/companies/companies.module";
 import { ContactsModule } from "./modules/contacts/contacts.module";
@@ -60,7 +63,12 @@ import { ValidatorsModule } from "@modules/validators/validators.module";
     ValidatorsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    // Autenticación por defecto en TODA la aplicación (fail-closed).
+    // Para abrir una ruta hay que marcarla explícitamente con @Public().
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

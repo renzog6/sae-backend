@@ -1,18 +1,24 @@
 // filepath: sae-backend/test/utils.ts
-import { INestApplication, CanActivate, ExecutionContext } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { JwtAuthGuard } from '../src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../src/common/guards/roles.guard';
 
-class AllowAllGuard implements CanActivate {
-  canActivate(_context: ExecutionContext): boolean {
-    return true;
-  }
+export interface TestingAppOptions {
+  /**
+   * Sustituye los guards por uno que permite todo.
+   *
+   * Por defecto `true` para no romper las suites existentes, que asumen que la
+   * autenticación ya está resuelta. Pasar `false` para probar la cadena real de
+   * autenticación (ver `auth-guard.e2e-spec.ts`).
+   */
+  allowAllGuards?: boolean;
 }
 
-export async function createTestingApp(prismaMock: Partial<PrismaService>) {
+export async function createTestingApp(
+  prismaMock: Partial<PrismaService>,
+  options: TestingAppOptions = {},
+) {
   // Create a resilient Prisma mock that provides default mocked methods
   const defaultModel = () => ({
     findMany: jest.fn(),
@@ -33,16 +39,22 @@ export async function createTestingApp(prismaMock: Partial<PrismaService>) {
     },
   });
 
-  const moduleFixture: TestingModule = await Test.createTestingModule({
+  const builder = Test.createTestingModule({
     imports: [AppModule],
   })
     .overrideProvider(PrismaService)
-    .useValue(resilientPrisma)
-    .overrideGuard(JwtAuthGuard)
-    .useClass(AllowAllGuard)
-    .overrideGuard(RolesGuard)
-    .useClass(AllowAllGuard)
-    .compile();
+    .useValue(resilientPrisma);
+
+  // Los guards globales se registran con el token APP_GUARD, que no se puede
+  // pisar con overrideProvider; por eso el bypass se hace por variable de
+  // entorno, que los guards respetan solo bajo NODE_ENV=test.
+  if (options.allowAllGuards ?? true) {
+    process.env.AUTH_BYPASS = 'true';
+  } else {
+    delete process.env.AUTH_BYPASS;
+  }
+
+  const moduleFixture: TestingModule = await builder.compile();
 
   const app: INestApplication = moduleFixture.createNestApplication();
   await app.init();

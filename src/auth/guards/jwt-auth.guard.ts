@@ -11,6 +11,13 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
   }
 
   canActivate(context: ExecutionContext) {
+    // Escape hatch exclusivo de la suite de tests: permite que las suites que no
+    // ejercitan autenticación no tengan que emitir tokens. Sólo se activa con
+    // NODE_ENV=test, así que no puede dispararse en producción.
+    if (process.env.NODE_ENV === "test" && process.env.AUTH_BYPASS === "true") {
+      return true;
+    }
+
     // Check if the route is marked as public
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
