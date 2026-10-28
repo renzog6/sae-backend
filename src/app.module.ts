@@ -64,6 +64,7 @@ import { ValidatorsModule } from "@modules/validators/validators.module";
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes("*"); // Aplica a todas las rutas
+    // Express 5 (Nest 11) no acepta el comodín suelto "*": hay que nombrarlo.
+    consumer.apply(LoggerMiddleware).forRoutes("{*splat}");
   }
 }

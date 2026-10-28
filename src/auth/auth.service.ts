@@ -42,15 +42,16 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get("JWT_SECRET"),
-      expiresIn: this.configService.get<string>("JWT_EXPIRATION") || "1d",
+      expiresIn: (this.configService.get<string>("JWT_EXPIRATION") ||
+        "1d") as any,
     });
 
     const refreshToken = this.jwtService.sign(payload, {
       secret:
         this.configService.get<string>("JWT_REFRESH_SECRET") ||
         "changeme-refresh",
-      expiresIn:
-        this.configService.get<string>("JWT_REFRESH_EXPIRATION") || "7d",
+      expiresIn: (this.configService.get<string>("JWT_REFRESH_EXPIRATION") ||
+        "7d") as any,
     });
 
     // Update last login timestamp
