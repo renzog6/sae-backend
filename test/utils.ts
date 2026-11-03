@@ -29,9 +29,20 @@ export async function createTestingApp(
     count: jest.fn(),
   });
 
-  const resilientPrisma = new Proxy({ ...(prismaMock as any) }, {
+  const resilientPrisma: any = new Proxy({ ...(prismaMock as any) }, {
     get(target, prop: string) {
       if (prop in target) return (target as any)[prop];
+      if (prop === "$transaction") {
+        return jest.fn(async (args) => {
+          if (Array.isArray(args)) {
+            return Promise.all(args);
+          }
+          if (typeof args === "function") {
+            return args(resilientPrisma);
+          }
+          return [];
+        });
+      }
       // return default mocked model for any unknown property (e.g., user, contact, etc.)
       const model = defaultModel();
       (target as any)[prop] = model;
