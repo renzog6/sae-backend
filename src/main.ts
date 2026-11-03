@@ -20,7 +20,32 @@ async function bootstrap() {
   const environment = configService.get<string>("NODE_ENV") || "development";
 
   // Configure CORS
-  app.enableCors();
+  // Lista blanca por variable de entorno (`CORS_ORIGINS`, separada por comas).
+  // Antes era `enableCors()` sin argumentos, que refleja cualquier origen: cualquier
+  // sitio podía invocar la API desde el navegador del usuario.
+  const corsEnv = configService.get<string>("CORS_ORIGINS");
+  const allowedOrigins = (corsEnv ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (allowedOrigins.length === 0) {
+    allowedOrigins.push("http://localhost:3003");
+    if (environment === "production") {
+      logger.warn(
+        "CORS_ORIGINS no está definido: se permite sólo http://localhost:3003. " +
+          "Configurá CORS_ORIGINS con los orígenes reales del frontend."
+      );
+    }
+  }
+
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  });
+
+  logger.log(`CORS permitido para: ${allowedOrigins.join(", ")}`);
 
   // Set global prefix
   app.setGlobalPrefix(apiPrefix);

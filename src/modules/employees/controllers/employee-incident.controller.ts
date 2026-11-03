@@ -38,7 +38,7 @@ export class EmployeeIncidentController extends BaseController<EmployeeIncident>
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Register a new incident" })
   @ApiBody({ type: CreateEmployeeIncidentDto })
   @ApiResponse({ status: 201, description: "Incident registered successfully" })
@@ -47,7 +47,7 @@ export class EmployeeIncidentController extends BaseController<EmployeeIncident>
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Get all incidents with filtering" })
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
@@ -58,7 +58,7 @@ export class EmployeeIncidentController extends BaseController<EmployeeIncident>
   }
 
   @Get("by-employee/:employeeId")
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Get incidents by employee ID" })
   async findByEmployee(
     @Param("employeeId", ParseIntPipe) employeeId: number,
@@ -68,7 +68,7 @@ export class EmployeeIncidentController extends BaseController<EmployeeIncident>
   }
 
   @Put(":id")
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Update an incident" })
   @ApiResponse({ status: 200, description: "Incident updated successfully" })
   override update(

@@ -31,7 +31,7 @@ export class EquipmentMaintenanceController extends BaseController<EquipmentMain
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({
     summary: "Register new maintenance",
     description: "Creates a new equipment maintenance record.",

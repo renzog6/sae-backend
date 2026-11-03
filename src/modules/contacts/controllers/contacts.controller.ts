@@ -33,7 +33,7 @@ export class ContactsController extends BaseController<Contact> {
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Create a new contact" })
   @ApiResponse({ status: 201, description: "Contact created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })

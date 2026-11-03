@@ -13316,7 +13316,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "default": "2026-10-28T14:51:19.381Z"
+            "default": "2026-10-28T15:03:17.603Z"
           },
           "description": {
             "type": "string"
@@ -13347,7 +13347,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "default": "2026-10-28T14:51:19.381Z"
+            "default": "2026-10-28T15:03:17.603Z"
           },
           "description": {
             "type": "string"
@@ -14361,7 +14361,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "example": "2026-10-28T14:51:20.560Z",
+            "example": "2026-10-28T15:03:19.029Z",
             "description": "Fecha del evento"
           },
           "kmAtEvent": {
