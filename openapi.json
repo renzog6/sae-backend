@@ -111,36 +111,7 @@
       }
     },
     "/api/users": {
-      "post": {
-        "operationId": "UsersController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Create user",
-        "tags": [
-          "users"
-        ]
-      },
       "get": {
-        "description": "Retrieves a paginated list of items based on query parameters such as page, limit, search, and filters.",
         "operationId": "UsersController_findAll",
         "parameters": [
           {
@@ -194,17 +165,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved paginated items",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginationResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid query parameters provided"
+            "description": ""
           }
         },
         "security": [
@@ -212,7 +173,35 @@
             "bearer": []
           }
         ],
-        "summary": "List all items with pagination",
+        "summary": "List users",
+        "tags": [
+          "users"
+        ]
+      },
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create user",
         "tags": [
           "users"
         ]
@@ -11692,51 +11681,6 @@
           }
         }
       },
-      "PaginationMetaDto": {
-        "type": "object",
-        "properties": {
-          "total": {
-            "type": "number",
-            "description": "Total number of records available"
-          },
-          "page": {
-            "type": "number",
-            "description": "Current page number (1-based)"
-          },
-          "limit": {
-            "type": "number",
-            "description": "Number of records per page"
-          },
-          "totalPages": {
-            "type": "number",
-            "description": "Total number of pages available"
-          }
-        },
-        "required": [
-          "total",
-          "page",
-          "limit",
-          "totalPages"
-        ]
-      },
-      "PaginationResponseDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "array"
-            }
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMetaDto"
-          }
-        },
-        "required": [
-          "data",
-          "meta"
-        ]
-      },
       "CreateCompanyDto": {
         "type": "object",
         "properties": {
@@ -11846,6 +11790,51 @@
             "example": true
           }
         }
+      },
+      "PaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "description": "Total number of records available"
+          },
+          "page": {
+            "type": "number",
+            "description": "Current page number (1-based)"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Number of records per page"
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total number of pages available"
+          }
+        },
+        "required": [
+          "total",
+          "page",
+          "limit",
+          "totalPages"
+        ]
+      },
+      "PaginationResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "array"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMetaDto"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
       },
       "CreateBusinessCategoryDto": {
         "type": "object",
@@ -13316,7 +13305,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "default": "2026-10-28T15:03:17.603Z"
+            "default": "2026-11-03T14:40:13.560Z"
           },
           "description": {
             "type": "string"
@@ -13347,7 +13336,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "default": "2026-10-28T15:03:17.603Z"
+            "default": "2026-11-03T14:40:13.560Z"
           },
           "description": {
             "type": "string"
@@ -14361,7 +14350,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "example": "2026-10-28T15:03:19.029Z",
+            "example": "2026-11-03T14:40:15.693Z",
             "description": "Fecha del evento"
           },
           "kmAtEvent": {

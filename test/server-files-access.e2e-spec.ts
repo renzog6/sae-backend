@@ -101,4 +101,28 @@ describe('server-files: control de acceso', () => {
     );
     expect(res.status).toBe(401);
   });
+describe("validación de tipo MIME y extensiones en upload (P0-3)", () => {
+    it("rechaza archivos ejecutables o con extensiones no permitidas (.exe)", async () => {
+      const res = await request(app.getHttpServer())
+        .post("/server-files/upload")
+        .set("Authorization", `Bearer ${tokenFor(userCompany1UserRole)}`)
+        .field("entityType", "COMPANY")
+        .field("entityId", 1)
+        .attach("file", Buffer.from("malicious payload"), "exploit.exe");
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/Tipo de archivo no permitido/i);
+    });
+
+    it("rechaza uploads sin archivo", async () => {
+      const res = await request(app.getHttpServer())
+        .post("/server-files/upload")
+        .set("Authorization", `Bearer ${tokenFor(userCompany1UserRole)}`)
+        .field("entityType", "COMPANY")
+        .field("entityId", 1);
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toMatch(/El archivo es obligatorio/i);
+    });
+  });
 });
