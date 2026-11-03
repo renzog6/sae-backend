@@ -1,4 +1,3 @@
-// filepath: sae-backend/src/modules/equipment/dto/create-equipment-axle.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEnum,

@@ -1,8 +1,6 @@
-//file: sae-backend/src/tires/tire-recaps/dto/create-tire-recap.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsNumber,

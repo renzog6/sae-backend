@@ -55,7 +55,7 @@ export class EquipmentListMapper {
       }));
     } catch (error) {
       throw new InternalServerErrorException(
-        `Failed to retrieve equipment list data: ${error.message}. Please check database connection and filter parameters.`
+        `Failed to retrieve equipment list data: ${(error as Error).message}. Please check database connection and filter parameters.`
       );
     }
   }

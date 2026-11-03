@@ -49,4 +49,4 @@ import { TirePositionsController } from "./tire-positions/tire-positions.control
     TirePositionsModule,
   ],
 })
-export class TiresModule {}
+export class TiresModule { }

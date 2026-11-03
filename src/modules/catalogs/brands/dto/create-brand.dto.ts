@@ -1,4 +1,5 @@
 //filepath: sae-backend/src/modules/catalogs/brands/dto/create-brand.dto.ts
+
 import {
   IsNotEmpty,
   IsOptional,

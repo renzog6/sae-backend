@@ -2,7 +2,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
-import { BaseQueryDto, BaseResponseDto } from "@common/dto";
+import { BaseResponseDto } from "@common/dto";
+import { GetCompaniesQueryDto } from "../dto/get-companies-query.dto";
 import { CreateCompanyDto } from "../dto/create-company.dto";
 import { UpdateCompanyDto } from "../dto/update-company.dto";
 
@@ -47,7 +48,7 @@ export class CompaniesService extends BaseService<any> {
   }
 
   async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
+    query: GetCompaniesQueryDto = new GetCompaniesQueryDto()
   ): Promise<BaseResponseDto<any>> {
     const include = {
       addresses: true,
@@ -55,7 +56,13 @@ export class CompaniesService extends BaseService<any> {
       businessCategory: true,
     };
 
-    return super.findAll(query, {}, include);
+    const where: any = {};
+
+    if (query.businessCategoryId) {
+      where.businessCategoryId = query.businessCategoryId;
+    }
+
+    return super.findAll(query, where, include);
   }
 
   async findOne(id: string) {

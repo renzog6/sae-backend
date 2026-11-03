@@ -1,6 +1,5 @@
-// filepath: sae-backend/src/modules/equipment/equipment-transaction/dto/create-equipment-transaction.dto.ts
 import {
-  IsDateString,
+  IsDate,
   IsEnum,
   IsInt,
   IsNumber,
@@ -10,7 +9,8 @@ import {
   IsPositive,
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { EquipmentTransactionType } from "../enums/equipment-transaction-type.enum";
+import { EquipmentTransactionType, Currency } from "@prisma/client";
+import { Type } from "class-transformer";
 
 export class CreateEquipmentTransactionDto {
   @ApiProperty({ description: "Equipment ID" })
@@ -31,8 +31,9 @@ export class CreateEquipmentTransactionDto {
   type: EquipmentTransactionType;
 
   @ApiProperty({ description: "Transaction date" })
-  @IsDateString()
-  date: string;
+  @IsDate()
+  @Type(() => Date)
+  date: Date;
 
   @ApiProperty({ description: "Transaction amount" })
   @IsNumber()
@@ -40,8 +41,8 @@ export class CreateEquipmentTransactionDto {
   amount: number;
 
   @ApiProperty({ description: "Currency code (ARS, USD, etc.)" })
-  @IsString()
-  currency: string;
+  @IsEnum(Currency)
+  currency: Currency;
 
   @ApiPropertyOptional({ description: "Exchange rate" })
   @IsOptional()

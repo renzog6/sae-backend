@@ -7,4 +7,4 @@ import { PrismaService } from "@prisma/prisma.service";
   controllers: [UnitsController],
   providers: [UnitsService, PrismaService],
 })
-export class UnitsModule {}
+export class UnitsModule { }

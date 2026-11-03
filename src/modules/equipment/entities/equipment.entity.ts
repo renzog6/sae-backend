@@ -4,6 +4,15 @@ import {
   EquipmentStatus,
   FuelType,
 } from "@prisma/client";
+import { Company } from "@modules/companies/entities/company.entity";
+import { EquipmentCategory } from "../equipment-categories/entity/equipment-category.entity";
+import { EquipmentType } from "../equipment-types/entity/equipment-type.entity";
+import { EquipmentModel } from "../equipment-models/entity/equipment-model.entity";
+import { EquipmentAxle } from "../equipment-axles/entity/equipment-axle.entity";
+import { EquipmentMaintenance } from "../equipment-maintenance/entity/equipment-maintenance.entity";
+import { EquipmentTransaction } from "../equipment-transaction/entity/equipment-transaction.entity";
+
+// Register enums for GraphQL
 
 export class Equipment implements Partial<PrismaEquipment> {
   @ApiProperty()
@@ -45,14 +54,22 @@ export class Equipment implements Partial<PrismaEquipment> {
   @ApiProperty({ required: false })
   companyId?: number;
 
+  company?: Company;
+
   @ApiProperty({ required: false })
   categoryId?: number;
+
+  category?: EquipmentCategory;
 
   @ApiProperty({ required: false })
   typeId?: number;
 
+  type?: EquipmentType;
+
   @ApiProperty({ required: false })
   modelId?: number;
+
+  model?: EquipmentModel;
 
   @ApiProperty()
   isActive: boolean;
@@ -65,4 +82,11 @@ export class Equipment implements Partial<PrismaEquipment> {
 
   @ApiProperty()
   updatedAt: Date;
+
+  // Relations
+  axles?: EquipmentAxle[];
+
+  maintenances?: EquipmentMaintenance[];
+
+  transactions?: EquipmentTransaction[];
 }

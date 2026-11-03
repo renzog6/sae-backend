@@ -1,19 +1,32 @@
-// filepath: sae-backend/src/modules/tires/tire-inspections/dto/tire-inspections-query.dto.ts
-import { BaseQueryDto } from "@common/dto";
 import {
   IsOptional,
   IsNumber,
-  IsEnum,
   IsString,
   IsDate,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
-/**
- * Extends BaseQueryDto to include tire-inspections-specific filters.
- */
-export class TireInspectionsQueryDto extends BaseQueryDto {
+export class TireInspectionsQueryDto {
+  @ApiPropertyOptional({
+    description: "Page number (1-based)",
+    example: 1,
+  })
+  @IsOptional()
+  page?: number = 1;
+
+  @ApiPropertyOptional({
+    description: "Items per page",
+    example: 10,
+  })
+  @IsOptional()
+  limit?: number = 10;
+
+  @ApiPropertyOptional({ description: "Search query", example: "search term" })
+  @IsOptional()
+  @IsString()
+  q?: string;
+
   @ApiPropertyOptional({
     description: "Filter by tire ID",
     example: 1,
@@ -65,4 +78,12 @@ export class TireInspectionsQueryDto extends BaseQueryDto {
   @IsOptional()
   @Type(() => Number)
   minTreadDepth?: number;
+
+  get skip(): number {
+    return ((this.page || 1) - 1) * (this.limit || 10);
+  }
+
+  get take(): number {
+    return this.limit || 10;
+  }
 }

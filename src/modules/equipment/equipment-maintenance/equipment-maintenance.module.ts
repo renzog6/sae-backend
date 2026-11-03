@@ -4,6 +4,7 @@ import { EquipmentMaintenanceController } from "./equipment-maintenance.controll
 import { PrismaModule } from "@prisma/prisma.module";
 import { HistoryModule } from "@modules/history/history.module";
 
+
 @Module({
     imports: [PrismaModule, HistoryModule],
     controllers: [EquipmentMaintenanceController],

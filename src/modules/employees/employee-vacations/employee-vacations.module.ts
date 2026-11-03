@@ -2,11 +2,13 @@
 import { Module, forwardRef } from "@nestjs/common";
 import { EmployeeVacationsService } from "./employee-vacations.service";
 import { EmployeeVacationsController } from "./employee-vacations.controller";
+import { PrismaModule } from "@prisma/prisma.module";
 import { HistoryModule } from "../../history/history.module";
 
 @Module({
-  imports: [forwardRef(() => HistoryModule)],
+  imports: [PrismaModule, forwardRef(() => HistoryModule)],
   controllers: [EmployeeVacationsController],
   providers: [EmployeeVacationsService],
+  exports: [EmployeeVacationsService],
 })
 export class EmployeeVacationsModule {}

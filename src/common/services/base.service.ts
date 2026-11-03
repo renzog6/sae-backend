@@ -156,24 +156,24 @@ export abstract class BaseService<T extends { id: number | string }> {
   }
 
   // --- Soft delete (si es soportado), o hard delete si no existe deletedAt
-  async remove(id: number | string): Promise<{ message: string }> {
+  async remove(id: number | string): Promise<{ data?: T; message: string }> {
     const hasDeletedAt = await this.hasDeletedAt();
     await this.findOne(id); // ensure exists (respects soft delete)
 
     if (hasDeletedAt) {
-      await this.getModel().update({
+      const record = await this.getModel().update({
         where: { id },
         data: { deletedAt: new Date(), isActive: false } as any,
       });
-      return { message: "Record soft-deleted successfully" };
+      return { data: record, message: "Record soft-deleted successfully" };
     } else {
-      await this.getModel().delete({ where: { id } });
-      return { message: "Record hard-deleted successfully" };
+      const record = await this.getModel().delete({ where: { id } });
+      return { data: record, message: "Record hard-deleted successfully" };
     }
   }
 
   // --- Restore soft-deleted
-  async restore(id: number | string): Promise<{ data: T }> {
+  async restore(id: number | string): Promise<SingleResponseDto<T>> {
     const hasDeletedAt = await this.hasDeletedAt();
 
     if (!hasDeletedAt) {
@@ -186,7 +186,7 @@ export abstract class BaseService<T extends { id: number | string }> {
       data: { deletedAt: null, isActive: true } as any,
     });
 
-    return { data: record };
+    return new SingleResponseDto<T>(record);
   }
 
   // --- Hard delete explicit

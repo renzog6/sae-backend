@@ -6,22 +6,22 @@ import {
   Body,
   Param,
   UseGuards,
-  Query,
 } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { BaseQueryDto } from "@common/dto";
 import { ContactsService } from "../services/contacts.service";
 import { CreateContactDto } from "../dto/create-contact.dto";
-// import { UpdateContactDto } from "../dto/update-contact.dto";
 import { Contact } from "../entities/contact.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put, ParseIntPipe } from "@nestjs/common";
+import { UpdateContactDto } from "../dto/update-contact.dto";
 
 @ApiTags("contacts")
 @Controller("contacts")
@@ -33,7 +33,7 @@ export class ContactsController extends BaseController<Contact> {
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Create a new contact" })
   @ApiResponse({ status: 201, description: "Contact created successfully" })
   @ApiResponse({ status: 400, description: "Bad request" })
@@ -41,35 +41,24 @@ export class ContactsController extends BaseController<Contact> {
     return this.contactsService.create(createContactDto);
   }
 
-  // findAll and findOne are standard now. 
-  // BaseController uses 'id' as number. ContactsService now uses 'number'. 
-  // BaseController.findOne(id) calls service.findOne(id). 
-  // BaseController.create(dto) calls service.create(dto).
-  // BaseController.update(id, dto) calls service.update(id, dto).
-  // BaseController.remove(id) calls service.remove(id).
-
-  // ContactsController override `create` had specific decorators. I kept them above.
-
-  // Custom methods:
-
-  @Get("company/:companyId(\\d+)")
-  @ApiOperation({ summary: "Get contacts by company ID" })
+  @Get("person/:personId")
+  @ApiOperation({
+    summary: "Get contacts by person",
+    description: "Retrieves all contacts associated with a specific person.",
+  })
+  @ApiParam({
+    name: "personId",
+    type: "number",
+    description: "Unique identifier of the person",
+  })
   @ApiResponse({ status: 200, description: "Contacts retrieved successfully" })
-  findByCompany(
-    @Param("companyId") companyId: string,
-    @Query() query: BaseQueryDto
-  ) {
-    return this.contactsService.findByCompany(companyId, query);
+  @ApiResponse({ status: 404, description: "Person not found" })
+  byPerson(@Param("personId") personId: string) {
+    return this.contactsService.findByPerson(+personId);
   }
 
-  @Get("person/:personId(\\d+)")
-  @ApiOperation({ summary: "Get contacts by person ID" })
-  @ApiResponse({ status: 200, description: "Contacts retrieved successfully" })
-  findByPerson(
-    @Param("personId") personId: string,
-    @Query() query: BaseQueryDto
-  ) {
-    return this.contactsService.findByPerson(personId, query);
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateContactDto) {
+    return super.update(id, dto);
   }
 }
-

@@ -1,4 +1,3 @@
-// filepath: sae-backend/src/modules/tires/dto/create-tire.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, IsOptional, IsString, IsEnum } from "class-validator";
 import { TireStatus, TirePosition } from "@prisma/client";

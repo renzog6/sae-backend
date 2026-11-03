@@ -1,14 +1,14 @@
-// filepath: sae-backend/src/modules/equipment/dto/create-equipment-maintenance.dto.ts
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsEnum,
   IsString,
   IsOptional,
   IsNumber,
-  IsDateString,
+  IsDate,
   IsBoolean,
 } from "class-validator";
 import { MaintenanceType } from "@prisma/client";
+import { Type } from "class-transformer";
 
 export class CreateEquipmentMaintenanceDto {
   @ApiProperty({
@@ -38,16 +38,18 @@ export class CreateEquipmentMaintenanceDto {
     description: "Start date of the maintenance in ISO format",
     example: "2025-10-01T00:00:00.000Z",
   })
-  @IsDateString()
-  startDate: string;
+  @IsDate()
+  @Type(() => Date)
+  startDate: Date;
 
   @ApiPropertyOptional({
     description: "End date of the maintenance in ISO format",
     example: "2025-10-01T12:00:00.000Z",
   })
   @IsOptional()
-  @IsDateString()
-  endDate?: string;
+  @IsDate()
+  @Type(() => Date)
+  endDate?: Date;
 
   @ApiPropertyOptional({
     description: "Name of the technician who performed the maintenance",

@@ -8,6 +8,9 @@ import { BrandsService } from "./brands.service";
 import { Brand } from "./entities/brand.entity";
 
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Body, Post, Put } from "@nestjs/common";
+import { CreateBrandDto } from "./dto/create-brand.dto";
+import { UpdateBrandDto } from "./dto/update-brand.dto";
 
 @ApiTags("brands")
 @Controller("brands")
@@ -22,5 +25,14 @@ export class BrandsController extends BaseController<Brand> {
   @ApiParam({ name: "id", type: "number" })
   override remove(@Param("id", ParseIntPipe) id: number) {
     return super.remove(id);
+  }
+  @Post()
+  create(@Body() dto: CreateBrandDto) {
+    return super.create(dto);
+  }
+
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateBrandDto) {
+    return super.update(id, dto);
   }
 }

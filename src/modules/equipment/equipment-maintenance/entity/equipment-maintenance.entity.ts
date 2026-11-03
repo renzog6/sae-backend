@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { EquipmentMaintenance as PrismaEquipmentMaintenance, MaintenanceType } from "@prisma/client";
+import { Equipment } from "../../entities/equipment.entity";
 
 export class EquipmentMaintenance implements Partial<PrismaEquipmentMaintenance> {
     @ApiProperty()
@@ -23,8 +24,12 @@ export class EquipmentMaintenance implements Partial<PrismaEquipmentMaintenance>
     @ApiProperty({ required: false })
     technician?: string;
 
+    warranty?: boolean;
+
     @ApiProperty()
     equipmentId: number;
+
+    equipment?: Equipment;
 
     @ApiProperty()
     createdAt: Date;

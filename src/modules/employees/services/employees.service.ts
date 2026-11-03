@@ -355,4 +355,18 @@ export class EmployeesService extends BaseService<any> {
   async remove(id: number): Promise<{ message: string }> {
     return await super.remove(id);
   }
+
+  async getHistory(employeeId: number) {
+    const incidents = await this.prisma.employeeIncident.findMany({
+      where: { employeeId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const logs = await this.historyLogService.findByEntity("employee", employeeId);
+
+    return {
+      incidents,
+      logs,
+    };
+  }
 }

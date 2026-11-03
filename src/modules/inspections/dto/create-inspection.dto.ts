@@ -1,11 +1,13 @@
-import { IsString, IsOptional, IsInt, IsDateString } from "class-validator";
+import { IsString, IsOptional, IsInt, IsDate } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 
 export class CreateInspectionDto {
     @ApiProperty({ default: new Date() })
-    @IsDateString()
+    @IsDate()
     @IsOptional()
-    date?: string;
+    @Type(() => Date)
+    date?: Date;
 
     @ApiPropertyOptional()
     @IsString()

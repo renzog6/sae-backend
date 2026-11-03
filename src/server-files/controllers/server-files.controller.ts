@@ -8,8 +8,11 @@ import {
   UploadedFile,
   UseInterceptors,
   Res,
+  Req,
   NotFoundException,
+  BadRequestException,
   Query,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
@@ -29,8 +32,10 @@ import { extname, join, isAbsolute } from "path";
 import { Response } from "express";
 import { existsSync, mkdirSync } from "fs";
 import { ServerFilesService } from "../services/server-files.service";
+import { AuthenticatedUser } from "../services/server-files.service";
 import { StorageFactory } from "../factory/storage.factory";
 import { UploadFileDto } from "../dto/upload-file.dto";
+import { ALLOWED_MIME_TYPES, ALLOWED_EXTENSIONS, MAX_FILE_SIZE_BYTES } from "../constants/allowed-file-types";
 
 const TEMP_UPLOAD_DIR = join(process.cwd(), "storage", "uploads", "temp");
 
@@ -94,6 +99,7 @@ export class ServerFilesController {
     },
   })
   async findAll(
+    @Req() req: { user: AuthenticatedUser },
     @Query("employeeId") employeeId?: string,
     @Query("companyId") companyId?: string
   ) {
@@ -101,7 +107,7 @@ export class ServerFilesController {
     if (employeeId) filter.employeeId = +employeeId;
     if (companyId) filter.companyId = +companyId;
 
-    return this.serverFilesService.findAll(filter);
+    return this.serverFilesService.findAllForUser(filter, req.user);
   }
 
   @Post("upload")
@@ -148,11 +154,27 @@ export class ServerFilesController {
         filename: (req, file, cb) => {
           const uniqueSuffix =
             Date.now() + "-" + Math.round(Math.random() * 1e9);
-          cb(null, uniqueSuffix + extname(file.originalname));
+          cb(null, uniqueSuffix + extname(file.originalname).toLowerCase());
         },
       }),
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB limit
+        fileSize: MAX_FILE_SIZE_BYTES,
+      },
+      fileFilter: (req, file, cb) => {
+        const ext = extname(file.originalname || "").toLowerCase();
+        const isMimeAllowed = (ALLOWED_MIME_TYPES as readonly string[]).includes(file.mimetype);
+        const isExtAllowed = (ALLOWED_EXTENSIONS as readonly string[]).includes(ext);
+
+        if (!isMimeAllowed || !isExtAllowed) {
+          return cb(
+            new BadRequestException(
+              `Tipo de archivo no permitido: '${file.originalname}' (${file.mimetype}). ` +
+                `Formatos permitidos: imágenes (JPG, PNG, WebP, GIF), PDFs y documentos de oficina (Word, Excel, CSV, TXT).`
+            ),
+            false
+          );
+        }
+        cb(null, true);
       },
     })
   )
@@ -160,6 +182,9 @@ export class ServerFilesController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: UploadFileDto
   ) {
+    if (!file) {
+      throw new BadRequestException("El archivo es obligatorio");
+    }
     const strategy = this.storageFactory.getStrategy(body.entityType);
     return this.serverFilesService.upload(
       file,
@@ -189,8 +214,13 @@ export class ServerFilesController {
   @ApiNotFoundResponse({
     description: "File not found with the specified ID",
   })
-  async download(@Param("id") id: string, @Res() res: Response) {
-    const doc = await this.serverFilesService.findOne(+id);
+  async download(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: { user: AuthenticatedUser },
+    @Res() res: Response
+  ) {
+    // findOneForUser valida que el archivo pertenezca a la empresa del usuario
+    const doc = await this.serverFilesService.findOneForUser(id, req.user);
     const filePath = isAbsolute(doc.data.path)
       ? doc.data.path
       : join(process.cwd(), doc.data.path);

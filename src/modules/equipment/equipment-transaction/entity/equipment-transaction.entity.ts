@@ -1,5 +1,7 @@
-// filepath: sae-backend/src/modules/equipment/equipment-transaction/entity/equipment-transaction.entity.ts
 import { ApiProperty } from "@nestjs/swagger";
+import { EquipmentTransactionType, Currency } from "@prisma/client";
+import { Equipment } from "../../entities/equipment.entity";
+import { Company } from "../../../companies/entities/company.entity";
 
 export class EquipmentTransaction {
   @ApiProperty()
@@ -12,7 +14,7 @@ export class EquipmentTransaction {
   companyId: number;
 
   @ApiProperty()
-  type: string;
+  type: EquipmentTransactionType;
 
   @ApiProperty({ name: "transactionDate" })
   transactionDate: Date;
@@ -21,7 +23,7 @@ export class EquipmentTransaction {
   amount: number;
 
   @ApiProperty()
-  currency: string;
+  currency: Currency;
 
   @ApiProperty({ required: false })
   exchangeRate?: number;
@@ -36,16 +38,8 @@ export class EquipmentTransaction {
   updatedAt: Date;
 
   @ApiProperty({ required: false })
-  equipment?: {
-    id: number;
-    name?: string;
-    internalCode?: string;
-  };
+  equipment?: Equipment;
 
   @ApiProperty({ required: false })
-  company?: {
-    id: number;
-    name: string;
-    businessName?: string;
-  };
+  company?: Company;
 }

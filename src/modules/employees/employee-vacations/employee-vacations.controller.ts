@@ -24,6 +24,8 @@ import { EmployeeVacation } from "./entities/employee-vacation.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put } from "@nestjs/common";
+import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";
 
 @ApiTags("employee-vacations")
 @Controller("employee-vacations")
@@ -67,5 +69,9 @@ export class EmployeeVacationsController extends BaseController<EmployeeVacation
     });
 
     res.end(buffer);
+  }
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateEmployeeVacationDto) {
+    return super.update(id, dto);
   }
 }

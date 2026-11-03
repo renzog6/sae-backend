@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { EquipmentType as PrismaEquipmentType } from "@prisma/client";
+import { EquipmentCategory } from "../../equipment-categories/entity/equipment-category.entity";
 
 export class EquipmentType implements Partial<PrismaEquipmentType> {
     @ApiProperty()
@@ -16,4 +17,6 @@ export class EquipmentType implements Partial<PrismaEquipmentType> {
 
     @ApiProperty({ required: false })
     categoryId: number;
+
+    category?: EquipmentCategory;
 }

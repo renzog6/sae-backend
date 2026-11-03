@@ -9,4 +9,4 @@ import { PrismaService } from "@prisma/prisma.service";
   providers: [TireSizesService, PrismaService],
   exports: [TireSizesService],
 })
-export class TireSizesModule {}
+export class TireSizesModule { }

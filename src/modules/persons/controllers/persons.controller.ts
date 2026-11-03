@@ -26,6 +26,8 @@ import { Person } from "../entities/person.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { ParseIntPipe } from "@nestjs/common";
+import { UpdatePersonDto } from "../dto/update-person.dto";
 
 @ApiTags("persons")
 @Controller("persons")
@@ -58,5 +60,8 @@ export class PersonsController extends BaseController<Person> {
   // findAll, findOne, update, remove are standard in BaseController
   // We override create just to keep the specific Swagger decorators for CreatePersonDto if needed.
   // Actually BaseController accepts 'any' for DTO, so overriding allows typing.
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdatePersonDto) {
+    return super.update(id, dto);
+  }
 }
-

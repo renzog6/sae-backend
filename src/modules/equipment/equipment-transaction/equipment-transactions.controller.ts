@@ -25,6 +25,8 @@ import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
 import { EquipmentTransaction } from "./entity/equipment-transaction.entity";
+import { Put } from "@nestjs/common";
+import { UpdateEquipmentTransactionDto } from "./dto/update-equipment-transaction.dto";
 
 @ApiTags("equipment-transactions")
 @Controller("equipment-transactions")
@@ -82,5 +84,9 @@ export class EquipmentTransactionsController extends BaseController<EquipmentTra
     @Param("equipmentId", ParseIntPipe) equipmentId: number
   ) {
     return this.equipmentTransactionsService.findByEquipment(equipmentId);
+  }
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateEquipmentTransactionDto) {
+    return super.update(id, dto);
   }
 }

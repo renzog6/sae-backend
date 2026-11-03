@@ -46,7 +46,7 @@ export class TireListMapper {
       }));
     } catch (error) {
       throw new InternalServerErrorException(
-        `Failed to retrieve tire list data: ${error.message}. Please check database connection and filter parameters.`
+        `Failed to retrieve tire list data: ${(error as Error).message}. Please check database connection and filter parameters.`
       );
     }
   }

@@ -15,6 +15,10 @@ export class CountriesService extends BaseService<any> {
     return this.prisma.country;
   }
 
+  protected override async hasDeletedAt(): Promise<boolean> {
+    return false;
+  }
+
   protected buildSearchConditions(q: string) {
     return [{ name: { contains: q } }, { isoCode: { contains: q } }];
   }

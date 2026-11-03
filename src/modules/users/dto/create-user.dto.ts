@@ -1,4 +1,3 @@
-// filepath: sae-backend/src/modules/users/dto/create-user.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEmail,

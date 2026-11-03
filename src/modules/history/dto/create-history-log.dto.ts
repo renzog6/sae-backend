@@ -1,4 +1,3 @@
-// filepath: sae-backend/src/modules/history/dto/create-history-log.dto.ts
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsString,
@@ -6,9 +5,9 @@ import {
   IsEnum,
   IsDate,
   IsNumber,
-  IsObject,
 } from "class-validator";
 import { HistoryType, SeverityLevel } from "@prisma/client";
+import { Type } from "class-transformer";
 
 export class CreateHistoryLogDto {
   @ApiProperty({
@@ -49,6 +48,7 @@ export class CreateHistoryLogDto {
   })
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   eventDate?: Date;
 
   @ApiPropertyOptional({

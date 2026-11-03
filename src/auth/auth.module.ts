@@ -17,7 +17,10 @@ import { PrismaModule } from "@prisma/prisma.module";
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get("JWT_SECRET"),
         signOptions: {
-          expiresIn: configService.get<string>("JWT_EXPIRATION") || "1d",
+          // @nestjs/jwt 11 tipa expiresIn como number | StringValue (ms);
+          // la variable de entorno es un string libre, de ahí el cast.
+          expiresIn: (configService.get<string>("JWT_EXPIRATION") ||
+            "1d") as any,
         },
       }),
     }),

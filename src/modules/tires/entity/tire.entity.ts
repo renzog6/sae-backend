@@ -1,5 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Tire as PrismaTire, TireStatus, TirePosition } from "@prisma/client";
+import { TireModel } from "../tire-models/entity/tire-model.entity";
+import { TireAssignment } from "../entities/tire-assignment.entity";
+import { TireInspection } from "../entities/tire-inspection.entity";
+import { TireRecap } from "../entities/tire-recap.entity";
+import { TireRotation } from "../entities/tire-rotation.entity";
+import { TireEvent } from "../entities/tire-event.entity";
 
 export class Tire implements Partial<PrismaTire> {
     @ApiProperty()
@@ -10,6 +16,8 @@ export class Tire implements Partial<PrismaTire> {
 
     @ApiProperty()
     modelId: number;
+
+    model?: TireModel;
 
     @ApiProperty({ required: false, enum: TirePosition })
     position?: TirePosition;
@@ -40,4 +48,15 @@ export class Tire implements Partial<PrismaTire> {
 
     @ApiProperty()
     updatedAt: Date;
+
+    // Relations
+    assignments?: TireAssignment[];
+
+    inspections?: TireInspection[];
+
+    recaps?: TireRecap[];
+
+    rotations?: TireRotation[];
+
+    events?: TireEvent[];
 }

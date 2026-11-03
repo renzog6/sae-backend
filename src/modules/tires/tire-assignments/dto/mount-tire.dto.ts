@@ -1,6 +1,6 @@
-// filepath: sae-backend/src/modules/tires/tire-assignments/dto/mount-tire.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsInt, IsOptional, IsString, IsDate } from "class-validator";
+import { Type } from "class-transformer";
 
 export class MountTireDto {
   @ApiProperty({ example: 1, description: "Tire id" })
@@ -29,8 +29,9 @@ export class MountTireDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  mountDate?: string;
+  @IsDate()
+  @Type(() => Date)
+  mountDate?: Date;
 
   @ApiProperty({ example: "Mount for seasonal campaign", required: false })
   @IsOptional()

@@ -8,13 +8,11 @@ done
 
 echo "✅ MySQL is ready"
 
-if [ "$NODE_ENV" = "production" ]; then
-  echo "📦 Skipping Prisma migrations (user request)"
-  # npx prisma migrate deploy
-else
-  echo "🧪 Skipping schema sync (user request)"
-  # npx prisma db push
-fi
+# Aplica las migraciones pendientes antes de arrancar. Es idempotente: si no hay
+# nada nuevo, no hace nada. Ya no se usa `db push` (generaría drift contra el
+# historial de migraciones).
+echo "📦 Applying pending Prisma migrations"
+npx prisma migrate deploy
 
 echo "🚀 Starting backend"
 exec node dist/src/main.js

@@ -17,4 +17,4 @@ import { HistoryLogController } from "./controllers/history-log.controller";
   controllers: [HistoryLogController],
   exports: [HistoryLogService],
 })
-export class HistoryModule {}
+export class HistoryModule { }

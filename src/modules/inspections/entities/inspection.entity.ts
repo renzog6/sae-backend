@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Inspection as PrismaInspection } from "@prisma/client";
+import { Equipment } from "@modules/equipment/entities/equipment.entity";
+import { Employee } from "@modules/employees/entities/employee.entity";
 
 export class Inspection implements Partial<PrismaInspection> {
     @ApiProperty()
@@ -17,8 +19,12 @@ export class Inspection implements Partial<PrismaInspection> {
     @ApiProperty()
     equipmentId: number;
 
+    equipment?: Equipment;
+
     @ApiProperty()
     employeeId: number;
+
+    employee?: Employee;
 
     @ApiProperty()
     inspectionTypeId: number;

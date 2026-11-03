@@ -24,6 +24,8 @@ import { Family } from "../entities/family.entity";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { ParseIntPipe } from "@nestjs/common";
+import { UpdateFamilyDto } from "../dto/update-family.dto";
 
 @ApiTags("family")
 @Controller("persons/family")
@@ -65,5 +67,8 @@ export class FamilyController extends BaseController<Family> {
   // I'll add @Roles(Role.ADMIN, Role.USER) to the class if possible, or override.
   // But Roles decorator is method-level usually.
   // Let's assume standard Admin/User access is desired.
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateFamilyDto) {
+    return super.update(id, dto);
+  }
 }
-

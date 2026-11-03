@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Province as PrismaProvince } from "@prisma/client";
+import { Country } from "../../countries/entities/country.entity";
+import { City } from "../../cities/entities/city.entity";
 
 export class Province implements Partial<PrismaProvince> {
     @ApiProperty()
@@ -7,4 +9,8 @@ export class Province implements Partial<PrismaProvince> {
 
     @ApiProperty()
     name: string;
+
+    country?: Country;
+
+    cities?: City[];
 }

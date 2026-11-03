@@ -1,4 +1,3 @@
-//filepath: sae-backend/src/tires/tire-models/dto/create-tire-model.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsOptional, IsNumber, IsInt } from "class-validator";
 

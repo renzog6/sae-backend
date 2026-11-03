@@ -22,6 +22,8 @@ import { City } from "./entities/city.entity";
 import { JwtAuthGuard } from "@auth/guards/jwt-auth.guard";
 import { RolesGuard } from "@common/guards/roles.guard";
 import { Roles, Role } from "@common/decorators/roles.decorator";
+import { Put, ParseIntPipe } from "@nestjs/common";
+import { UpdateCityDto } from "./dto/update-city.dto";
 
 @ApiTags("locations/cities")
 @Controller("locations/cities")
@@ -70,5 +72,14 @@ export class CitiesController extends BaseController<City> {
   @ApiResponse({ status: 404, description: "City not found" })
   byPostalCode(@Param("postalCode") postalCode: string) {
     return this.citiesService.findByPostalCode(postalCode);
+  }
+  @Post()
+  create(@Body() dto: CreateCityDto) {
+    return super.create(dto);
+  }
+
+  @Put(":id")
+  update(@Param("id", ParseIntPipe) id: number, @Body() dto: UpdateCityDto) {
+    return super.update(id, dto);
   }
 }

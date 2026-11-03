@@ -41,7 +41,7 @@ export class EmployeesController extends BaseController<Employee> {
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: "Get all employees" })
   @ApiResponse({ status: 200, description: "List of employees retrieved successfully" })
   override findAll(@Query() query: EmployeeQueryDto) {
@@ -66,6 +66,15 @@ export class EmployeesController extends BaseController<Employee> {
   @ApiParam({ name: "id", type: "number" })
   override remove(@Param("id", ParseIntPipe) id: number) {
     return super.remove(id);
+  }
+
+  @Get(":id/history")
+  @Roles(Role.ADMIN, Role.USER)
+  @ApiOperation({ summary: "Get employee history" })
+  @ApiParam({ name: "id", type: "number" })
+  @ApiResponse({ status: 200, description: "Employee history retrieved successfully" })
+  getHistory(@Param("id", ParseIntPipe) id: number) {
+    return this.employeesService.getHistory(id);
   }
 }
 

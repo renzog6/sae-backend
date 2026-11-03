@@ -1,4 +1,4 @@
-// src/common/dto/base-query.dto.ts
+// filepath: sae-backend/src/common/dto/base-query.dto.ts
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsOptional, IsNumber, IsString, Min, Max } from "class-validator";
@@ -20,13 +20,13 @@ export class BaseQueryDto extends SoftDeleteDto {
     description: "Items per page. If set to 0, pagination is disabled",
     example: 10,
     minimum: 0,
-    maximum: 100,
+    maximum: 9999,
   })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  @Max(100)
+  @Max(9999)
   limit?: number = 10;
 
   private _skip?: number;

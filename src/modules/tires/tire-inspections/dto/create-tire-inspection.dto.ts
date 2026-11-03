@@ -1,6 +1,6 @@
-//filepath: sae-backend/src/tires/tire-inspections/dto/create-tire-inspection.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, IsOptional, IsString, IsDate, IsNumber } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateTireInspectionDto {
   @ApiProperty({ example: 1, description: "Tire ID to inspect" })
@@ -14,6 +14,7 @@ export class CreateTireInspectionDto {
   })
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   inspectionDate?: Date;
 
   @ApiProperty({

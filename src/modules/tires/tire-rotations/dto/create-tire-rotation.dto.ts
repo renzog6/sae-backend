@@ -1,7 +1,7 @@
-//filepath: sae-backend/src/tires/tire-rotations/dto/create-tire-rotation.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
 import { IsInt, IsOptional, IsDate, IsEnum, IsString } from "class-validator";
 import { TirePosition } from "@prisma/client";
+import { Type } from "class-transformer";
 
 export class CreateTireRotationDto {
   @ApiProperty({ example: 1, description: "Tire ID to rotate" })
@@ -51,6 +51,7 @@ export class CreateTireRotationDto {
   })
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   rotationDate?: Date;
 
   @ApiProperty({

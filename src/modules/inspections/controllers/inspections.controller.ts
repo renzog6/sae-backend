@@ -37,7 +37,7 @@ export class InspectionsController extends BaseController<Inspection> {
   }
 
   @Post()
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Create inspection" })
   @ApiBody({ type: CreateInspectionDto })
   @ApiResponse({ status: 201, description: "Inspection created" })
@@ -53,7 +53,7 @@ export class InspectionsController extends BaseController<Inspection> {
   }
 
   @Put(":id")
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Update inspection" })
   @ApiBody({ type: UpdateInspectionDto })
   override update(

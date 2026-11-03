@@ -1,7 +1,7 @@
 // filepath: sae-backend/src/server-files/strategies/employee/employee-file.strategy.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { StorageStrategy } from '../storage-strategy.interface';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '@prisma/prisma.service';
 
 @Injectable()
 export class EmployeeFileStrategy implements StorageStrategy {

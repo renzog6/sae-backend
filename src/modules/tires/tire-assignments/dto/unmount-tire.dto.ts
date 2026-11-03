@@ -1,6 +1,7 @@
-// filepath: sae-backend/src/modules/tires/tire-assignments/dto/unmount-tire.dto.ts
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsOptional, IsString } from "class-validator";
+import { IsInt, IsOptional, IsString, IsEnum, IsDate } from "class-validator";
+import { TireStatus } from "@prisma/client";
+import { Type } from "class-transformer";
 
 export class UnmountTireDto {
   @ApiProperty({
@@ -25,18 +26,19 @@ export class UnmountTireDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  unmountDate?: string;
+  @IsDate()
+  @Type(() => Date)
+  unmountDate?: Date;
 
   @ApiProperty({
-    example: "IN_STOCK",
+    example: TireStatus.IN_STOCK,
     description: "New status for the tire after unmounting",
-    enum: ["IN_STOCK", "UNDER_REPAIR", "RECAP", "DISCARDED"],
+    enum: TireStatus,
     required: false,
   })
   @IsOptional()
-  @IsString()
-  newStatus?: "IN_STOCK" | "UNDER_REPAIR" | "RECAP" | "DISCARDED";
+  @IsEnum(TireStatus)
+  newStatus?: TireStatus;
 
   @ApiProperty({ example: "Unmount due to rotation", required: false })
   @IsOptional()

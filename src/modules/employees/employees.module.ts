@@ -21,4 +21,4 @@ import { EmployeeIncidentService } from "./services/employee-incident.service";
   providers: [EmployeesService, EmployeeIncidentService],
   exports: [EmployeesService, EmployeeIncidentService],
 })
-export class EmployeesModule {}
+export class EmployeesModule { }

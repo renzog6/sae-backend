@@ -15,6 +15,10 @@ export class AddressesService extends BaseService<any> {
     return this.prisma.address;
   }
 
+  protected override async hasDeletedAt(): Promise<boolean> {
+    return false;
+  }
+
   protected buildSearchConditions(q: string) {
     return [
       { street: { contains: q } },
@@ -30,25 +34,16 @@ export class AddressesService extends BaseService<any> {
   // Let's refactor findAll to use super functionality but passing specific includes.
 
   async findAll(
-    query: BaseQueryDto = new BaseQueryDto()
+    query: BaseQueryDto = new BaseQueryDto(),
+    additionalWhere: any = {}
   ): Promise<BaseResponseDto<any>> {
-    // Custom includes for Address
     const include = {
       city: { include: { province: true } },
       company: true,
       person: true,
     };
 
-    // Use super logic but we need to pass search conditions if we don't use 'buildSearchConditions' automatically? 
-    // Wait, BaseService.findAll calls buildSearchConditions internally if 'q' is present.
-    // So we just need to pass 'include' via a method override or arguments?
-    // BaseService.findAll signature: (query, where = {}, include = undefined)
-
-    // We want to preserve specific search fields from original findAll:
-    // street, city.name, postalCode.
-    // My buildSearchConditions above covers this.
-
-    return super.findAll(query, {}, include);
+    return super.findAll(query, additionalWhere, include);
   }
 
   // Custom findOne to include relations

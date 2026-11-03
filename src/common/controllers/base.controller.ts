@@ -51,7 +51,7 @@ import { RolesGuard } from "@common/guards/roles.guard";
  * }
  */
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+// La autenticación es global (APP_GUARD en AppModule): no hace falta repetirla acá.
 @ApiBearerAuth()
 export class BaseController<T> {
   constructor(

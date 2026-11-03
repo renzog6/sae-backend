@@ -47,7 +47,7 @@ export class TiresController extends BaseController<Tire> {
   }
 
   @Put(":id")
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: "Update tire information" })
   @ApiBody({ type: UpdateTireDto })
   @ApiResponse({ status: 200, description: "Tire updated successfully" })

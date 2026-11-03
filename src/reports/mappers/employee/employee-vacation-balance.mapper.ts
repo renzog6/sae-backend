@@ -49,7 +49,7 @@ export class EmployeeVacationBalanceMapper {
       }));
     } catch (error) {
       throw new InternalServerErrorException(
-        `Failed to retrieve employee vacation data: ${error.message}. Please check database connection and try again.`
+        `Failed to retrieve employee vacation data: ${(error as Error).message}. Please check database connection and try again.`
       );
     }
   }

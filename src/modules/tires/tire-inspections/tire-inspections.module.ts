@@ -1,4 +1,3 @@
-//filepath: sae-backend/src/tires/tire-inspections/tire-inspections.module.ts
 import { Module } from "@nestjs/common";
 import { TireInspectionsService } from "./tire-inspections.service";
 import { TireInspectionsController } from "./tire-inspections.controller";
@@ -14,4 +13,4 @@ import { TireAssignmentEventsService } from "@modules/tires/tire-assignments/tir
   ],
   exports: [TireInspectionsService],
 })
-export class TireInspectionsModule {}
+export class TireInspectionsModule { }

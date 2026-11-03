@@ -1,5 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { HistoryLog as PrismaHistoryLog, HistoryType, SeverityLevel } from "@prisma/client";
+import { Employee } from "@modules/employees/entities/employee.entity";
+import { Company } from "@modules/companies/entities/company.entity";
+import { Equipment } from "@modules/equipment/entities/equipment.entity";
+import { Person } from "@modules/persons/entities/person.entity";
 
 export class HistoryLog implements Partial<PrismaHistoryLog> {
     @ApiProperty()
@@ -24,22 +28,24 @@ export class HistoryLog implements Partial<PrismaHistoryLog> {
     eventDate: Date;
 
     @ApiProperty({ required: false })
-    ipAddress?: string;
-
-    @ApiProperty({ required: false })
-    userAgent?: string;
-
-    @ApiProperty({ required: false })
     companyId?: number;
+
+    company?: Company;
 
     @ApiProperty({ required: false })
     personId?: number;
 
+    person?: Person;
+
     @ApiProperty({ required: false })
     employeeId?: number;
 
+    employee?: Employee;
+
     @ApiProperty({ required: false })
     equipmentId?: number;
+
+    equipment?: Equipment;
 
     @ApiProperty({ required: false })
     userId?: number;

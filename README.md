@@ -2,7 +2,7 @@
 
 ## 📋 Descripción
 
-SAE Backend es una **API REST empresarial completa y profesional** desarrollada con **NestJS 10.x** y **Prisma ORM 6.17+** para la gestión integral de un sistema de administración empresarial. El proyecto implementa una arquitectura modular avanzada que abarca desde la gestión de recursos humanos hasta el control especializado de flota vehicular y neumáticos, con énfasis en la **trazabilidad completa**, **auditoría exhaustiva** y **operaciones transaccionales seguras**.
+SAE Backend es una **API REST empresarial completa y profesional** desarrollada con **NestJS 12.x** y **Prisma ORM 6.17+** para la gestión integral de un sistema de administración empresarial. El proyecto implementa una arquitectura modular avanzada que abarca desde la gestión de recursos humanos hasta el control especializado de flota vehicular y neumáticos, con énfasis en la **trazabilidad completa**, **auditoría exhaustiva** y **operaciones transaccionales seguras**.
 
 ### 🎯 Características Principales
 
@@ -27,8 +27,8 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 - **Autor**: Renzo O. Gorosito
 - **Licencia**: MIT
 - **Última Actualización**: Diciembre 2024
-- **Lenguaje**: TypeScript 5.1+ (strict mode)
-- **Framework**: NestJS 10.x con arquitectura modular
+- **Lenguaje**: TypeScript 6.x (strict mode)
+- **Framework**: NestJS 12.x con arquitectura modular
 - **Base de Datos**: MySQL 8.0+ con 50+ modelos
 - **Cobertura Testing**: >80% (objetivo)
 - **Documentación**: 100% endpoints documentados
@@ -41,8 +41,8 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 
 ### 🏗️ Core Framework Empresarial
 
-- **Framework Principal**: NestJS 10.x con arquitectura modular hexagonal
-- **Lenguaje**: TypeScript 5.1+ con configuración estricta (strict mode + noImplicitAny)
+- **Framework Principal**: NestJS 12.x con arquitectura modular hexagonal
+- **Lenguaje**: TypeScript 6.x con configuración estricta (strict mode + noImplicitAny)
 - **Runtime**: Node.js 18+ LTS con ES2022 features
 - **Gestión de Dependencias**: npm 8+ con package-lock.json para reproducibilidad
 - **Compilación**: SWC compiler para builds ultra-rápidos
@@ -75,7 +75,7 @@ SAE Backend es una **API REST empresarial completa y profesional** desarrollada 
 
 - **Documentación API**: Swagger/OpenAPI 7.4+ con UI interactiva completa
 - **Esquemas**: Auto-generados desde DTOs con decoradores @ApiProperty
-- **Testing Framework**: Jest 29+ con configuración dedicada
+- **Testing Framework**: Jest 30+ con configuración dedicada
 - **Cobertura**: Reportes detallados (>80% objetivo: statements, branches, functions, lines)
 - **E2E Testing**: Tests end-to-end con base de datos de prueba aislada
 - **Integration Tests**: Módulos y dependencias entre servicios
@@ -1957,7 +1957,7 @@ npx husky add .husky/pre-commit "npm run lint && npm run test"
 
 ```dockerfile
 # Dockerfile optimizado para producción
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 
 # Instalar dependencias del sistema necesarias
 RUN apk add --no-cache \
