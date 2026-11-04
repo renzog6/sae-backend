@@ -27,6 +27,8 @@
     "prisma:migrate:status": "prisma migrate status",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
+    "backfill:employee-hire-history:dry": "ts-node --transpile-only --project scripts/tsconfig.json scripts/backfill-employee-hire-history.ts --dry-run",
+    "backfill:employee-hire-history": "ts-node --transpile-only --project scripts/tsconfig.json scripts/backfill-employee-hire-history.ts",
     "db:reset": "prisma migrate reset --force",
     "db:setup": "npm run prisma:generate && npm run prisma:migrate && npm run prisma:seed",
     "openapi:export": "npm run build && node scripts/generate-openapi.cjs"
