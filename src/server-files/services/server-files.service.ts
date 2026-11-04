@@ -98,7 +98,9 @@ export class ServerFilesService {
       if (!moved && file?.path && existsSync(file.path)) {
         try {
           unlinkSync(file.path);
-        } catch {}
+        } catch {
+          // Preserve the original upload error when cleanup also fails.
+        }
       }
       throw err;
     }

@@ -43,7 +43,9 @@ const TEMP_UPLOAD_DIR = join(process.cwd(), "storage", "uploads", "temp");
 if (!existsSync(TEMP_UPLOAD_DIR)) {
   try {
     mkdirSync(TEMP_UPLOAD_DIR, { recursive: true });
-  } catch {}
+  } catch {
+    // The upload operation reports a useful error if the directory is unavailable.
+  }
 }
 
 @ApiTags("server-files")

@@ -23,11 +23,13 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
       switch (exception.code) {
         case "P2002":
-          status = HttpStatus.CONFLICT;
-          const field = exception.meta?.target?.[0];
-          message = `Ya existe un registro con este ${field}`;
-          errorDetails = { field, code: "DUPLICATE_ENTRY" };
-          break;
+          {
+            status = HttpStatus.CONFLICT;
+            const field = exception.meta?.target?.[0];
+            message = `Ya existe un registro con este ${field}`;
+            errorDetails = { field, code: "DUPLICATE_ENTRY" };
+            break;
+          }
 
         case "P2003":
           status = HttpStatus.BAD_REQUEST;
