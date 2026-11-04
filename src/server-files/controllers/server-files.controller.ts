@@ -102,12 +102,26 @@ export class ServerFilesController {
   })
   async findAll(
     @Req() req: { user: AuthenticatedUser },
-    @Query("employeeId") employeeId?: string,
-    @Query("companyId") companyId?: string
+    @Query("employeeId") employeeId?: string | string[],
+    @Query("companyId") companyId?: string | string[]
   ) {
+    const parseOptionalId = (value?: string | string[]) => {
+      const rawValue = Array.isArray(value) ? value[0] : value;
+      if (rawValue === undefined || rawValue === "") return undefined;
+
+      const parsedValue = Number(rawValue);
+      if (!Number.isInteger(parsedValue) || parsedValue <= 0) {
+        throw new BadRequestException("El identificador debe ser un entero positivo");
+      }
+
+      return parsedValue;
+    };
+
     const filter: any = {};
-    if (employeeId) filter.employeeId = +employeeId;
-    if (companyId) filter.companyId = +companyId;
+    const parsedEmployeeId = parseOptionalId(employeeId);
+    const parsedCompanyId = parseOptionalId(companyId);
+    if (parsedEmployeeId !== undefined) filter.employeeId = parsedEmployeeId;
+    if (parsedCompanyId !== undefined) filter.companyId = parsedCompanyId;
 
     return this.serverFilesService.findAllForUser(filter, req.user);
   }
