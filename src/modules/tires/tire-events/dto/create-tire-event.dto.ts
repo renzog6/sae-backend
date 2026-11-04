@@ -33,7 +33,7 @@ export class CreateTireEventDto {
   description: string;
 
   @ApiProperty({
-    example: new Date(),
+    example: "2026-01-01T00:00:00.000Z",
     description: "Fecha del evento",
     required: false,
   })

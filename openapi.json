@@ -9200,9 +9200,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Create a new tire size",
@@ -9270,9 +9267,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Get all tire sizes with pagination",
@@ -9310,9 +9304,6 @@
           }
         },
         "security": [
-          {
-            "bearer": []
-          },
           {
             "bearer": []
           }
@@ -9357,9 +9348,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Get item by ID",
@@ -9395,9 +9383,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Delete item (soft delete if applicable)",
@@ -9425,9 +9410,6 @@
           }
         },
         "security": [
-          {
-            "bearer": []
-          },
           {
             "bearer": []
           }
@@ -9467,9 +9449,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Restore soft-deleted item",
@@ -9507,9 +9486,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Permanently delete item",
@@ -9538,9 +9514,6 @@
           }
         },
         "security": [
-          {
-            "bearer": []
-          },
           {
             "bearer": []
           }
@@ -9610,9 +9583,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Get all tire models with pagination",
@@ -9650,9 +9620,6 @@
           }
         },
         "security": [
-          {
-            "bearer": []
-          },
           {
             "bearer": []
           }
@@ -9697,9 +9664,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Get item by ID",
@@ -9733,9 +9697,6 @@
           }
         },
         "security": [
-          {
-            "bearer": []
-          },
           {
             "bearer": []
           }
@@ -9775,9 +9736,6 @@
         "security": [
           {
             "bearer": []
-          },
-          {
-            "bearer": []
           }
         ],
         "summary": "Restore soft-deleted item",
@@ -9813,9 +9771,6 @@
           }
         },
         "security": [
-          {
-            "bearer": []
-          },
           {
             "bearer": []
           }
@@ -13305,7 +13260,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "default": "2026-11-03T14:40:13.560Z"
+            "default": "2026-01-01T00:00:00.000Z"
           },
           "description": {
             "type": "string"
@@ -13336,7 +13291,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "default": "2026-11-03T14:40:13.560Z"
+            "default": "2026-01-01T00:00:00.000Z"
           },
           "description": {
             "type": "string"
@@ -14350,7 +14305,7 @@
           "date": {
             "format": "date-time",
             "type": "string",
-            "example": "2026-11-03T14:40:15.693Z",
+            "example": "2026-01-01T00:00:00.000Z",
             "description": "Fecha del evento"
           },
           "kmAtEvent": {

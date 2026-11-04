@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 
 export class CreateInspectionDto {
-    @ApiProperty({ default: new Date() })
+    @ApiProperty({ default: "2026-01-01T00:00:00.000Z" })
     @IsDate()
     @IsOptional()
     @Type(() => Date)
