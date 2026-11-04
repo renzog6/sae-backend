@@ -119,7 +119,7 @@ JWT_REFRESH_SECRET="tu_clave_refresh_muy_segura_aqui"
 JWT_REFRESH_EXPIRATION=7d
 
 # Servidor
-PORT=3000
+PORT=3305
 API_PREFIX=api
 NODE_ENV=development
 
@@ -159,9 +159,9 @@ npm run start:debug
 
 ### 5. Verificar Instalación
 
-- **API**: http://localhost:3000/api
-- **Documentación Swagger**: http://localhost:3000/api/docs
-- **Health Check**: http://localhost:3000/api/health
+- **API**: http://localhost:3305/api
+- **Documentación Swagger**: http://localhost:3305/api/docs
+- **Health Check**: http://localhost:3305/api/health
 
 ### 6. Testing
 
@@ -417,9 +417,9 @@ src/
 ### Prefijos y Endpoints
 
 - **Prefijo Global**: `/${API_PREFIX}` (por defecto `/api`)
-- **Base URL**: `http://localhost:3000/api`
-- **Documentación Swagger**: `http://localhost:3000/api/docs`
-- **Health Check**: `http://localhost:3000/api/health`
+- **Base URL**: `http://localhost:3305/api`
+- **Documentación Swagger**: `http://localhost:3305/api/docs`
+- **Health Check**: `http://localhost:3305/api/health`
 
 ### Convenciones de API
 
@@ -1282,7 +1282,7 @@ storage/uploads/companies/
 **Subida con cURL (PowerShell):**
 
 ```powershell
-curl.exe -X POST "http://localhost:3000/api/server-files/upload" `
+curl.exe -X POST "http://localhost:3305/api/server-files/upload" `
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." `
   -F "file=@C:\path\to\document.pdf" `
   -F "entityType=EMPLOYEE" `
@@ -1293,7 +1293,7 @@ curl.exe -X POST "http://localhost:3000/api/server-files/upload" `
 **Subida con cURL (Bash):**
 
 ```bash
-curl -X POST "http://localhost:3000/api/server-files/upload" \
+curl -X POST "http://localhost:3305/api/server-files/upload" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -F "file=@/path/to/document.pdf" \
   -F "entityType=COMPANY" \
@@ -1304,7 +1304,7 @@ curl -X POST "http://localhost:3000/api/server-files/upload" \
 **Descarga de archivo:**
 
 ```bash
-curl -X GET "http://localhost:3000/api/server-files/123/download" \
+curl -X GET "http://localhost:3305/api/server-files/123/download" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   --output downloaded_file.pdf
 ```

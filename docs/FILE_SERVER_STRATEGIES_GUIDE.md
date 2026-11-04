@@ -45,7 +45,7 @@ The new module uses the **Strategy Pattern** to decouple file handling logic fro
 
 **Example (cURL)**:
 ```bash
-curl -X POST http://localhost:3000/api/server-files/upload \
+curl -X POST http://localhost:3305/api/server-files/upload \
   -F "file=@/path/to/contract.pdf" \
   -F "entityType=EMPLOYEE" \
   -F "entityId=1" \
