@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseService } from "@common/services/base.service";
 import { BaseResponseDto } from "@common/dto";
@@ -108,35 +108,10 @@ export class EmployeeIncidentService extends BaseService<EmployeeIncident> {
     return this.findAll(query);
   }
 
-  async remove(id: number) {
-    // First, get the incident to create a history log before deleting
-    const incident = await this.prisma.employeeIncident.findUnique({
-      where: { id },
-    });
-
-    if (!incident) {
-      throw new Error("Incident not found");
-    }
-
-    // Delete the incident
-    await this.prisma.employeeIncident.delete({
-      where: { id },
-    });
-
-    // Optionally create a history log for the deletion
-    await this.historyLogService.createLog({
-      title: `Incidente eliminado: ${incident.type}`,
-      description: `Se eliminó el incidente: ${incident.description}`,
-      type: this.mapToHistoryType(incident.type),
-      severity: "WARNING",
-      eventDate: new Date(),
-      employeeId: incident.employeeId,
-      metadata: JSON.stringify({
-        deletedIncidentId: incident.id,
-      }),
-    });
-
-    return { message: "Incident deleted successfully" };
+  async remove(_id: number): Promise<never> {
+    throw new ConflictException(
+      "Employee incidents are historical and cannot be deleted; correct the record instead"
+    );
   }
 
   async update(

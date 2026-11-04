@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateEmployeeVacationDto } from "./dto/create-employee-vacation.dto";
 import { UpdateEmployeeVacationDto } from "./dto/update-employee-vacation.dto";
 import { PrismaService } from "@prisma/prisma.service";
@@ -152,10 +152,10 @@ export class EmployeeVacationsService extends BaseService<EmployeeVacation> {
     return { data: vacation };
   }
 
-  async remove(id: number) {
-    await this.findOne(id);
-    await this.prisma.employeeVacation.delete({ where: { id } });
-    return { message: "Vacation record deleted successfully" };
+  async remove(_id: number): Promise<never> {
+    throw new ConflictException(
+      "Vacation records are historical and cannot be deleted; correct the record instead"
+    );
   }
 
   async generateVacationPdf(id: number): Promise<Buffer> {

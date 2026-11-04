@@ -10,6 +10,8 @@ import { Gender, MaritalStatus, PersonStatus } from "@prisma/client";
 
 @Injectable()
 export class PersonsService extends BaseService<any> {
+  protected override supportsSoftDelete = true;
+
   constructor(prisma: PrismaService) {
     super(prisma);
   }

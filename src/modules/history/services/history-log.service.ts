@@ -7,6 +7,8 @@ import { HistoryLog } from "../entities/history-log.entity";
 
 @Injectable()
 export class HistoryLogService extends BaseService<HistoryLog> {
+  protected override supportsSoftDelete = true;
+
   constructor(protected prisma: PrismaService) {
     super(prisma);
   }

@@ -8,6 +8,8 @@ import { UpdateUnitDto } from "./dto/update-unit.dto";
 
 @Injectable()
 export class UnitsService extends BaseService<any> {
+  protected override supportsSoftDelete = true;
+
   constructor(prisma: PrismaService) {
     super(prisma);
   }

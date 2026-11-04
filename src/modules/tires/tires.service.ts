@@ -9,6 +9,8 @@ import { UpdateTireDto } from "./dto/update-tire.dto";
 
 @Injectable()
 export class TiresService extends BaseService<any> {
+  protected override supportsSoftDelete = true;
+
   constructor(prisma: PrismaService) {
     super(prisma);
   }

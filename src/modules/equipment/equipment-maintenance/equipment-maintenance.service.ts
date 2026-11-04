@@ -9,6 +9,8 @@ import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class EquipmentMaintenanceService extends BaseService<EquipmentMaintenance> {
+  protected override allowDelete = false;
+
   constructor(
     protected prisma: PrismaService,
     private historyLogService: HistoryLogService

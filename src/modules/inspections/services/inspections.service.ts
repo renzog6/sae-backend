@@ -7,6 +7,8 @@ import { Inspection } from "../entities/inspection.entity";
 
 @Injectable()
 export class InspectionsService extends BaseService<Inspection> {
+  protected override supportsSoftDelete = true;
+
   constructor(protected prisma: PrismaService) {
     super(prisma);
   }

@@ -13,6 +13,8 @@ import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UsersService extends BaseService<any> {
+  protected override supportsSoftDelete = true;
+
   constructor(prisma: PrismaService) {
     super(prisma);
   }

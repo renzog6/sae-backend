@@ -13,6 +13,8 @@ import { UpdateEquipmentDto } from "@modules/equipment/dto/update-equipment.dto"
 
 @Injectable()
 export class EquipmentService extends BaseService<Equipment> {
+  protected override supportsSoftDelete = true;
+
   constructor(protected prisma: PrismaService) {
     super(prisma);
   }

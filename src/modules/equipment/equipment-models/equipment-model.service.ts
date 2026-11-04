@@ -8,6 +8,8 @@ import { EquipmentModel } from "./entity/equipment-model.entity";
 
 @Injectable()
 export class EquipmentModelService extends BaseService<EquipmentModel> {
+  protected override supportsSoftDelete = true;
+
   constructor(protected prisma: PrismaService) {
     super(prisma);
   }

@@ -14,6 +14,8 @@ import { EquipmentTransaction } from "./entity/equipment-transaction.entity";
 
 @Injectable()
 export class EquipmentTransactionsService extends BaseService<EquipmentTransaction> {
+  protected override allowDelete = false;
+
   constructor(protected prisma: PrismaService) {
     super(prisma);
   }

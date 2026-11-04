@@ -44,6 +44,8 @@ import { HistoryLogService } from "@modules/history/services/history-log.service
 
 @Injectable()
 export class EmployeesService extends BaseService<any> {
+  protected override supportsSoftDelete = true;
+
   /**
    * Constructs the EmployeesService
    * @param prisma - Prisma service for database operations

@@ -1,5 +1,5 @@
 //filepath: sae-backend/src/tires/tire-rotations/tire-rotations.service.ts
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateTireRotationDto } from "./dto/create-tire-rotation.dto";
 import { UpdateTireRotationDto } from "./dto/update-tire-rotation.dto";
@@ -173,13 +173,9 @@ export class TireRotationsService {
     return { data: rotation };
   }
 
-  async remove(id: number) {
-    // Validar que existe
-    await this.findOne(id);
-
-    await this.prisma.tireRotation.delete({
-      where: { id },
-    });
-    return { message: "Tire rotation deleted successfully" };
+  async remove(_id: number): Promise<never> {
+    throw new ConflictException(
+      "Tire rotations are historical and cannot be deleted; correct the record instead"
+    );
   }
 }

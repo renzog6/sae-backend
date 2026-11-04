@@ -1,5 +1,5 @@
 // filepath: sae-backend/src/common/services/base.service.ts
-import { NotFoundException, Logger } from "@nestjs/common";
+import { ConflictException, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { BaseQueryDto, BaseResponseDto, SingleResponseDto } from "@common/dto";
 /**
@@ -10,38 +10,17 @@ import { BaseQueryDto, BaseResponseDto, SingleResponseDto } from "@common/dto";
  *   el cliente del modelo de prisma (ej: this.prisma.user)
  *
  * Soft delete:
- * - Detecta si existe deletedAt intentando seleccionar el campo (solo la primera vez).
- * - Cachea la detección para evitar introspecciones repetidas.
+ * - Cada servicio declara explícitamente si su modelo soporta soft delete.
  */
 export abstract class BaseService<T extends { id: number | string }> {
   protected readonly logger = new Logger(this.constructor.name);
-  private _hasDeletedAt?: boolean | null = undefined;
+  protected supportsSoftDelete = false;
+  protected allowDelete = true;
 
   constructor(protected readonly prisma: PrismaService) { }
 
   // --- Cada servicio concreto debe devolver el model prisma: e.g. return this.prisma.user;
   protected abstract getModel(): any;
-
-  // --- Introspección (cacheada) para saber si el modelo tiene deletedAt
-  protected async hasDeletedAt(): Promise<boolean> {
-    if (this._hasDeletedAt !== undefined && this._hasDeletedAt !== null) {
-      return this._hasDeletedAt;
-    }
-
-    try {
-      // intentamos hacer un select a deletedAt; si no existe, prisma lanzará
-      await this.getModel().findFirst({
-        select: { deletedAt: true as any },
-        take: 1,
-      });
-      this._hasDeletedAt = true;
-    } catch (err) {
-      // Si falla, asumimos que no existe el campo
-      this._hasDeletedAt = false;
-    }
-
-    return this._hasDeletedAt;
-  }
 
   // --- Default OrderBy (override in concrete services)
   protected getDefaultOrderBy(): any {
@@ -55,13 +34,11 @@ export abstract class BaseService<T extends { id: number | string }> {
     include?: any
   ): Promise<BaseResponseDto<T>> {
     const { skip, take, q, page, limit, deleted } = query;
-    const hasDeletedAt = await this.hasDeletedAt();
-
     // Base where object
     const where: any = { ...additionalWhere };
 
     // Soft delete behavior
-    if (hasDeletedAt) {
+    if (this.supportsSoftDelete) {
       if (deleted === "exclude") {
         where.deletedAt = null;
       } else if (deleted === "only") {
@@ -120,13 +97,11 @@ export abstract class BaseService<T extends { id: number | string }> {
     include?: any,
     { includeDeleted = false } = {}
   ): Promise<SingleResponseDto<T>> {
-    const hasDeletedAt = await this.hasDeletedAt();
-
     const findOptions: any = {
       where: { id },
     };
 
-    if (hasDeletedAt && !includeDeleted) {
+    if (this.supportsSoftDelete && !includeDeleted) {
       findOptions.where.deletedAt = null;
     }
 
@@ -157,10 +132,15 @@ export abstract class BaseService<T extends { id: number | string }> {
 
   // --- Soft delete (si es soportado), o hard delete si no existe deletedAt
   async remove(id: number | string): Promise<{ data?: T; message: string }> {
-    const hasDeletedAt = await this.hasDeletedAt();
+    if (!this.allowDelete) {
+      throw new ConflictException(
+        "Deletion is disabled for this historical resource; use its correction or cancellation workflow"
+      );
+    }
+
     await this.findOne(id); // ensure exists (respects soft delete)
 
-    if (hasDeletedAt) {
+    if (this.supportsSoftDelete) {
       const record = await this.getModel().update({
         where: { id },
         data: { deletedAt: new Date(), isActive: false } as any,
@@ -174,9 +154,7 @@ export abstract class BaseService<T extends { id: number | string }> {
 
   // --- Restore soft-deleted
   async restore(id: number | string): Promise<SingleResponseDto<T>> {
-    const hasDeletedAt = await this.hasDeletedAt();
-
-    if (!hasDeletedAt) {
+    if (!this.supportsSoftDelete) {
       throw new NotFoundException("Restore not supported for this resource");
     }
 
@@ -191,6 +169,12 @@ export abstract class BaseService<T extends { id: number | string }> {
 
   // --- Hard delete explicit
   async hardDelete(id: number | string): Promise<{ message: string }> {
+    if (!this.allowDelete) {
+      throw new ConflictException(
+        "Permanent deletion is disabled for this historical resource"
+      );
+    }
+
     await this.getModel().delete({ where: { id } });
     return { message: "Record permanently deleted" };
   }

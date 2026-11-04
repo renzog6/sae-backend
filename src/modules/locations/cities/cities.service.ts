@@ -15,10 +15,6 @@ export class CitiesService extends BaseService<any> {
     return this.prisma.city;
   }
 
-  protected override async hasDeletedAt(): Promise<boolean> {
-    return false;
-  }
-
   protected buildSearchConditions(q: string) {
     return [{ name: { contains: q } }, { postalCode: { contains: q } }];
   }

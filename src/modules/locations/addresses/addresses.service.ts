@@ -15,10 +15,6 @@ export class AddressesService extends BaseService<any> {
     return this.prisma.address;
   }
 
-  protected override async hasDeletedAt(): Promise<boolean> {
-    return false;
-  }
-
   protected buildSearchConditions(q: string) {
     return [
       { street: { contains: q } },
@@ -144,7 +140,7 @@ export class AddressesService extends BaseService<any> {
     // BaseService.remove() is usually SOFT DELETE if model supports it, or generic.
     // Let's assume strict parity: original used `delete`.
     // If I switch to super.remove(), check if Address has soft delete?
-    // BaseService: `if (this.hasDeletedAt()) ... else delete`.
+    // BaseService uses the explicit soft-delete capability of each service.
     // Address likely doesn't have deletedAt? `addresses.service.ts` didn't show it.
     // So super.remove() will likely do `delete`.
     // I'll stick to super.remove() for standard behavior.

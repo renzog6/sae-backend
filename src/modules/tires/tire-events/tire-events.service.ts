@@ -9,6 +9,8 @@ import { TireEventType } from "@prisma/client";
 
 @Injectable()
 export class TireEventsService extends BaseService<any> {
+  protected override allowDelete = false;
+
   constructor(protected prisma: PrismaService) {
     super(prisma);
   }

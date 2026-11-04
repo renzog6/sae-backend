@@ -15,10 +15,6 @@ export class ProvincesService extends BaseService<any> {
     return this.prisma.province;
   }
 
-  protected override async hasDeletedAt(): Promise<boolean> {
-    return false;
-  }
-
   protected buildSearchConditions(q: string) {
     return [{ name: { contains: q } }, { code: { contains: q } }];
   }

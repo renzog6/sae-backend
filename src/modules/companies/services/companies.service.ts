@@ -9,6 +9,8 @@ import { UpdateCompanyDto } from "../dto/update-company.dto";
 
 @Injectable()
 export class CompaniesService extends BaseService<any> {
+  protected override supportsSoftDelete = true;
+
   constructor(prisma: PrismaService) {
     super(prisma);
   }

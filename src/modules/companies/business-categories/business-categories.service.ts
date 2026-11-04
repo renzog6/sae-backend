@@ -7,6 +7,8 @@ import { BaseQueryDto, BaseResponseDto } from "@common/dto";
 
 @Injectable()
 export class BusinessCategoriesService extends BaseService<any> {
+  protected override supportsSoftDelete = true;
+
   constructor(prisma: PrismaService) {
     super(prisma);
   }
