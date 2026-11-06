@@ -3,6 +3,7 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Param,
   Body,
   UploadedFile,
@@ -26,6 +27,7 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiForbiddenResponse,
 } from "@nestjs/swagger";
 import { diskStorage } from "multer";
 import { extname, join, isAbsolute } from "path";
@@ -35,7 +37,12 @@ import { ServerFilesService } from "../services/server-files.service";
 import { AuthenticatedUser } from "../services/server-files.service";
 import { StorageFactory } from "../factory/storage.factory";
 import { UploadFileDto } from "../dto/upload-file.dto";
-import { ALLOWED_MIME_TYPES, ALLOWED_EXTENSIONS, MAX_FILE_SIZE_BYTES } from "../constants/allowed-file-types";
+import { Roles, Role } from "@common/decorators/roles.decorator";
+import {
+  ALLOWED_MIME_TYPES,
+  ALLOWED_EXTENSIONS,
+  MAX_FILE_SIZE_BYTES,
+} from "../constants/allowed-file-types";
 
 const TEMP_UPLOAD_DIR = join(process.cwd(), "storage", "uploads", "temp");
 
@@ -53,7 +60,7 @@ if (!existsSync(TEMP_UPLOAD_DIR)) {
 export class ServerFilesController {
   constructor(
     private readonly serverFilesService: ServerFilesService,
-    private readonly storageFactory: StorageFactory
+    private readonly storageFactory: StorageFactory,
   ) {}
 
   @Get()
@@ -103,7 +110,7 @@ export class ServerFilesController {
   async findAll(
     @Req() req: { user: AuthenticatedUser },
     @Query("employeeId") employeeId?: string | string[],
-    @Query("companyId") companyId?: string | string[]
+    @Query("companyId") companyId?: string | string[],
   ) {
     const parseOptionalId = (value?: string | string[]) => {
       const rawValue = Array.isArray(value) ? value[0] : value;
@@ -111,7 +118,9 @@ export class ServerFilesController {
 
       const parsedValue = Number(rawValue);
       if (!Number.isInteger(parsedValue) || parsedValue <= 0) {
-        throw new BadRequestException("El identificador debe ser un entero positivo");
+        throw new BadRequestException(
+          "El identificador debe ser un entero positivo",
+        );
       }
 
       return parsedValue;
@@ -124,6 +133,17 @@ export class ServerFilesController {
     if (parsedCompanyId !== undefined) filter.companyId = parsedCompanyId;
 
     return this.serverFilesService.findAllForUser(filter, req.user);
+  }
+
+  @Get("audit")
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: "List document audit events",
+    description: "Lists administrative document events. Restricted to admins.",
+  })
+  @ApiOkResponse({ description: "Document audit events" })
+  async findDocumentAuditLog(@Req() req: { user: AuthenticatedUser }) {
+    return this.serverFilesService.findDocumentAuditLog(req.user);
   }
 
   @Post("upload")
@@ -178,25 +198,29 @@ export class ServerFilesController {
       },
       fileFilter: (req, file, cb) => {
         const ext = extname(file.originalname || "").toLowerCase();
-        const isMimeAllowed = (ALLOWED_MIME_TYPES as readonly string[]).includes(file.mimetype);
-        const isExtAllowed = (ALLOWED_EXTENSIONS as readonly string[]).includes(ext);
+        const isMimeAllowed = (
+          ALLOWED_MIME_TYPES as readonly string[]
+        ).includes(file.mimetype);
+        const isExtAllowed = (ALLOWED_EXTENSIONS as readonly string[]).includes(
+          ext,
+        );
 
         if (!isMimeAllowed || !isExtAllowed) {
           return cb(
             new BadRequestException(
               `Tipo de archivo no permitido: '${file.originalname}' (${file.mimetype}). ` +
-                `Formatos permitidos: imágenes (JPG, PNG, WebP, GIF), PDFs y documentos de oficina (Word, Excel, CSV, TXT).`
+                `Formatos permitidos: imágenes (JPG, PNG, WebP, GIF), PDFs y documentos de oficina (Word, Excel, CSV, TXT).`,
             ),
-            false
+            false,
           );
         }
         cb(null, true);
       },
-    })
+    }),
   )
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: UploadFileDto
+    @Body() body: UploadFileDto,
   ) {
     if (!file) {
       throw new BadRequestException("El archivo es obligatorio");
@@ -206,7 +230,7 @@ export class ServerFilesController {
       file,
       body.entityId,
       strategy,
-      body.description
+      body.description,
     );
   }
 
@@ -233,7 +257,7 @@ export class ServerFilesController {
   async download(
     @Param("id", ParseIntPipe) id: number,
     @Req() req: { user: AuthenticatedUser },
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     // findOneForUser valida que el archivo pertenezca a la empresa del usuario
     const doc = await this.serverFilesService.findOneForUser(id, req.user);
@@ -246,5 +270,28 @@ export class ServerFilesController {
     }
 
     return res.download(filePath, doc.data.filename);
+  }
+
+  @Delete(":id")
+  @ApiOperation({
+    summary: "Soft-delete a file",
+    description:
+      "Marks a file as deleted without removing it from physical storage.",
+  })
+  @ApiParam({
+    name: "id",
+    type: "number",
+    description: "Unique identifier of the file to delete",
+  })
+  @ApiOkResponse({ description: "File marked as deleted" })
+  @ApiNotFoundResponse({ description: "File not found or already deleted" })
+  @ApiForbiddenResponse({
+    description: "The user does not have access to the file's company",
+  })
+  async remove(
+    @Param("id", ParseIntPipe) id: number,
+    @Req() req: { user: AuthenticatedUser },
+  ) {
+    return this.serverFilesService.softDeleteForUser(id, req.user);
   }
 }

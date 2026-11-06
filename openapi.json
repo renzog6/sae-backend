@@ -8985,19 +8985,19 @@
         "operationId": "ServerFilesController_findAll",
         "parameters": [
           {
-            "name": "employeeId",
+            "name": "companyId",
             "required": false,
             "in": "query",
-            "description": "Filter files by employee ID",
+            "description": "Filter files by company ID",
             "schema": {
               "type": "number"
             }
           },
           {
-            "name": "companyId",
+            "name": "employeeId",
             "required": false,
             "in": "query",
-            "description": "Filter files by company ID",
+            "description": "Filter files by employee ID",
             "schema": {
               "type": "number"
             }
@@ -9059,6 +9059,22 @@
           }
         },
         "summary": "Get all server files",
+        "tags": [
+          "server-files"
+        ]
+      }
+    },
+    "/api/server-files/audit": {
+      "get": {
+        "description": "Lists administrative document events. Restricted to admins.",
+        "operationId": "ServerFilesController_findDocumentAuditLog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Document audit events"
+          }
+        },
+        "summary": "List document audit events",
         "tags": [
           "server-files"
         ]
@@ -9173,6 +9189,38 @@
           }
         },
         "summary": "Download a file",
+        "tags": [
+          "server-files"
+        ]
+      }
+    },
+    "/api/server-files/{id}": {
+      "delete": {
+        "description": "Marks a file as deleted without removing it from physical storage.",
+        "operationId": "ServerFilesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique identifier of the file to delete",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File marked as deleted"
+          },
+          "403": {
+            "description": "The user does not have access to the file's company"
+          },
+          "404": {
+            "description": "File not found or already deleted"
+          }
+        },
+        "summary": "Soft-delete a file",
         "tags": [
           "server-files"
         ]

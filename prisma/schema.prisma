@@ -439,6 +439,29 @@ model ServerFile {
   @@map("server_files")
 }
 
+model DocumentAuditLog {
+  id           Int                 @id @default(autoincrement())
+  action       DocumentAuditAction
+  serverFileId Int
+  filename     String
+  mimetype     String
+  size         Int
+  description  String?
+  employeeId   Int?
+  companyId    Int?
+  eventDate    DateTime            @default(now())
+
+  @@index([serverFileId])
+  @@index([employeeId])
+  @@index([companyId])
+  @@index([eventDate])
+  @@map("document_audit_logs")
+}
+
+enum DocumentAuditAction {
+  LOGICAL_DELETE
+}
+
 // Inspection related models
 /// Soft delete enabled: added isActive + deletedAt
 model Inspection {

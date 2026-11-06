@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { StorageStrategy } from "../strategies/storage-strategy.interface";
@@ -33,7 +34,7 @@ export class ServerFilesService {
     file: Express.Multer.File,
     entityId: number,
     strategy: StorageStrategy,
-    description?: string
+    description?: string,
   ) {
     if (!file) {
       throw new BadRequestException("El archivo es obligatorio");
@@ -68,7 +69,9 @@ export class ServerFilesService {
           unlinkSync(file.path);
           moved = true;
         } catch (e) {
-          throw new InternalServerErrorException("Failed to move uploaded file");
+          throw new InternalServerErrorException(
+            "Failed to move uploaded file",
+          );
         }
       }
 
@@ -143,6 +146,10 @@ export class ServerFilesService {
    */
   async findOneForUser(id: number, user: AuthenticatedUser) {
     const { data: doc } = await this.findOne(id);
+    if (!doc.isActive || doc.deletedAt != null) {
+      throw new NotFoundException("File not found");
+    }
+
     if (user.role === "ADMIN") return { data: doc };
 
     const ownerCompanyId = await this.resolveOwnerCompanyId(doc);
@@ -151,6 +158,49 @@ export class ServerFilesService {
     }
 
     return { data: doc };
+  }
+
+  async softDeleteForUser(id: number, user: AuthenticatedUser) {
+    const { data: doc } = await this.findOneForUser(id, user);
+    return this.prisma.$transaction(async (tx) => {
+      const deletedAt = new Date();
+      const updateResult = await tx.serverFile.updateMany({
+        where: { id, isActive: true, deletedAt: null },
+        data: { isActive: false, deletedAt },
+      });
+
+      if (updateResult.count === 0) {
+        throw new NotFoundException("File not found or already deleted");
+      }
+
+      await tx.documentAuditLog.create({
+        data: {
+          action: "LOGICAL_DELETE",
+          serverFileId: doc.id,
+          filename: doc.filename,
+          mimetype: doc.mimetype,
+          size: doc.size,
+          description: doc.description,
+          eventDate: deletedAt,
+          employeeId: doc.employeeId,
+          companyId: doc.companyId,
+        },
+      });
+
+      return { message: "File marked as deleted" };
+    });
+  }
+
+  async findDocumentAuditLog(user: AuthenticatedUser) {
+    if (user.role !== "ADMIN") {
+      throw new ForbiddenException(
+        "Solo administradores pueden consultar la auditoría",
+      );
+    }
+
+    return this.prisma.documentAuditLog.findMany({
+      orderBy: { eventDate: "desc" },
+    });
   }
 
   async findAll(filter?: { employeeId?: number; companyId?: number }) {
@@ -181,7 +231,7 @@ export class ServerFilesService {
    */
   async findAllForUser(
     filter: { employeeId?: number; companyId?: number } | undefined,
-    user: AuthenticatedUser
+    user: AuthenticatedUser,
   ) {
     if (user.role === "ADMIN") return this.findAll(filter);
 
